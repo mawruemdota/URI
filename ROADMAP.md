@@ -1,11 +1,11 @@
 # URI Product Roadmap
 
 ## Stage 1 — UI/UX polish (in progress)
-- [ ] Responsive navigation and mobile usability
-- [ ] Clear wizard validation, optional fields, and progress feedback
+- [x] Responsive navigation improvements (browser QA pending)
+- [x] Wizard validation, draft recovery, progress and live preview (browser QA pending)
 - [ ] Consistent editor, templates, dashboard, and empty states
 - [ ] Better invitation previews and reusable visual components
-- [ ] Accessible controls and user testing
+- [ ] Complete accessibility checks and end-to-end browser testing
 
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
