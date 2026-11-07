@@ -5,19 +5,21 @@ TEMPLATES.splice(0,TEMPLATES.length,
  {id:'classic',name:'Romantic Botanical',desc:'Ivory · floral · photo-led split layout',bg:'#f6f0e8',ink:'#49483d'},
  {id:'garden',name:'Minimalist Editorial',desc:'White · handwritten · structured columns',bg:'#fff',ink:'#272727'});
 const features=[
- ['hero','Hero photograph','Main couple photo and introduction'],
- ['details','Wedding details','Date, time and venue'],
- ['countdown','Countdown','Days, hours and minutes until the event'],
- ['gallery','Photo carousel / gallery','Add and remove photographs'],
- ['monogram','Monogram','Couple initials in a styled emblem'],
- ['timeline','Event timeline','Ceremony, reception and other moments'],
- ['dress','Dress code','Attire and color guidance'],
- ['gifts','Gift information','Optional gift message'],
- ['message','Personal message','Your invitation message'],
+ ['hero','Welcome / Hero','Main wedding photograph and introduction'],
+ ['story','Our Story','Personal message about the couple'],
+ ['gallery','Photo Gallery','Carousel with editable photographs'],
+ ['countdown','Wedding Countdown','Days, hours and minutes'],
+ ['details','Event Details','Date, time and venue'],
+ ['timeline','Event Timeline','Wedding schedule'],
+ ['dress','Dress Code','Attire and color guidance'],
+ ['gifts','Gift Registry','Gift message or registry information'],
  ['rsvp','RSVP','Guest response information']
 ];
-function cfg(e){if(!e.featureConfig)e.featureConfig={};if(!Array.isArray(e.photos))e.photos=[];return e.featureConfig}
-function on(e,id){let c=cfg(e);return c[id]!==false}
+const FEATURE_IDS=features.map(x=>x[0]);
+const FEATURE_DEFAULTS={hero:true,story:true,gallery:true,countdown:true,details:true,timeline:true,dress:false,gifts:false,rsvp:true};
+function cfg(e){if(!e.featureConfig)e.featureConfig={};if(!Array.isArray(e.photos))e.photos=[];if(!Array.isArray(e.featureOrder)){e.featureOrder=FEATURE_IDS.slice()}else{e.featureOrder=[...new Set(e.featureOrder.filter(id=>FEATURE_IDS.includes(id))),...FEATURE_IDS.filter(id=>!e.featureOrder.includes(id))]}return e.featureConfig}
+function on(e,id){let c=cfg(e);return typeof c[id]==='boolean'?c[id]:FEATURE_DEFAULTS[id]===true}
+function ordered(e){cfg(e);return e.featureOrder.filter(id=>on(e,id))}
 function initials(e){return ((e.name1||'Y').trim()[0]||'Y').toUpperCase()+' ♡ '+((e.name2||'Y').trim()[0]||'Y').toUpperCase()}
 function img(src){return src?'<img src="'+esc(src)+'" alt="Wedding photograph">':''}
 function pic(src,extra){return '<div class="ws-photo '+(extra||'')+'">'+img(src)+'</div>'}
@@ -30,14 +32,14 @@ if(id==='monogram')out='<h3 class="ws-section-title">Together</h3><div class="ws
 if(id==='timeline'){let rows=(c.timeline||'2:00 PM | Ceremony\n4:00 PM | Reception\n6:00 PM | Dinner').split('\n').filter(Boolean);out='<h3 class="ws-section-title">The Timeline</h3><div class="ws-timeline">'+rows.map(x=>{let z=x.split('|');return '<div class="ws-timeline-item"><strong>'+esc((z[0]||'').trim())+'</strong><span>'+esc((z.slice(1).join('|')||'').trim())+'</span></div>'}).join('')+'</div>'}
 if(id==='dress')out='<h3 class="ws-section-title">Dress Code</h3><div class="ws-detail">'+esc(c.dress||'Formal attire · Earth tones and neutrals')+'</div>';
 if(id==='gifts')out='<h3 class="ws-section-title">Gifts</h3><div class="ws-detail">'+esc(c.gifts||'Your presence is our greatest gift.')+'</div>';
-if(id==='message')out='<h3 class="ws-section-title">A Note from Us</h3><div class="ws-detail">'+esc(e.message||'We cannot wait to celebrate with you.')+'</div>';
+if(id==='story')out='<h3 class="ws-section-title">Our Story</h3><div class="ws-detail">'+esc(e.message||'We cannot wait to celebrate with you.')+'</div>';
 if(id==='rsvp')out='<h3 class="ws-section-title">RSVP</h3><div class="ws-rsvp">We hope you can join us. '+(e.deadline?'Kindly reply by '+esc(fmt(e.deadline))+'.':'Please let us know if you can attend.')+'<p style="font-size:10px">Guests respond through their personalized invitation links.</p></div>';
 return '<section class="ws-section ws-feature" data-feature="'+id+'">'+out+'</section>'}
-function weddingInv(e){cfg(e);let botanical=e.template!=='garden',head=botanical?
- '<div class="ws-hero">'+pic(on(e,'hero')?e.heroPhoto:'')+'<div class="ws-hero-content"><div class="ws-eyebrow">We joyfully invite you to the wedding of</div><div class="ws-names">'+esc(e.name1||'Your Name')+'<em>and</em>'+esc(e.name2||'Partner Name')+'</div><div class="ws-date">'+esc(fmt(e.date))+'</div><div class="ws-eyebrow">SAVE THE DATE</div>'+(on(e,'countdown')?count(e):'')+'</div></div>':
- '<div class="ws-cover">'+pic(on(e,'hero')?e.heroPhoto:'')+'<div class="ws-cover-text">'+(on(e,'monogram')?'<div class="ws-monogram">'+esc(initials(e))+'</div>':'')+'<div class="ws-names">'+esc(e.name1||'Your Name')+' &amp; '+esc(e.name2||'Partner Name')+'</div><div class="ws-date">'+esc(fmt(e.date))+'</div><div class="ws-eyebrow">'+esc(e.venue||'Wedding celebration')+'</div></div></div>';
-let ids=['details','gallery','monogram','timeline','dress','gifts','message','rsvp'];if(!botanical)ids=['details','timeline','gallery','countdown','dress','gifts','message','rsvp'];if(botanical)ids=ids.filter(x=>x!=='monogram'||on(e,'monogram'));let content=ids.filter(id=>on(e,id)).map(id=>section(e,id)).join('');
-return '<article class="wedding-site '+(botanical?'ws-botanical':'ws-editorial')+'">'+head+'<div class="ws-main">'+content+'</div></article>'}
+function heroSection(e,botanical){let head=botanical?
+ '<div class="ws-hero">'+pic(e.heroPhoto)+'<div class="ws-hero-content"><div class="ws-eyebrow">We joyfully invite you to the wedding of</div><div class="ws-names">'+esc(e.name1||'Your Name')+'<em>and</em>'+esc(e.name2||'Partner Name')+'</div><div class="ws-date">'+esc(fmt(e.date))+'</div><div class="ws-eyebrow">SAVE THE DATE</div></div></div>':
+ '<div class="ws-cover">'+pic(e.heroPhoto)+'<div class="ws-cover-text"><div class="ws-monogram">'+esc(initials(e))+'</div><div class="ws-names">'+esc(e.name1||'Your Name')+' &amp; '+esc(e.name2||'Partner Name')+'</div><div class="ws-date">'+esc(fmt(e.date))+'</div><div class="ws-eyebrow">'+esc(e.venue||'Wedding celebration')+'</div></div></div>';
+return '<section class="ws-hero-section ws-feature" data-feature="hero">'+head+'</section>'}
+function weddingInv(e){cfg(e);let botanical=e.template!=='garden',ids=ordered(e),blocks=ids.map(id=>id==='hero'?heroSection(e,botanical):section(e,id)).join('');return '<article class="wedding-site '+(botanical?'ws-botanical':'ws-editorial')+'"><div class="ws-main">'+blocks+'</div></article>'}
 inv=function(e){return e&&e.type==='Wedding'?weddingInv(e):oldInv(e)};
 templateThumb=function(t){return t.id==='garden'?'<div class="template-preview ws-editorial-thumb"><div class="thumb-photo"></div><div class="thumb-copy"><small>THE WEDDING OF</small><strong>Jocelyn<br>& Richard</strong><small>THE DETAILS · TIMELINE</small></div></div>':'<div class="template-preview ws-botanical-thumb"><div class="thumb-photo"></div><div class="thumb-copy"><span>❧</span><small>WE JOYFULLY INVITE YOU</small><strong>Maya<br>& Emir</strong><small>SAVE THE DATE</small></div></div>'};
 window.uriWeddingFeatures=features;window.uriCarouselMove=function(btn,delta){let root=btn.closest('.ws-carousel');if(!root)return;let imgs=Array.from(root.querySelectorAll('.ws-carousel-data span')).map(el=>el.getAttribute('data-photo'));if(!imgs.length)return;let index=((Number(root.dataset.index)||0)+delta+imgs.length)%imgs.length;root.dataset.index=index;root.querySelector('.ws-carousel-frame img').src=imgs[index];root.querySelector('.ws-carousel-status').textContent=(index+1)+' / '+imgs.length};
@@ -50,7 +52,8 @@ window.uriRemovePhoto=function(i){let e=current();if(!e)return;e.photos.splice(i
 window.uriClearHero=function(){let e=current();if(!e)return;e.heroPhoto='';save();eventPage()};
 window.refreshWeddingPreview=function(){let e=current(),node=document.getElementById('weddingPreview');if(e&&node)node.innerHTML=inv(e)};
 function textfield(k,label,type='text'){let e=current();return '<div class="field"><label>'+label+'</label><input type="'+type+'" value="'+esc(e[k]||'')+'" oninput="editEvent(\''+k+'\',this.value);refreshWeddingPreview()"></div>'}
-function featureManager(e){let c=cfg(e);return '<div class="ws-feature-manager"><h3>Feature Manager</h3><p style="font-size:12px">Enable any section. Switching templates keeps your content and settings.</p>'+features.map(([id,name,desc])=>'<div class="ws-feature-row"><label><input type="checkbox" '+(on(e,id)?'checked':'')+' onchange="uriFeatureToggle(\''+id+'\',this.checked)"><span>'+name+'<br><small>'+desc+'</small></span></label></div>').join('')+'</div>'}
+window.uriFeatureMove=function(id,delta){let e=current();if(!e)return;cfg(e);let i=e.featureOrder.indexOf(id),j=i+delta;if(j<0||j>=e.featureOrder.length)return;[e.featureOrder[i],e.featureOrder[j]]=[e.featureOrder[j],e.featureOrder[i]];save();eventPage()};
+function featureManager(e){cfg(e);return '<div class="ws-feature-manager"><h3>Feature Manager</h3><p style="font-size:12px">Choose which sections appear and move them up or down. Your order and visibility are saved per event, and work in both templates.</p><div class="ws-feature-list">'+e.featureOrder.map((id,i)=>{let f=features.find(x=>x[0]===id);return '<div class="ws-feature-row"><label><input type="checkbox" aria-label="Show '+f[1]+'" '+(on(e,id)?'checked':'')+' onchange="uriFeatureToggle(\''+id+'\',this.checked)"><span>'+f[1]+'<br><small>'+f[2]+'</small></span></label><div class="ws-feature-actions"><button type="button" class="btn small" aria-label="Move '+f[1]+' up" '+(i===0?'disabled':'')+' onclick="uriFeatureMove(\''+id+'\',-1)">↑</button><button type="button" class="btn small" aria-label="Move '+f[1]+' down" '+(i===e.featureOrder.length-1?'disabled':'')+' onclick="uriFeatureMove(\''+id+'\',1)">↓</button></div></div>'}).join('')+'</div></div>'}
 function weddingEditor(e){let c=cfg(e);return '<h2>Wedding Invitation Editor</h2><p>All features are available in both wedding designs. Changes save in this browser.</p><div class="panel"><h3>Wedding details</h3><div class="ws-edit-grid">'+textfield('name1','First partner')+textfield('name2','Second partner')+textfield('date','Date','date')+textfield('time','Time','time')+textfield('venue','Venue')+textfield('address','Address')+textfield('deadline','RSVP deadline','date')+'</div><div class="field"><label>Invitation message</label><textarea oninput="editEvent(\'message\',this.value);refreshWeddingPreview()">'+esc(e.message||'')+'</textarea></div><div class="field"><label>Design</label><select onchange="editEvent(\'template\',this.value);eventPage()">'+TEMPLATES.map(t=>'<option value="'+t.id+'" '+(t.id===e.template?'selected':'')+'>'+t.name+'</option>').join('')+'</select></div></div>'+featureManager(e)+'<div class="panel"><h3>Photos</h3><p>Photos are compressed and stored locally for testing. Maximum six gallery photos.</p><label class="ws-upload">Couple photo <input type="file" accept="image/*" onchange="uriSetPhoto(event,\'hero\')"></label>'+(e.heroPhoto?'<button class="btn small" onclick="uriClearHero()">Remove couple photo</button>':'')+'<label class="ws-upload">Add gallery photos <input type="file" accept="image/*" onchange="uriSetPhoto(event,\'gallery\')"></label><div class="ws-gallery-manager">'+e.photos.map((x,i)=>'<div><img src="'+esc(x)+'" alt="Gallery photo"><button class="btn small" onclick="uriRemovePhoto('+i+')">Remove</button></div>').join('')+'</div></div><div class="panel" style="margin-top:16px"><h3>Section content</h3><div class="field"><label>Timeline (one per line: time | activity)</label><textarea oninput="uriFeatureText(\'timeline\',this.value)">'+esc(c.timeline||'2:00 PM | Ceremony\n4:00 PM | Reception\n6:00 PM | Dinner')+'</textarea></div><div class="field"><label>Dress code</label><textarea oninput="uriFeatureText(\'dress\',this.value)">'+esc(c.dress||'Formal attire · Earth tones and neutrals')+'</textarea></div><div class="field"><label>Gift message</label><textarea oninput="uriFeatureText(\'gifts\',this.value)">'+esc(c.gifts||'Your presence is our greatest gift.')+'</textarea></div></div><h3 style="margin-top:25px">Live invitation preview</h3><div class="ws-full-preview" id="weddingPreview">'+inv(e)+'</div><div class="banner notice">Prototype limitation: photos and settings stay in this browser. The RSVP page remains a separate local test link; this preview is not a published guest website.</div>'}
 window.uriWeddingEditor=weddingEditor;
 const originalEventPage=eventPage;
