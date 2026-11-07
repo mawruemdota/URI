@@ -1,38 +1,52 @@
 # URI — You Are Invited
 
-Interactive browser-based prototype for a digital invitation builder.
+URI is a responsive digital invitation and RSVP **prototype**, currently focused on a modular wedding website builder.
 
-## Test locally
-Open `index.html` in a browser, or serve the repository with any static web server.
+## Run and test
 
-## Publish with GitHub Pages
-In the repository, open **Settings → Pages → Build and deployment**. Select **Deploy from a branch**, branch **main**, folder **/(root)**, then save. Once GitHub completes deployment, the site will appear at `https://mawruemdota.github.io/URI/`.
+Open the live site when GitHub Pages is enabled: **https://mawruemdota.github.io/URI/**.
 
-## Current features
-- Responsive landing page and template gallery
-- Six-step invitation creation wizard
-- Multiple locally saved events
-- Invitation editor with live preview
-- Local guest list management
-- Personalized test invitation links and RSVP response buttons
-- RSVP counts and dashboard
-- Local publish/unpublish status
+To run it locally, serve the repository root with a static web server, e.g. `python -m http.server 8000`, then open `http://localhost:8000`.
 
-## Prototype limitations
-This is **not a production application**. Data is saved in browser localStorage, not a shared database. Guest links only work where the event data exists. There is no authentication, backend authorization, actual invitation delivery, secure token management, payments, or cross-device persistence. Do not use for real guest personal information. GitHub Pages hosts static files only.
+## Wedding template collection
 
-## Next development phase
-Connect real authentication, database, private invitation tokens, media storage, server-validated RSVP flows, and payment infrastructure before inviting real guests.
+Two wedding styles inspired by the owner's supplied visual references:
 
-## Wedding templates (prototype)
-The current wedding collection includes two distinct responsive designs based on user-supplied visual references:
-1. **Romantic Botanical** — warm ivory, botanical accents, a large portrait column and elegant serif typography.
-2. **Minimalist Editorial** — black and white, a monogram, handwritten typography, horizontal editorial columns and a timeline.
+- **Romantic Botanical** — warm ivory, botanical decoration, portrait/photo column, elegant Cormorant Garamond typography.
+- **Minimalist Editorial** — black-and-white editorial columns, couple's monogram, handwriting-inspired Allura heading style, structured boxes.
 
-### Shared Feature Manager
-In **My Events → Manage event → Edit invitation**, enable or disable the same features in either template: hero photograph, event details, countdown, photo carousel, monogram, timeline, dress code, gifts, personal message and RSVP information. Edit names, date, venue, timeline, dress code, gifts, and photos. Switching templates retains feature data. The photo carousel supports up to six locally stored images with previous/next controls.
+Both styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
 
-**Limitations:** Image uploads are resized and stored in localStorage; browser storage limits apply. No cloud gallery, authenticated guest access, server RSVP, or production publish pipeline exists yet. The reference imagery is not bundled in the repository; users upload their own images.
+## Wedding Builder: six upgrades
 
-### Feature ordering and visibility
-The wedding editor now provides up/down controls and visibility checkboxes for nine shared features. The default order is: Welcome / Hero, Our Story, Photo Gallery, Wedding Countdown, Event Details, Event Timeline, Dress Code (off), Gift Registry (off), RSVP. The feature order and visibility are stored per event in browser localStorage, and the same settings are used when switching wedding templates. Existing wedding events receive the new order automatically if they have no saved feature order. This is a prototype implementation; browser and device testing is still required.
+1. **Feature Manager 2.0:** enable/disable sections, move up/down, and drag on desktop. The default order is Welcome / Hero, Our Story, Photo Gallery, Wedding Countdown, Event Details, Event Timeline, Dress Code (off), Gift Registry (off), RSVP.
+2. **Layout variants:** every feature has multiple presentation choices. Variant preferences are stored separately per template.
+3. **Photo Manager:** upload, replace, remove, rearrange, select landscape/square/portrait crop format, choose focal point and alt text; eight-photo gallery limit in the browser prototype.
+4. **Design Manager:** independently customize each template's background, text and accent colors; choose heading and body fonts and section spacing.
+5. **Modular template renderer:** shared feature data and separate template styling; responsive live desktop/mobile previews.
+6. **Optional cloud publishing integration:** Supabase table/schema with RLS, email magic-link authentication, media storage, public invitation pages, publish/update/unpublish. **It is not active until you configure a Supabase project.**
+
+## Other existing prototype functionality
+
+- Responsive homepage and six-step invitation creation wizard
+- Event dashboard with multiple locally stored invitations
+- Local guest list and same-browser RSVP test links and counts
+- Browser-based autosave and draft recovery in the wizard
+
+## Where to edit
+
+- `index.html` — entrypoint, homepage, wizard, router and legacy dashboard
+- `wedding.css`, `wedding.js` — existing wedding compatibility layer
+- `builder-core.js`, `builder.css` — reusable wedding engine and styling
+- `builder-editor.js` — Content, Features, Design and Publish controls
+- `builder-photos.js` — local photo uploads and image editing controls
+- `cloud-config.js` — **public** Supabase URL/key placeholder
+- `cloud.js` — optional cloud publishing and public URL loading
+- `supabase/schema.sql` and `supabase/SETUP.md` — database setup and security guidance
+- `ROADMAP.md` — development milestones
+
+## Critical limitations
+
+**Not production-ready.** Local drafts and guest RSVP data stay in the current browser. Personalized guest links do not work across devices. The optional cloud layer publishes a **public snapshot** of the wedding website only: guest lists are omitted, and public photo files are stored in a public bucket. Real cross-device RSVP, secure guest tokens, private event visibility, payments, cloud-synced drafts, security testing and production data management are future milestones.
+
+Never commit a service_role/secret key, API private key, personal token, or database password to this public repository.
