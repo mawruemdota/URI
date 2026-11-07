@@ -19,7 +19,7 @@ alter table public.uri_publications enable row level security;
 revoke all on table public.uri_publications from anon, authenticated;
 grant select on public.uri_publications to anon, authenticated;
 grant insert (owner_id,local_event_id,slug,title,payload,published) on public.uri_publications to authenticated;
-grant update (title,payload,published,updated_at) on public.uri_publications to authenticated;
+grant update on public.uri_publications to authenticated; -- RLS limits updates to the authenticated owner
 grant delete on public.uri_publications to authenticated;
 
 drop policy if exists "uri public invitations view" on public.uri_publications;
