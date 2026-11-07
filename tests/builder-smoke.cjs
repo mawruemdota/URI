@@ -15,7 +15,7 @@ const document={
 const location={hash:'#home',href:'https://example.com/URI/#home',origin:'https://example.com',pathname:'/URI/'};
 const localStorage={getItem:key=>storage[key]??null,setItem:(key,value)=>{storage[key]=value}};
 const sessionStorage={getItem:key=>storage['session:'+key]??null,setItem:(key,value)=>{storage['session:'+key]=value},removeItem:key=>{delete storage['session:'+key]}};
-const sandbox={window,document,location,localStorage,sessionStorage,navigator:{},alert(){},confirm(){return true},prompt(){},console,Date,URL,crypto:require('node:crypto').webcrypto,setTimeout,clearTimeout};
+const sandbox={window,document,root,storage,location,localStorage,sessionStorage,navigator:{},alert(){},confirm(){return true},prompt(){},console,Date,URL,crypto:require('node:crypto').webcrypto,setTimeout,clearTimeout};
 vm.createContext(sandbox);
 vm.runInContext(inline[1],sandbox,{filename:'index.html'});
 for(const path of files)vm.runInContext(fs.readFileSync(path,'utf8'),sandbox,{filename:path});
