@@ -4,7 +4,7 @@
 - [x] Responsive navigation improvements (browser QA pending)
 - [x] Wizard validation, draft recovery, progress and live preview (browser QA pending)
 - [ ] Consistent editor, templates, dashboard, and empty states
-- [ ] Better invitation previews and reusable visual components
+- [x] Compact invitation previews, reusable wedding layout components and live desktop/mobile editor preview (browser QA pending)
 - [ ] Complete accessibility checks and end-to-end browser testing
 
 ## Stage 2 — Real authentication and data
@@ -14,10 +14,10 @@
 - [ ] Secure event permissions and collaborator roles
 
 ## Stage 3 — Invitation builder 2.0
-- [ ] Modular invitation sections and event-specific presets
-- [ ] Photo and typography controls
-- [ ] Draft autosave, publishing and preview
-- [ ] Mobile editor
+- [x] Modular wedding sections and two reference-inspired wedding presets (browser QA pending)
+- [x] Wedding photo manager and typography / color controls (browser QA pending)
+- [ ] Cloud-synced drafts and production publishing (optional publication beta scaffold exists)
+- [x] Responsive editor with mobile preview (browser QA pending)
 
 ## Stage 4 — Guests and RSVP
 - [ ] Households, allocations, and plus-ones
@@ -42,3 +42,17 @@ First preview in under 3 minutes; basic invitation in under 5 minutes; guest RSV
 
 ## Current limitations
 The initial prototype is a static GitHub Pages app. localStorage data is not shared across devices. Personalized links and RSVP are test-only, not secure or production-ready.
+
+## Wedding builder: six requested upgrades (November 2026)
+- [x] Feature Manager 2.0 — section order, visibility and keyboard-accessible move controls
+- [x] Feature-specific layout variants stored per template
+- [x] Photo Manager — upload, replace, reorder, focal point and non-destructive crop format
+- [x] Design Manager — template-specific colors, fonts and spacing
+- [x] Modular template renderer — same data and features for Botanical and Editorial
+- [x] Optional Supabase publishing integration and RLS schema committed
+- [ ] Configure real Supabase project URL and public key; apply SQL migration
+- [ ] Test hosted login, cloud uploads, publication, RLS, and unpublish using real user accounts
+- [ ] Replace prototype guest RSVP with a secure shared backend before real guests
+- [ ] Visual browser QA on desktop/mobile and end-to-end reliability checks
+
+The six upgrade code modules have been committed, but **cloud publishing is not active or production-ready until external configuration and testing are completed**.
