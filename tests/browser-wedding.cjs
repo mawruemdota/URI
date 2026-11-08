@@ -82,9 +82,14 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     assert.ok(moved.indexOf('gallery')<moved.indexOf('story'));
     await image(page,'07-features.png');
     await page.locator('.wb-tabs button').filter({hasText:'Photos'}).click();
-    await page.locator('.wb-upload').filter({hasText:'Photo gallery'}).locator('input[type="file"]').setInputFiles({name:'gallery.png',mimeType:'image/png',buffer:PNG});
-    await page.locator('.wb-photo-cards .wb-photo-card').first().waitFor({timeout:10000});
+    await page.locator('.wb-upload').filter({hasText:'Photo gallery'}).locator('input[type="file"]').setInputFiles([{name:'gallery-one.png',mimeType:'image/png',buffer:PNG},{name:'gallery-two.png',mimeType:'image/png',buffer:PNG}]);
+    await page.locator('.wb-photo-cards .wb-photo-card').nth(1).waitFor({timeout:10000});
     assert.equal(await page.locator('#wbLivePreview [data-feature="gallery"]').count(),1);
+    await page.locator('.wb-photo-cards .wb-photo-card').first().locator('select').selectOption('square');
+    await page.locator('.wb-photo-cards .wb-photo-card').first().locator('button[aria-label="Move photo right"]').click();
+    const photosState=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].photos);
+    assert.equal(photosState[0].alt,'gallery-two');
+    assert.equal(photosState[1].crop,'square');
     await image(page,'08-photo-gallery.png');
     // Check full-size browser preview and template switching.
     await page.getByRole('button',{name:/Full-page preview/}).click();
@@ -103,6 +108,16 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
     assert.ok(overflow<=3,'Mobile editor overflows viewport by '+overflow+'px');
     await image(page,'11-mobile-editor.png');
+    // A browser reload must preserve both templates' content and gallery edits.
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.locator('.sidebar button').filter({hasText:'Edit invitation'}).click();
+    await page.locator('.wb-editor').waitFor();
+    const persisted=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
+    assert.equal(persisted.name1,'Maya');
+    assert.equal(persisted.name2,'Emir');
+    assert.equal(persisted.template,'classic');
+    assert.equal(persisted.photos[0].alt,'gallery-two');
+    assert.equal(persisted.photos[1].crop,'square');
     assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
     console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
   }finally{await browser.close()}
