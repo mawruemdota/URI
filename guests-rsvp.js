@@ -71,18 +71,18 @@ function panel(e){
  ensure(e);
  const u=usage(e);
  const edit=e.guests.find(g=>g.id===editing);
- return '<div class="uri-guests"><div class="uri-guests-heading"><span class="eyebrow">Guest planning</span><h2>Guests & RSVP</h2><p>Manage households, additional seats and test responses. All guest details stay in this browser.</p></div>'
+ return '<div class="uri-guests"><div class="uri-guests-heading"><h2>Guests & RSVP</h2></div>'
   +'<div class="uri-guests-warning"><strong>Local testing only.</strong> Guest links are not secure, cannot work across different browsers, and must not be sent to real guests. Secure RSVP will require a backend.</div>'
   +(notice?'<p class="uri-guest-notice" role="status">'+T(notice)+'</p>':'')
   +stats(e)
   +'<div class="uri-guest-layout"><section class="uri-guest-panel">'+guestForm(e,edit)+'</section>'
-  +'<section class="uri-guest-panel"><h3>Households</h3><p>Group invitees and optionally limit seats in each household.</p>'
+  +'<section class="uri-guest-panel"><h3>Households</h3>'
   +'<form class="uri-household-form" onsubmit="uriHouseholdAdd(event)"><label>Household name<input required name="household" maxlength="100" placeholder="e.g. Cruz Family"></label><label>Seats (0 = unlimited)<input name="seats" type="number" value="0" min="0" max="50"></label><button class="btn" type="submit">Add</button></form>'
   +'<div class="uri-household-list">'+(e.households.length?e.households.map(h=>'<div class="uri-household-row" data-household-id="'+T(h.id)+'"><span><strong>'+T(h.name)+'</strong><small>'+e.guests.filter(g=>g.householdId===h.id).length+' guests</small></span><label>Seat limit<input type="number" min="0" max="50" aria-label="Seat limit for '+T(h.name)+'" value="'+number(h.seatLimit,50)+'" onchange="uriHouseholdSeats(this.closest(\'[data-household-id]\').dataset.householdId,this.value)"></label><button type="button" onclick="uriHouseholdRemove(this.closest(\'[data-household-id]\').dataset.householdId)">Remove</button></div>').join(''):'<small>No households added.</small>')+'</div></section></div>'
   +'<section class="uri-guest-panel"><div class="uri-guest-tools"><div><h3>Guest list</h3><small>'+u.people+' invited · '+u.reserved+' allocated seats · '+u.confirmed+' confirmed</small></div><div class="uri-guest-import"><button type="button" class="btn small" onclick="uriGuestsExport()">Export CSV</button><label class="uri-import-label">Import CSV<input type="file" accept=".csv,text/csv" onchange="uriGuestsImport(event)"></label></div></div>'
   +'<div class="uri-guest-toolbar"><label>Find guests<input type="search" placeholder="Search name, household, category" value="'+T(search)+'" oninput="uriGuestsSearch(this.value)"></label><label>Status<select onchange="uriGuestsFilter(this.value)">'+['all','pending','attending','declined'].map(x=>'<option value="'+x+'" '+(x===filter?'selected':'')+'>'+x+'</option>').join('')+'</select></label></div>'
   +'<div class="uri-guest-rows">'+guestRows(e)+'</div></section>'
-  +'<section class="uri-guest-panel"><h3>RSVP setup & questions</h3><p>Configure local demo responses and seat limits. A blank maximum means there is no overall limit.</p>'
+  +'<section class="uri-guest-panel"><h3>RSVP questions</h3>'
   +'<label class="uri-guest-capacity">Maximum confirmed seats<input type="number" min="0" max="10000" value="'+(u.capacity||'')+'" placeholder="No overall limit" onchange="uriGuestsCapacity(this.value)"></label>'
   +'<div class="uri-questions">'+questionRows(e)+'</div>'
   +'<form class="uri-question-form" onsubmit="uriGuestsAddQuestion(event)"><label>New question<input required name="label" maxlength="120" placeholder="e.g. Which meal would you prefer?"></label><label>Answer type<select name="type"><option value="text">Short answer</option><option value="choice">Choose one</option></select></label><label>Choices (separate with |)<input name="options" placeholder="Chicken | Fish | Vegetarian"></label><label class="uri-checkline"><input type="checkbox" name="required"> Required</label><button type="submit" class="btn">Add question</button></form></section></div>';
@@ -123,7 +123,7 @@ function guestPage(input){
   +(q.type==='choice'?'<select name="q_'+T(q.id)+'" '+(q.required?'required':'')+'><option value="">Choose an answer</option>'+q.options.map(x=>'<option value="'+T(x)+'" '+(g.answers[q.id]===x?'selected':'')+'>'+T(x)+'</option>').join('')+'</select>'
   :'<textarea name="q_'+T(q.id)+'" rows="2" maxlength="400" '+(q.required?'required':'')+'>'+T(g.answers[q.id]||'')+'</textarea>')+'</label>').join('');
  app.innerHTML='<main class="wrap uri-rsvp-test"><div class="uri-guests-warning"><strong>Same-browser RSVP preview only.</strong> This is not a secure invitation link. Responses are saved only in this browser.</div>'
-  +'<div class="uri-rsvp-paper"><span class="eyebrow">A personal invitation</span><h1>'+T(g.name)+'</h1><p>You are invited to celebrate '+T([e.name1,e.name2].filter(Boolean).join(' & '))+'.</p><p>'+T(e.date?fmt(e.date):'Date to be announced')+' · '+T(e.venue||'Venue to be announced')+'</p>'
+  +'<div class="uri-rsvp-paper"><h1>'+T(g.name)+'</h1><p>You are invited to celebrate '+T([e.name1,e.name2].filter(Boolean).join(' & '))+'.</p><p>'+T(e.date?fmt(e.date):'Date to be announced')+' · '+T(e.venue||'Venue to be announced')+'</p>'
   +(h?'<p class="uri-rsvp-household">Household: '+T(h.name)+'</p>':'')
   +'<form onsubmit="uriGuestsRespond(event)"><input type="hidden" name="eventId" value="'+T(e.id)+'"><input type="hidden" name="guestId" value="'+T(g.id)+'">'
   +'<fieldset><legend>Will you join us?</legend><label><input type="radio" name="response" value="attending" '+(g.status==='attending'?'checked':'')+' required> Joyfully accepts</label><label><input type="radio" name="response" value="declined" '+(g.status==='declined'?'checked':'')+'> Regretfully declines</label></fieldset>'
@@ -152,7 +152,7 @@ window.uriGuestsRespond=ev=>{
  g.status=response;g.plusOnesConfirmed=plus;g.answers=answers;g.respondedAt=Date.now();
  try{save();notice='Local test response saved.';guestPage(e.id+'.'+g.id)}catch(_){Object.assign(g,{status:old.status,plusOnesConfirmed:old.plus,answers:old.answers,respondedAt:old.at});alert('Unable to save this response in this browser.')}
 };
-function summary(e){ensure(e);const u=usage(e);return '<div class="uri-guests-summary"><strong>'+u.people+' guests</strong> · '+u.confirmed+' confirmed seats · '+u.pending+' pending<button type="button" class="btn small" onclick="tab=\'guests\';eventPage()">Manage guests →</button></div>'}
+function summary(e){ensure(e);const u=usage(e);return '<div class="uri-guests-summary"><strong>'+u.people+' guests</strong> · '+u.confirmed+' confirmed seats · '+u.pending+' pending<button type="button" class="btn small" onclick="tab=\'guests\';eventPage()">Manage guests</button></div>'}
 function csvCell(value){let s=String(value??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
 window.uriGuestsExport=()=>{
  const e=getEvent();if(!e)return;
@@ -202,7 +202,7 @@ function analytics(e){
   +stats(e)
   +'<div class="uri-guest-panel"><h3>Seat allocation</h3><p>'+u.confirmed+' of '+(u.capacity||'unlimited')+' seats confirmed. '+u.reserved+' invitations allocated including permitted plus-ones.</p>'
   +'<div class="uri-rsvp-answer-list">'+Object.values(answers).map(q=>'<div><strong>'+T(q.label)+'</strong><span>'+q.responses.length+' responses</span><ul>'+q.responses.slice(0,30).map(v=>'<li>'+T(v)+'</li>').join('')+'</ul></div>').join('')+'</div>'
-  +'<button type="button" class="btn" onclick="tab=\'guests\';eventPage()">Manage guests →</button></div></div>';
+  +'<button type="button" class="btn" onclick="tab=\'guests\';eventPage()">Manage guests </button></div></div>';
 }
 window.URIGuests={ensure,panel,guestPage,summary,usage,parseCSV,analytics};
 })();
