@@ -81,7 +81,7 @@ function area(e,key,label){return '<label class="wb-field"><span>'+label+'</span
 function config(e,key,label,fallback,rows=3){return '<label class="wb-field"><span>'+label+'</span><textarea rows="'+rows+'" oninput="uriBConfig(\''+key+'\',this.value)">'+T(e.featureConfig[key]??fallback)+'</textarea></label>'}
 function content(e){
  return '<h3>Invitation Content</h3><p>Wedding names, venues and schedule are shared by both templates.</p>'
- +'<div class="wb-fieldgrid">'+field(e,'name1','First partner')+field(e,'name2','Second partner')+field(e,'deadline','RSVP deadline','date')+'</div>'
+ +'<div class="wb-fieldgrid">'+field(e,'name1','First partner')+field(e,'name2','Second partner')+field(e,'title','Dashboard title (optional)')+field(e,'deadline','RSVP deadline','date')+'</div>'
  +area(e,'message','Our Story')
  +(window.URIWeddingDetails?window.URIWeddingDetails.editor(e):'<div class="wb-fieldgrid">'+field(e,'date','Wedding date','date')+field(e,'time','Start time','time')+field(e,'venue','Venue')+field(e,'address','Address')+'</div>')
  +'<div class="wb-extra-details"><h3>Optional guest guidance</h3><p>These appear when Dress Code or Gift Registry is enabled.</p>'
