@@ -14,3 +14,5 @@ jobs:
         run: node tests/builder-smoke.cjs
       - name: Run wedding setup and editor flow smoke tests
         run: node tests/wedding-flow-smoke.cjs
+      - name: Check wedding template visual structure and modular behavior
+        run: node tests/wedding-template-smoke.cjs
