@@ -26,6 +26,10 @@ Both styles use the **same underlying event data and the same nine features**. S
 5. **Modular template renderer:** shared feature data and separate template styling; responsive live desktop/mobile previews.
 6. **Cloud publishing integration:** A dedicated URI Supabase project is now connected, with a migrated RLS-protected publication table and public media bucket. Email redirect settings and live end-to-end sign-in, upload, and publishing tests still need to be completed.
 
+## Wedding creation UX (Stage 1)
+
+A five-step guided setup now runs **Template → Couple → Date & venue → Message → Review**. Saving opens the editor directly, with Content → Features → Design → Photos → Publish tabs, local save feedback, a readiness summary, and a full-page desktop/mobile preview. Unfinished setup is stored locally so it can be resumed. The full-page preview is **not a published link**. Automated smoke tests cover the complete setup/edit/preview journey, but real-device visual testing is still pending.
+
 ## Other existing prototype functionality
 
 - Wedding-focused homepage and five-step wedding setup: Design → Couple → Details → Message → Review
