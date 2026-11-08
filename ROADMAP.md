@@ -50,7 +50,7 @@ The initial prototype is a static GitHub Pages app. localStorage data is not sha
 - [x] Design Manager — template-specific colors, fonts and spacing
 - [x] Modular template renderer — same data and features for Botanical and Editorial
 - [x] Optional Supabase publishing integration and RLS schema committed
-- [ ] Configure real Supabase project URL and public key; apply SQL migration
+- [x] Create dedicated Supabase URI project, configure public URL/key and apply RLS migration
 - [ ] Test hosted login, cloud uploads, publication, RLS, and unpublish using real user accounts
 - [ ] Replace prototype guest RSVP with a secure shared backend before real guests
 - [ ] Visual browser QA on desktop/mobile and end-to-end reliability checks
