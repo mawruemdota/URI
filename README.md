@@ -24,7 +24,7 @@ Both styles use the **same underlying event data and the same nine features**. S
 3. **Photo Manager:** upload, replace, remove, rearrange, select landscape/square/portrait crop format, choose focal point and alt text; eight-photo gallery limit in the browser prototype.
 4. **Design Manager:** independently customize each template's background, text and accent colors; choose heading and body fonts and section spacing.
 5. **Modular template renderer:** shared feature data and separate template styling; responsive live desktop/mobile previews.
-6. **Optional cloud publishing integration:** Supabase table/schema with RLS, email magic-link authentication, media storage, public invitation pages, publish/update/unpublish. **It is not active until you configure a Supabase project.**
+6. **Cloud publishing integration:** A dedicated URI Supabase project is now connected, with a migrated RLS-protected publication table and public media bucket. Email redirect settings and live end-to-end sign-in, upload, and publishing tests still need to be completed.
 
 ## Other existing prototype functionality
 
@@ -47,6 +47,6 @@ Both styles use the **same underlying event data and the same nine features**. S
 
 ## Critical limitations
 
-**Not production-ready.** Local drafts and guest RSVP data stay in the current browser. Personalized guest links do not work across devices. The optional cloud layer publishes a **public snapshot** of the wedding website only: guest lists are omitted, and public photo files are stored in a public bucket. Real cross-device RSVP, secure guest tokens, private event visibility, payments, cloud-synced drafts, security testing and production data management are future milestones.
+**Not production-ready.** The cloud publication beta has a configured backend, but email authentication redirect settings and live publication tests remain pending. Local drafts and guest RSVP data stay in the current browser. Personalized guest links do not work across devices. The optional cloud layer publishes a **public snapshot** of the wedding website only: guest lists are omitted, and public photo files are stored in a public bucket. Real cross-device RSVP, secure guest tokens, private event visibility, payments, cloud-synced drafts, security testing and production data management are future milestones.
 
 Never commit a service_role/secret key, API private key, personal token, or database password to this public repository.
