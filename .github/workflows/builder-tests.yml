@@ -24,6 +24,8 @@ jobs:
         run: node tests/wizard-photo-smoke.cjs
       - name: Verify Photo Manager 2.0 crop, zoom and reorder
         run: node tests/photo-manager-smoke.cjs
+      - name: Verify wedding details and dashboard management
+        run: node tests/details-dashboard-smoke.cjs
 
   browser-qa:
     runs-on: ubuntu-latest
