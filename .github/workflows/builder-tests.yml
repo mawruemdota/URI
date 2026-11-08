@@ -20,6 +20,8 @@ jobs:
         run: node tests/ui-polish-smoke.cjs
       - name: Test every feature and layout variation
         run: node tests/template-matrix.cjs
+      - name: Test optional wedding photo uploads and draft recovery
+        run: node tests/wizard-photo-smoke.cjs
 
   browser-qa:
     runs-on: ubuntu-latest
