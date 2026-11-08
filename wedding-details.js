@@ -81,8 +81,8 @@ function sectionEditor(e,section){
 function scheduleRow(item,i,total){
  const opts=[['ceremony','Ceremony'],['reception','Reception'],['custom','Other location']];
  return '<article class="wb-schedule-editor-row" data-uri-schedule-index="'+i+'"><div class="wb-schedule-editor-head"><strong>Activity '+(i+1)+'</strong><div>'
- +'<button type="button" aria-label="Move activity '+(i+1)+' up" '+(i===0?'disabled':'')+' onclick="uriWeddingTimelineMove('+i+',-1)">↑</button>'
- +'<button type="button" aria-label="Move activity '+(i+1)+' down" '+(i===total-1?'disabled':'')+' onclick="uriWeddingTimelineMove('+i+',1)">↓</button>'
+ +'<button type="button" aria-label="Move activity '+(i+1)+' up" '+(i===0?'disabled':'')+' onclick="uriWeddingTimelineMove('+i+',-1)">Up</button>'
+ +'<button type="button" aria-label="Move activity '+(i+1)+' down" '+(i===total-1?'disabled':'')+' onclick="uriWeddingTimelineMove('+i+',1)">Down</button>'
  +'<button type="button" aria-label="Remove activity '+(i+1)+'" onclick="uriWeddingTimelineRemove('+i+')">Remove</button></div></div>'
  +'<div class="wb-fieldgrid">'
  +'<label class="wb-field"><span>Time</span><input value="'+T(item.time||'')+'" placeholder="e.g. 4:30 PM" maxlength="60" oninput="uriWeddingTimelineSet('+i+',\'time\',this.value)"></label>'
