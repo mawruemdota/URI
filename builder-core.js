@@ -21,12 +21,12 @@ const T=v=>esc(v==null?'':String(v));
 const color=(v,def)=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:def;
 const clamped=v=>Math.min(100,Math.max(0,Number(v)||0));
 function imgurl(v){return typeof v==='string'&&(/^(https:\/\/[^<>"']+)$/.test(v)||/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v))?v:''}
-U.photo=p=>typeof p==='string'?{src:p,alt:'Wedding photo',x:50,y:50,crop:'landscape'}:{src:String(p?.src||''),alt:String(p?.alt||''),x:clamped(p?.x??50),y:clamped(p?.y??50),crop:['landscape','square','portrait'].includes(p?.crop)?p.crop:'landscape'};
+U.photo=(p,i=0)=>typeof p==='string'?{id:'legacy-'+i,src:p,alt:'Wedding photo',x:50,y:50,zoom:1,crop:'landscape'}:{id:String(p?.id||'photo-'+i),src:String(p?.src||''),alt:String(p?.alt||''),x:clamped(p?.x??50),y:clamped(p?.y??50),zoom:Math.min(3,Math.max(1,Number(p?.zoom)||1)),crop:['landscape','square','portrait'].includes(p?.crop)?p.crop:'landscape'};
 U.model=e=>{e.featureConfig||={};e.featureOrder=Array.isArray(e.featureOrder)?[...new Set(e.featureOrder.filter(x=>U.ids.includes(x))),...U.ids.filter(x=>!e.featureOrder.includes(x))]:U.ids.slice();e.layoutByTemplate||={};e.designByTemplate||={};e.photos=Array.isArray(e.photos)?e.photos.map(U.photo):[];e.heroSettings||={x:50,y:50,alt:'Wedding couple'};return e};
 U.enabled=(e,id)=>{U.model(e);return typeof e.featureConfig[id]==='boolean'?e.featureConfig[id]:enabledDefaults[id]===true};
 U.variant=(e,id)=>{U.model(e);let v=e.layoutByTemplate[e.template]?.[id],f=U.features.find(f=>f.id===id);return f?.variants.some(a=>a[0]===v)?v:(variants[e.template]||variants.classic)[id]};
 U.design=e=>{U.model(e);let d=U.presets[e.template]||U.presets.classic,c=e.designByTemplate[e.template]||{};return {bg:color(c.bg,d.bg),ink:color(c.ink,d.ink),accent:color(c.accent,d.accent),heading:U.fonts[c.heading]?c.heading:d.heading,body:U.fonts[c.body]?c.body:d.body,spacing:['compact','balanced','airy'].includes(c.spacing)?c.spacing:d.spacing}};
-U.picture=(p,cls='',placeholder='Add a wedding photo')=>{p=U.photo(p||{});let url=imgurl(p.src);return '<div class="wb-photo '+cls+'">'+(url?'<img loading="lazy" src="'+T(url)+'" alt="'+T(p.alt)+'" style="object-position:'+p.x+'% '+p.y+'%">':'<div class="wb-photo-empty">'+T(placeholder)+'</div>')+'</div>'};
+U.picture=(p,cls='',placeholder='Add a wedding photo')=>{p=U.photo(p||{});let url=imgurl(p.src);return '<div class="wb-photo '+cls+'">'+(url?'<img loading="lazy" draggable="false" src="'+T(url)+'" alt="'+T(p.alt)+'" style="object-position:'+p.x+'% '+p.y+'%;transform-origin:'+p.x+'% '+p.y+'%;transform:scale('+p.zoom+')">':'<div class="wb-photo-empty">'+T(placeholder)+'</div>')+'</div>'};
 const head=(t)=>'<span class="wb-kicker">'+T(t)+'</span>';
 
 /* Original botanical illustration and editorial cover compositions.
