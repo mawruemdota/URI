@@ -11,10 +11,10 @@ function ensure(e){
  if(!e.weddingDetails.reception||typeof e.weddingDetails.reception!=='object')e.weddingDetails.reception={enabled:false,date:'',time:'',venue:'',address:'',mapUrl:'',instructions:''};
  if(!Array.isArray(e.timelineItems)){
    const raw=typeof e.featureConfig?.timeline==='string'?e.featureConfig.timeline:'2:00 PM | Ceremony\n4:00 PM | Reception\n6:00 PM | Dinner';
-   e.timelineItems=raw.split('\n').map((str,i)=>{
-     const [time,...parts]=str.split('|'),title=parts.join('|').trim()||'Celebration';
-     return {id:'migrated-'+i,time:time.trim(),title,note:'',date:'',location:/reception|dinner|party/i.test(title)?'reception':'ceremony'};
-   }).filter(x=>x.title||x.time).slice(0,30);
+   e.timelineItems=raw.split('\n').filter(line=>line.trim()).map((str,i)=>{
+     const chunks=str.split('|'),time=chunks.length>1?chunks.shift().trim():'',title=chunks.length?chunks.join('|').trim():str.trim();
+     return {id:'migrated-'+i,time,title:title||'Celebration',note:'',date:'',location:/reception|dinner|party/i.test(title)?'reception':'ceremony'};
+   }).slice(0,30);
  }
  return e.weddingDetails;
 }
