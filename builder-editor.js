@@ -8,7 +8,43 @@ const LABELS={content:'Content',features:'Features',design:'Design',photos:'Phot
 function event(){let e=current();return e&&e.type==='Wedding'?U.model(e):null}
 function rerender(){eventPage()}
 window.uriBPanel=p=>{if(LABELS[p]){panel=p;rerender()}};
-window.uriBViewport=v=>{viewport=v==='mobile'?'mobile':'desktop';let el=document.getElementById('wbPreviewSurface');if(el)el.dataset.viewport=viewport;document.querySelectorAll('[data-viewport-choice]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.viewportChoice===viewport)))};
+function fitLivePreview(){
+  const surface=document.getElementById('wbPreviewSurface');
+  const stage=document.getElementById('wbPreviewStage');
+  const preview=document.getElementById('wbLivePreview');
+  if(!surface||!stage||!preview||!surface.clientWidth)return;
+  const designWidth=viewport==='mobile'?390:1024;
+  const innerWidth=Math.max(0,surface.clientWidth-32);
+  const scale=Math.min(1,innerWidth/designWidth);
+  preview.style.width=designWidth+'px';
+  preview.style.maxWidth='none';
+  preview.style.transformOrigin='top left';
+  preview.style.transform='scale('+scale+')';
+  stage.style.width=(designWidth*scale)+'px';
+  stage.style.height=Math.ceil(preview.scrollHeight*scale)+'px';
+  stage.style.margin='0 auto';
+  const note=document.getElementById('wbPreviewScale');
+  if(note)note.textContent=viewport==='mobile'?'390px mobile layout · '+Math.round(scale*100)+'% scale':'1024px desktop layout · '+Math.round(scale*100)+'% scale';
+}
+window.uriBPreviewFit=fitLivePreview;
+function scheduleFit(){
+  setTimeout(()=>{
+    fitLivePreview();
+    const preview=document.getElementById('wbLivePreview');
+    if(preview&&preview.querySelectorAll){
+      preview.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',fitLivePreview,{once:true})});
+    }
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitLivePreview).catch(()=>{});
+  },0);
+}
+if(window.addEventListener)window.addEventListener('resize',scheduleFit);
+window.uriBViewport=v=>{
+  viewport=v==='mobile'?'mobile':'desktop';
+  let surface=document.getElementById('wbPreviewSurface');
+  if(surface)surface.dataset.viewport=viewport;
+  document.querySelectorAll('[data-viewport-choice]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.viewportChoice===viewport)));
+  scheduleFit();
+};
 window.uriBSet=(key,value)=>{let e=event();if(!e||!['name1','name2','title','date','time','venue','address','deadline','message'].includes(key))return;e[key]=value;U.persist();U.refresh();updateReadiness(e)};
 window.uriBConfig=(key,value)=>{let e=event();if(!e||!['timeline','dress','dressColors','gifts','registryUrl'].includes(key))return;e.featureConfig[key]=value;U.persist();U.refresh()};
 window.uriBToggle=(id,value)=>{let e=event();if(!e||!U.ids.includes(id))return;e.featureConfig[id]=!!value;U.persist();rerender()};
@@ -34,6 +70,7 @@ const BUILDER_STEPS=['content','features','design','photos','publish'];
 window.uriBNext=function(delta){let i=BUILDER_STEPS.indexOf(panel),next=Math.min(BUILDER_STEPS.length-1,Math.max(0,i+delta));window.uriBPanel(BUILDER_STEPS[next]);let h=document.querySelector('.wb-editor');if(h&&h.scrollIntoView)h.scrollIntoView({behavior:'smooth',block:'start'})};
 window.uriBuilderEditor=function(e){
   U.model(e);
+  scheduleFit();
   let active=({content,features,design,photos,publish:publishing}[panel]||content)(e);
   let index=BUILDER_STEPS.indexOf(panel),next=BUILDER_STEPS[index+1],previous=BUILDER_STEPS[index-1];
   let nextButton=next?'<button type="button" class="btn primary" onclick="uriBNext(1)">Next: '+LABELS[next]+' →</button>':'<button type="button" class="btn primary" onclick="uriFlowOpenPreview(\'event\')">Preview full website ↗</button>';
@@ -43,7 +80,8 @@ window.uriBuilderEditor=function(e){
     +'<nav class="wb-tabs" aria-label="Wedding builder tabs">'+Object.entries(LABELS).map(([key,label],i)=>'<button type="button" class="'+(panel===key?'active':'')+'" aria-current="'+(panel===key?'page':'false')+'" onclick="uriBPanel(\''+key+'\')">'+(i+1)+'. '+label+'</button>').join('')+'</nav>'
     +'<div class="wb-editor-grid"><div class="wb-editor-controls">'+active+'<div class="wb-builder-footer"><span>Step '+(index+1)+' of '+BUILDER_STEPS.length+'</span><div class="wb-builder-footer-actions">'+(previous?'<button type="button" class="btn" onclick="uriBNext(-1)">← '+LABELS[previous]+'</button>':'')+nextButton+'</div></div></div>'
     +'<div class="wb-editor-preview"><div class="wb-preview-toolbar"><strong>Live wedding preview</strong><div><button type="button" data-viewport-choice="desktop" aria-pressed="'+(viewport==='desktop')+'" onclick="uriBViewport(\'desktop\')">Desktop</button><button type="button" data-viewport-choice="mobile" aria-pressed="'+(viewport==='mobile')+'" onclick="uriBViewport(\'mobile\')">Mobile</button></div></div>'
-    +'<div id="wbPreviewSurface" class="wb-preview-surface" data-viewport="'+viewport+'"><div id="wbLivePreview">'+U.render(e)+'</div></div>'
+    +'<div id="wbPreviewSurface" class="wb-preview-surface" data-viewport="'+viewport+'"><div id="wbPreviewStage" class="wb-preview-stage"><div id="wbLivePreview">'+U.render(e)+'</div></div></div>'
+    +'<div class="wb-preview-scale" id="wbPreviewScale" aria-live="off">'+(viewport==='mobile'?'390px mobile layout':'1024px desktop layout')+'</div>'
     +'<div class="wb-preview-actions"><button type="button" class="btn" onclick="uriFlowOpenPreview(\'event\')">Full-page preview ↗</button><p class="wb-preview-note">Changes save in this browser. Previewing does not publish your website.</p></div></div></div>'
     +'<div class="wb-mobile-actions"><button type="button" class="btn" onclick="uriFlowOpenPreview(\'event\')">Preview website ↗</button><span>Changes save automatically</span></div></div>'
 };
