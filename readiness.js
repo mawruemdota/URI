@@ -14,9 +14,9 @@ function items(e){
   add('date','Wedding date',has(e.date)&&e.date>=today(),true,'content','ceremony-date','Choose a current or future date'),
   add('time','Ceremony time',has(e.time),true,'content','ceremony-time','Add a ceremony start time'),
   add('venue','Ceremony venue',has(e.venue),true,'content','ceremony-venue','Add the venue name'),
-  add('deadline','RSVP deadline',!has(e.deadline)||(!has(e.date)||e.deadline<=e.date),true,'content','deadline','Deadline must not be after the wedding'),
-  add('reception','Reception details',!r.enabled||(has(r.venue)&&has(r.time)),!!r.enabled,'content','reception-venue','Add reception venue and start time')
+  add('deadline','RSVP deadline',!has(e.deadline)||(!has(e.date)||e.deadline<=e.date),true,'content','deadline','Deadline must not be after the wedding')
  ];
+ if(r.enabled)req.push(add('reception','Reception details',has(r.venue)&&has(r.time),true,'content','reception-venue','Add reception venue and start time'));
  const rec=[
   add('cover','Cover photograph',has(e.heroPhoto),false,'photos','cover','Add a photo to personalize the cover'),
   add('address','Venue address',has(e.address),false,'content','ceremony-address','Guests will need the location'),
