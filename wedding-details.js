@@ -27,22 +27,22 @@ const places=e=>{
 };
 function venueCard(v){
  const map=safeUrl(v.mapUrl);
- return '<article class="wb-venue-card wb-venue-'+v.key+'"><div class="wb-venue-head"><span class="wb-kicker">'+v.label+'</span><span aria-hidden="true">✧</span></div>'
+ return '<article class="wb-venue-card wb-venue-'+v.key+'"><div class="wb-venue-head"><span class="wb-kicker">'+v.label+'</span></div>'
   +'<h3>'+T(v.venue||'Venue to be announced')+'</h3>'
   +'<div class="wb-venue-when"><strong>'+T(textDate(v.date))+'</strong>'+(v.time?'<span>'+T(v.time)+'</span>':'')+'</div>'
   +(v.address?'<p class="wb-venue-address">'+T(v.address)+'</p>':'')
   +(v.instructions?'<p class="wb-venue-instructions">'+T(v.instructions)+'</p>':'')
-  +(map?'<a class="wb-map-link" href="'+T(map)+'" target="_blank" rel="noopener noreferrer" aria-label="Open directions for '+T(v.label)+'">View directions ↗</a>':'')
+  +(map?'<a class="wb-map-link" href="'+T(map)+'" target="_blank" rel="noopener noreferrer" aria-label="Open directions for '+T(v.label)+'">View directions </a>':'')
   +'</article>';
 }
 function renderDetails(e,variant){
- return '<section data-feature="details" class="wb-unit wb-details wb-details-'+variant+' wb-wedding-venues"><span class="wb-kicker">Where we celebrate</span><h2>Wedding Details</h2>'
+ return '<section data-feature="details" class="wb-unit wb-details wb-details-'+variant+' wb-wedding-venues"><h2>Wedding Details</h2>'
  +'<div class="wb-venues">'+places(e).map(venueCard).join('')+'</div></section>';
 }
 function renderTimeline(e,variant){
  const items=getTimeline(e);
  if(!items.length)return '';
- return '<section data-feature="timeline" class="wb-unit wb-timeline wb-timeline-'+variant+' wb-wedding-schedule"><span class="wb-kicker">Order of events</span><h2>Wedding Timeline</h2><ol>'
+ return '<section data-feature="timeline" class="wb-unit wb-timeline wb-timeline-'+variant+' wb-wedding-schedule"><h2>Wedding Timeline</h2><ol>'
   +items.map((item,i)=>{
    const location=places(e).find(v=>v.key===item.location);
    const date=item.date?textDate(item.date):'';
@@ -54,10 +54,10 @@ function renderTimeline(e,variant){
   }).join('')+'</ol></section>';
 }
 function renderTimelineTeaser(e){
- if(!U.enabled(e,'timeline'))return '<div class="wb-editorial-timeline-teaser"><div class="wb-editorial-side-title">Our Day</div><span class="wb-editorial-heart">♡</span></div>';
+ if(!U.enabled(e,'timeline'))return '<div class="wb-editorial-timeline-teaser"><div class="wb-editorial-side-title">Our Day</div></div>';
  const rows=getTimeline(e).slice(0,4);
  return '<div class="wb-editorial-timeline-teaser"><div class="wb-editorial-side-title">The Timeline</div><div class="wb-editorial-rule"></div>'
-  +(rows.length?rows.map((item,i)=>'<div class="wb-editorial-timeline-row"><span class="wb-editorial-icon" aria-hidden="true">'+['✧','♡','❀','✦'][i%4]+'</span><div><strong>'+T(item.time||'Time TBA')+'</strong><small>'+T(item.title||'Activity')+'</small></div></div>').join(''):'<p>Timeline details to follow.</p>')
+  +(rows.length?rows.map((item,i)=>'<div class="wb-editorial-timeline-row"><span class="wb-editorial-icon" aria-hidden="true">'+['','','',''][i%4]+'</span><div><strong>'+T(item.time||'Time TBA')+'</strong><small>'+T(item.title||'Activity')+'</small></div></div>').join(''):'<p>Timeline details to follow.</p>')
   +'</div>';
 }
 function input(section,key,label,type='text',placeholder=''){
@@ -94,11 +94,11 @@ function scheduleRow(item,i,total){
 function editor(e){
  ensure(e);
  const r=e.weddingDetails.reception;
- return '<div class="wb-details-editor"><div class="wb-details-editor-head"><h3>Ceremony & reception</h3><p>Add separate locations, directions and helpful information for guests.</p></div>'
+ return '<div class="wb-details-editor"><div class="wb-details-editor-head"><h3>Ceremony and reception</h3></div>'
   +sectionEditor(e,'ceremony')
   +'<label class="wb-reception-toggle"><input type="checkbox" '+(r.enabled?'checked':'')+' onchange="uriWeddingReception(this.checked)"><span><strong>Include a separate reception</strong><small>Turn this on if your reception has its own venue or schedule.</small></span></label>'
   +(r.enabled?sectionEditor(e,'reception'):'')
-  +'<div class="wb-details-editor-head wb-schedule-editor-title"><h3>Wedding timeline</h3><p>Add as many activities as needed, with optional dates, venues and notes.</p></div>'
+  +'<div class="wb-details-editor-head wb-schedule-editor-title"><h3>Timeline</h3></div>'
   +'<div class="wb-schedule-editor-list">'+getTimeline(e).map((item,i)=>scheduleRow(item,i,e.timelineItems.length)).join('')+'</div>'
   +'<button type="button" class="btn wb-add-schedule" onclick="uriWeddingTimelineAdd()">+ Add activity</button>'
   +'</div>';
