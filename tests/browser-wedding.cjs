@@ -203,7 +203,7 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     await image(page,'16-local-rsvp.png');
     await page.goto(url+'#event',{waitUntil:'domcontentloaded'});
     await page.locator('.sidebar button').filter({hasText:'Analytics'}).click();
-    assert.match(await page.locator('.uri-rsvp-analytics').innerText(),/2 confirmed/);
+    assert.match(await page.locator('.uri-rsvp-analytics').innerText(),/2 of unlimited seats confirmed/);
     await image(page,'17-rsvp-analytics.png');
     assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
     console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
