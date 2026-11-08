@@ -38,6 +38,7 @@ const scenario=function(){
   r.review=step===4&&app.innerHTML.includes('Review your invitation');
   window.uriFlowOpenPreview('draft');
   r.draftPreview=location.hash==='#preview-wizard'&&app.innerHTML.includes('Full wedding website preview');
+  r.draftPreviewStage=app.innerHTML.includes('id="wfFullStage"')&&app.innerHTML.includes('id="wfFullContent"');
   window.uriFlowBackPreview();r.backToWizard=location.hash==='#create'&&step===4;
   nextWizard();const e=current();
   r.created=state.events.length===1&&tab==='edit'&&location.hash==='#event';
@@ -55,6 +56,7 @@ const scenario=function(){
   r.keptContent=e.name1==='Maria'&&e.message==='We welcome you with love.'&&e.featureOrder.indexOf('timeline')===4;
   window.uriFlowOpenPreview('event');
   r.preview=location.hash.startsWith('#preview/')&&app.innerHTML.includes('Full wedding website preview');
+  r.previewStage=app.innerHTML.includes('id="wfFullStage"')&&app.innerHTML.includes('id="wfFullScale"');
   window.uriFlowBackPreview();r.returnToEditor=location.hash==='#event'&&tab==='edit';
   return r;
 };
