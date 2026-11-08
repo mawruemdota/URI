@@ -31,7 +31,7 @@ const scenario=function(){
  window.uriBPanel('design');
  window.uriBDesign('accent','#aa0000');
  window.uriBPanel('photos');
- const photosOk=root.innerHTML.includes('Photo Manager');
+ const photosOk=root.innerHTML.includes('wb-photo-manager');
  window.uriBPanel('publish');
  const cloudOk=root.innerHTML.includes('Cloud setup required')||root.innerHTML.includes('Supabase library could not be loaded');
  sample.layoutByTemplate.classic={gallery:'grid'};
