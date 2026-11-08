@@ -1,0 +1,63 @@
+/* URI minimal copy & control polish.
+   Decorative typography is limited to the wedding templates themselves. */
+:root{--ui-border:#e4e9e2}
+#features .card,#pricing .card{border-radius:12px;box-shadow:none;padding:22px}
+#features .card h3,#pricing .card h3{margin-top:1px}
+#features .card p,#pricing .card p{font-size:13px;line-height:1.6}
+#templates .template{border-radius:12px;box-shadow:none}
+#templates .template strong{margin:14px 5px 8px}
+#templates .template-preview{border-radius:7px}
+.hero-art{background:#efebe4;box-shadow:none;border-radius:13px}
+.wb-builder-heading h2{margin:0}
+.wb-builder-heading>div{gap:0}
+.wb-builder-status .chip{border-radius:6px}
+.wb-editor-controls>h3{margin:0 0 14px}
+.wb-editor-grid{margin-top:14px}
+.wb-preview-toolbar{margin-bottom:8px}
+.wb-preview-actions{margin-top:8px}
+.wb-editor .wb-tabs button{font-weight:600}
+.wb-feature-top small{line-height:1.45}
+.wb-photo-manager-head h3{margin:0}
+.wb-photo-hero-actions p:empty,.uri-ready-item small:empty,
+.wb-venue-editor-title small:empty,
+.wf-photo-empty .wf-photo-glyph:empty,
+.uri-dash-results small:empty{display:none!important}
+.wb-venue-editor-title{margin-bottom:13px}
+.wb-venue-editor-title small:empty{display:none}
+.uri-ready-item.is-done{grid-template-columns:1fr}
+.uri-ready-item.is-done>div{gap:0}
+.uri-ready-item strong{font-size:13px}
+.uri-ready-heading h3{margin:0}
+.uri-guests-heading h2{margin:0 0 10px}
+.uri-dash-heading h1{margin:0}
+.uri-dash-heading .eyebrow:empty{display:none}
+.uri-dash-heading{margin-bottom:20px}
+.uri-dash-stats{margin:20px 0}
+.uri-dash-card{box-shadow:none;border-radius:12px}
+.uri-dash-card:hover{box-shadow:0 7px 24px rgba(36,61,39,.05)}
+.uri-guest-panel,.wf-panel{box-shadow:none}
+.wb-theme-botanical .wb-botanical-cover .wb-hero-copy{justify-content:center}
+.wb-theme-botanical .wb-botanical-story{gap:9px}
+.wb-theme-botanical .wb-botanical-date{margin-top:22px}
+.wb-theme-editorial .wb-editorial-story-monogram:before,
+.wb-theme-editorial .wb-editorial-story-monogram:after{display:none!important}
+.wb-theme-editorial .wb-editorial-timeline-row .wb-editorial-icon{display:none!important}
+.wb-theme-editorial .wb-editorial-timeline-row{gap:0}
+.wb-theme-editorial .wb-editorial-main .wb-kicker:empty{display:none}
+.wb-hero-copy .wb-kicker:empty,.wb-unit .wb-kicker:empty{display:none}
+.ws-hero-content:before,.ws-hero-content:after,
+.wb-theme-botanical .wb-hero-copy:before,
+.wb-theme-botanical .wb-hero-copy:after{display:none!important}
+.wf-photo-step .wf-photo-glyph{display:none!important}
+.wb-photo-empty-list>span:empty{display:none}
+.wb-crop-footer{justify-content:flex-end}
+.wb-crop-footer>span:empty{display:none}
+.wb-editorial-story .wb-editorial-lineart:empty{display:none}
+.uri-builder-site .wb-footer{font-size:10px;letter-spacing:.12em}
+@media(max-width:700px){
+ #features .card,#pricing .card{padding:19px}
+ .wb-editor-grid{margin-top:10px}
+ .wb-builder-heading{margin-bottom:12px}
+ .uri-dash-heading{margin-bottom:15px}
+ .wb-theme-botanical .wb-botanical-cover .wb-hero-copy{justify-content:center}
+}
