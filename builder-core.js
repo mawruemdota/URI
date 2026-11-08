@@ -55,7 +55,7 @@ return '<div class="wb-cover-mini wb-cover-botanical wb-mini-romance"><div class
 window.uriBuilderInv=U.render;
 window.uriBSlide=(btn,delta)=>{let g=btn.closest('.wb-gallery'),slides=[...g.querySelectorAll('.wb-slide')];if(!slides.length)return;let area=g.querySelector('.wb-gallery-items'),next=((Number(area.dataset.index)||0)+delta+slides.length)%slides.length;slides.forEach((s,i)=>s.hidden=i!==next);area.dataset.index=next;g.querySelector('.wb-gallery-status').textContent=(next+1)+' / '+slides.length};
 U.persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch(err){alert('Browser storage is full. Remove some photos to save changes.');return false}};
-U.refresh=()=>{let e=current(),el=document.getElementById('wbLivePreview');if(e&&el)el.innerHTML=U.render(e)};
+U.refresh=()=>{let e=current(),el=document.getElementById('wbLivePreview');if(e&&el){el.innerHTML=U.render(e);if(window.uriBPreviewFit)setTimeout(window.uriBPreviewFit,0)}};
 U.payload=e=>{U.model(e);let keys=['type','name1','name2','title','date','time','venue','address','template','deadline','message','featureConfig','featureOrder','layoutByTemplate','designByTemplate','heroPhoto','heroSettings','photos'];return Object.fromEntries(keys.map(k=>[k,JSON.parse(JSON.stringify(e[k]??null))]))};
 render();
 })();
