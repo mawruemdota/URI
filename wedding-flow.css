@@ -119,3 +119,6 @@
  .wb-builder-footer{display:block}
  .wb-builder-footer-actions{margin-top:12px;justify-content:flex-start}
 }
+
+.wb-preview-shortcut{display:none}
+@media(max-width:960px){.wb-preview-shortcut{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;font-size:11px}}
