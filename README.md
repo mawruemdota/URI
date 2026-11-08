@@ -33,6 +33,22 @@ The wedding landing page now presents two balanced template cards. Photo placeho
 
 **Verification limitation:** Live GitHub Pages and browser screenshots were unavailable to this session. JavaScript syntax, source-level structure, and simulated flows were checked; pixel-accurate visual QA on real devices is still outstanding.
 
+## Wedding Details 2.0 and Dashboard 2.0
+
+### Flexible wedding information
+Wedding ceremonies and receptions can now have **independent dates, start times, venue names, addresses, external HTTPS directions links and arrival instructions**. The ceremony continues using the existing `date`, `time`, `venue`, and `address` fields, preserving older weddings. The reception is optional and disabled until selected in Content.
+
+A structured **Wedding timeline** replaces the old plain-text editor: add, edit, reorder and remove activities, with each activity's time, optional date, event location, and notes. Existing text timelines are automatically converted into editable activities on the next edit. Both wedding designs render the same data; disabling Wedding Timeline also hides it from the Editorial cover. New details and activities are included in publication snapshots; guest lists are excluded.
+
+### Dashboard 2.0
+The event dashboard now has preview-image cards, event date, last-edited information, and draft versus locally recorded published snapshot indicators. You can search, filter by draft/published status, sort by recent edits or event date, edit, preview, duplicate and delete local invitations.
+
+Duplication preserves the wedding design and content but resets the duplicated invitation to **draft**, generates a new local event ID, and **does not copy guests or public publishing identifiers**. Deleting local data requires confirmation; invitations with a locally recorded published snapshot must be unpublished first. Deleting a draft in the browser does **not** delete any independently hosted public copy.
+
+**Storage/security note:** Dashboard data stays in the same browser. Published-status badges reflect local saved metadata and are not a real-time database verification. The Dashboard does not synchronize accounts or guests across devices.
+
+**Tests:** `tests/details-dashboard-smoke.cjs` covers older weddings, venues, map-link safety, activity schedules, publishing snapshots, duplication and deletion safeguards. `tests/browser-wedding.cjs` includes desktop/mobile navigation and automated browser scenarios for the new Content editor and Dashboard. Browser workflow execution, real-device checks, and screenshot inspection remain pending.
+
 ## Wedding Builder: six upgrades
 
 1. **Feature Manager 2.0:** enable/disable sections, move up/down, and drag on desktop. The default order is Welcome / Hero, Our Story, Photo Gallery, Wedding Countdown, Event Details, Event Timeline, Dress Code (off), Gift Registry (off), RSVP.
