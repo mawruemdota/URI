@@ -54,6 +54,7 @@ function renderTimeline(e,variant){
   }).join('')+'</ol></section>';
 }
 function renderTimelineTeaser(e){
+ if(!U.enabled(e,'timeline'))return '<div class="wb-editorial-timeline-teaser"><div class="wb-editorial-side-title">Our Day</div><span class="wb-editorial-heart">♡</span></div>';
  const rows=getTimeline(e).slice(0,4);
  return '<div class="wb-editorial-timeline-teaser"><div class="wb-editorial-side-title">The Timeline</div><div class="wb-editorial-rule"></div>'
   +(rows.length?rows.map((item,i)=>'<div class="wb-editorial-timeline-row"><span class="wb-editorial-icon" aria-hidden="true">'+['✧','♡','❀','✦'][i%4]+'</span><div><strong>'+T(item.time||'Time TBA')+'</strong><small>'+T(item.title||'Activity')+'</small></div></div>').join(''):'<p>Timeline details to follow.</p>')
