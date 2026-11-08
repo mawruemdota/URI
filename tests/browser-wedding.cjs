@@ -141,6 +141,35 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     assert.equal(persisted.photos[0].alt,'gallery-one');
     assert.equal(persisted.photos[0].crop,'portrait');
     assert.equal(persisted.photos[0].zoom,1.5);
+    // Ceremony and reception detail editing, separate maps and activity schedule.
+    await page.locator('.wb-tabs button').filter({hasText:'Content'}).click();
+    await page.locator('.wb-reception-toggle input').check();
+    const reception=page.locator('[data-wedding-section="reception"]');
+    await reception.locator('.wb-field').nth(1).locator('input').fill('18:00');
+    await reception.locator('.wb-field').nth(2).locator('input').fill('The Garden Hall');
+    await reception.locator('.wb-field').nth(3).locator('input').fill('Cavite, Philippines');
+    await reception.locator('.wb-field').nth(4).locator('input').fill('https://maps.google.com/?q=garden');
+    await reception.locator('textarea').fill('Please use Gate B.');
+    await page.getByRole('button',{name:/Add activity/}).click();
+    const activity=page.locator('.wb-schedule-editor-row').last();
+    await activity.locator('input[placeholder="e.g. Reception"]').fill('First dance');
+    await activity.locator('textarea').fill('Join us on the dance floor.');
+    assert.match(await page.locator('#wbLivePreview').innerText(),/The Garden Hall/);
+    assert.match(await page.locator('#wbLivePreview').innerText(),/First dance/);
+    await image(page,'13-venues-and-schedule.png');
+    await page.goto(url+'#dashboard',{waitUntil:'domcontentloaded'});
+    await page.locator('.uri-dash-card').first().waitFor();
+    assert.equal(await page.locator('.uri-dash-card').count(),1);
+    await page.locator('.uri-dash-card').first().getByRole('button',{name:'Duplicate'}).click();
+    assert.equal(await page.locator('.uri-dash-card').count(),2);
+    const copies=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events);
+    assert.equal(copies[1].weddingDetails.reception.venue,'The Garden Hall');
+    assert.equal(copies[1].guests.length,0);
+    assert.equal(copies[1].cloudPublished,false);
+    await image(page,'14-dashboard.png');
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('.uri-dash-card').filter({hasText:'(Copy)'}).getByRole('button',{name:'Delete'}).click();
+    assert.equal(await page.locator('.uri-dash-card').count(),1);
     assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
     console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
   }finally{await browser.close()}
