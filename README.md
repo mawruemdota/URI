@@ -19,11 +19,19 @@ Both styles use the **same underlying event data and the same nine features**. S
 
 ## Reference-inspired wedding refinement
 
-- **Romantic Botanical** uses a portrait-left, ivory-right cover, original vector botanical flourishes, delicate italic names, a framed story letter, a countdown, and a circular photo detail when the gallery has images.
+- **Romantic Botanical** uses a portrait-left, ivory-right cover, original vector botanical flourishes, delicate italic names, a framed story letter, a countdown, and a circular photo detail when the gallery feature is enabled.
 - **Minimalist Editorial** uses a stationery-inspired three-column cover (details, central photo and names, timeline), handwritten headings, fine borders, and a second full-width monogram/photo/story spread.
 - Both templates use the same editable wedding content and feature controls. Timeline/details previews in the Editorial cover automatically hide or change when those features are disabled.
-- Layouts respond to the available container width, including the desktop and mobile previews in the builder. The supplied example photographs are visual references only and are not included as production assets; users upload their own photos.
+- Layouts use responsive container rules; the editor and full-page previews now retain true desktop (1024px/1080px) or mobile (390px) layout widths, scaling their visual presentation to fit the screen. The supplied example photographs are visual references only and are not included as production assets; users upload their own photos.
 - Code-level regression checks run under `tests/wedding-template-smoke.cjs`. Real browser and device visual QA remains outstanding.
+
+## UI polish review
+
+A source-based design review identified a narrow builder workspace and a desktop-preview fidelity issue: the preview could unintentionally reflow to the mobile layout. The creator workspace has been widened, editing controls and mobile form fields standardized, and fixed-width scaled previews implemented in both the editor and full-page views. Wedding hero and story layout variants now have explicit styling, and feature reordering preserves scroll and keyboard focus.
+
+The wedding landing page now presents two balanced template cards. Photo placeholders, editorial details, botanical typography, gallery controls, and preview toolbars have been refined through `ui-polish.css`. A new `tests/ui-polish-smoke.cjs` suite checks preview sizing and core styling.
+
+**Verification limitation:** Live GitHub Pages and browser screenshots were unavailable to this session. JavaScript syntax, source-level structure, and simulated flows were checked; pixel-accurate visual QA on real devices is still outstanding.
 
 ## Wedding Builder: six upgrades
 
