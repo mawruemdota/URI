@@ -83,7 +83,7 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     await image(page,'07-features.png');
     await page.locator('.wb-tabs button').filter({hasText:'Photos'}).click();
     await page.locator('.wb-upload').filter({hasText:'Photo gallery'}).locator('input[type="file"]').setInputFiles({name:'gallery.png',mimeType:'image/png',buffer:PNG});
-    await page.locator('.wb-photo-card').last().waitFor();
+    await page.locator('.wb-photo-cards .wb-photo-card').first().waitFor({timeout:10000});
     assert.equal(await page.locator('#wbLivePreview [data-feature="gallery"]').count(),1);
     await image(page,'08-photo-gallery.png');
     // Check full-size browser preview and template switching.
