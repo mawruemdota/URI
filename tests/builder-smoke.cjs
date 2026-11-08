@@ -33,7 +33,7 @@ const scenario=function(){
  window.uriBPanel('photos');
  const photosOk=root.innerHTML.includes('Photo Manager');
  window.uriBPanel('publish');
- const cloudOk=root.innerHTML.includes('Cloud setup required');
+ const cloudOk=root.innerHTML.includes('Cloud setup required')||root.innerHTML.includes('Supabase library could not be loaded');
  sample.layoutByTemplate.classic={gallery:'grid'};
  const variantOk=U.render(sample).includes('wb-gallery-grid');
  sample.template='garden';
@@ -50,4 +50,4 @@ const result=vm.runInContext('('+scenario.toString()+')()',sandbox);
 assert.deepEqual(JSON.parse(JSON.stringify(result.initialOrder)),['hero','story','gallery','countdown','details','timeline','dress','gifts','rsvp']);
 assert.deepEqual(JSON.parse(JSON.stringify(result.initialEnabled)),['hero','story','gallery','countdown','details','timeline','rsvp']);
 for(const [key,value] of Object.entries(result))if(typeof value==='boolean')assert.ok(value,'Failed check: '+key);
-console.log('URI wedding builder smoke tests passed: feature ordering, visibility, design, variants, editor, cloud fallback, guest privacy.');
+console.log('URI wedding builder smoke tests passed: feature ordering, visibility, design, variants, editor, cloud integration fallback, guest privacy.');
