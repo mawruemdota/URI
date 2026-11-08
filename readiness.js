@@ -31,16 +31,16 @@ function items(e){
 function status(e){const list=items(e),done=list.filter(x=>x.done).length,blockers=list.filter(x=>!x.done&&x.blocking);
  return {list,done,total:list.length,blockers,ready:blockers.length===0,percent:list.length?Math.round(done/list.length*100):100};
 }
-function summary(e){const s=status(e);return '<div class="uri-ready-bar"><div><strong>'+s.done+' of '+s.total+' checklist items complete</strong><small>'+(s.ready?'Essential details ready · '+(s.total-s.done)+' suggested improvement(s)':'Review '+s.blockers.length+' essential detail(s) before publishing')+'</small></div><span class="uri-ready-meter" aria-label="'+s.percent+' percent complete"><span style="width:'+s.percent+'%"></span></span><button type="button" class="btn small" onclick="uriReadinessShow()">Review checklist →</button></div>'}
+function summary(e){const s=status(e);return '<div class="uri-ready-bar"><div><strong>'+s.done+' of '+s.total+' checklist items complete</strong><small>'+(s.ready?'Essential details ready · '+(s.total-s.done)+' suggested improvement(s)':'Review '+s.blockers.length+' essential detail(s) before publishing')+'</small></div><span class="uri-ready-meter" aria-label="'+s.percent+' percent complete"><span style="width:'+s.percent+'%"></span></span><button type="button" class="btn small" onclick="uriReadinessShow()">Review checklist</button></div>'}
 function panel(e){
  const s=status(e);
- return '<section class="uri-ready-panel"><div class="uri-ready-heading"><h3>Invitation readiness</h3><p>Check the essential information, then complete the optional details that make guests’ experience smoother.</p></div>'
+ return '<section class="uri-ready-panel"><div class="uri-ready-heading"><h3>Readiness checklist</h3></div>'
   +'<div class="uri-ready-progress"><strong>'+s.done+' / '+s.total+'</strong><div role="progressbar" aria-valuenow="'+s.percent+'" aria-valuemin="0" aria-valuemax="100" aria-label="Checklist completion"><span style="width:'+s.percent+'%"></span></div><small>'+s.percent+'% complete</small></div>'
   +'<div class="uri-ready-group"><h4>Required for publishing</h4>'+s.list.filter(x=>x.blocking).map(row).join('')+'</div>'
   +'<div class="uri-ready-group"><h4>Recommended</h4>'+s.list.filter(x=>!x.blocking).map(row).join('')+'</div>'
-  +'<p class="uri-ready-security">Guest RSVP links and responses are still local testing features. Completing this checklist does not activate online guest responses.</p></section>';
+  +'<p class="uri-ready-security">RSVP remains a local test until the secure guest backend is connected.</p></section>';
 }
-function row(x){return '<article class="uri-ready-item '+(x.done?'is-done':'needs-work')+'"><span aria-hidden="true">'+(x.done?'✓':'○')+'</span><div><strong>'+T(x.label)+'</strong><small>'+(x.done?'Complete':T(x.help))+'</small></div>'+(x.done?'':'<button type="button" onclick="uriReadinessFix(\''+x.panel+'\',\''+x.target+'\')">Fix →</button>')+'</article>'}
+function row(x){return '<article class="uri-ready-item '+(x.done?'is-done':'needs-work')+'"><div><strong>'+T(x.label)+'</strong><small>'+(x.done?'Complete':T(x.help))+'</small></div>'+(x.done?'':'<button type="button" onclick="uriReadinessFix(\''+x.panel+'\',\''+x.target+'\')">Fix</button>')+'</article>'}
 window.URIReadiness={items,status,summary,panel};
 window.uriReadinessShow=()=>{if(tab!=='edit'){tab='edit';eventPage()}window.uriBPanel?.('review')};
 window.uriReadinessFix=(panel,target)=>{
