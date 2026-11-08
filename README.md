@@ -37,7 +37,7 @@ The wedding landing page now presents two balanced template cards. Photo placeho
 
 1. **Feature Manager 2.0:** enable/disable sections, move up/down, and drag on desktop. The default order is Welcome / Hero, Our Story, Photo Gallery, Wedding Countdown, Event Details, Event Timeline, Dress Code (off), Gift Registry (off), RSVP.
 2. **Layout variants:** every feature has multiple presentation choices. Variant preferences are stored separately per template.
-3. **Photo Manager:** upload, replace, remove, rearrange, select landscape/square/portrait crop format, choose focal point and alt text; eight-photo gallery limit in the browser prototype.
+3. **Photo Manager 2.0:** interactive drag-to-pan crop preview, up to 3× zoom, portrait/landscape/square frames, replacement directly from the editor preview, gallery drag-to-reorder and mobile move buttons, description editing and eight-photo local gallery limit.
 4. **Design Manager:** independently customize each template's background, text and accent colors; choose heading and body fonts and section spacing.
 5. **Modular template renderer:** shared feature data and separate template styling; responsive live desktop/mobile previews.
 6. **Cloud publishing integration:** A dedicated URI Supabase project is now connected, with a migrated RLS-protected publication table and public media bucket. Email redirect settings and live end-to-end sign-in, upload, and publishing tests still need to be completed.
@@ -51,6 +51,16 @@ The wedding landing page now presents two balanced template cards. Photo placeho
 - `tests/browser-wedding.cjs` adds real Chromium automation for creating a wedding, uploading pictures, customizing designs, reordering features, editing gallery crops, checking mobile overflow, saving, reloading, and capturing screenshots. The GitHub Actions workflow installs Chromium and runs the browser checks; browser execution results need to be verified independently.
 
 **Verification limits:** A browser-connected UI was unavailable during this change. Source-level JavaScript and simulated interactions were checked, but the new GitHub Actions browser test results and pixel-level screenshots have not yet been inspected. The cloud publishing and guest RSVP flows remain separate work.
+
+## Photo Manager 2.0
+
+The wedding editor's **Photos** tab now provides an interactive, non-destructive crop workspace. Users can drag the image within portrait, square or landscape frames; adjust focal position and zoom; preview both cover orientations; and **Apply** or **Cancel** before saving. Photo descriptions are editable and saved with each image.
+
+Gallery photos support desktop drag-and-drop via a grip handle and **left/right move buttons** on touchscreens. Users can replace, reorder, or remove photos, with confirmation for removals. Changes to the photo order preserve each photo's original crop/zoom settings. The live editor preview adds **Edit photo** controls over the cover and each gallery image; these edit controls are not included in public invitations.
+
+Uploads are resized and compressed to help fit browser storage limits. Images remain in local browser storage until explicitly published, and cloud RSVP remains separate. The prototype supports up to eight gallery images, subject to browser storage limits.
+
+**Checks:** `tests/photo-manager-smoke.cjs` tests crop Apply/Cancel, image identity, zoom persistence, drag and arrow ordering, replacement and preview shortcuts. `tests/browser-wedding.cjs` now exercises the crop dialog, pointer panning, gallery dragging and editor preview in Chromium. Real GitHub Actions browser results and screenshots require independent verification.
 
 ## Wedding creation UX (Stage 1)
 
