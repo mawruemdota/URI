@@ -28,10 +28,21 @@ Both styles use the **same underlying event data and the same nine features**. S
 
 ## Other existing prototype functionality
 
-- Responsive homepage and six-step invitation creation wizard
+- Wedding-focused homepage and five-step wedding setup: Design → Couple → Details → Message → Review
 - Event dashboard with multiple locally stored invitations
 - Local guest list and same-browser RSVP test links and counts
-- Browser-based autosave and draft recovery in the wizard
+- Local browser autosave, inline field validation, and draft recovery across browser restarts in the wedding wizard
+
+## Wedding creation and editing flow
+
+1. Choose a wedding template from the homepage or start from **Create Wedding**.
+2. Complete the five-step wedding setup. Details are saved as an **unfinished draft in browser localStorage** and can be resumed after reopening the site in the same browser.
+3. Select **View full wedding website** to inspect the draft before saving.
+4. Select **Save & customize** to create a local event and enter the wedding website editor directly, starting on **Content**.
+5. Use **Content → Features → Design → Photos → Publish**. Each page has previous/next navigation and a local autosave status.
+6. Select **Full-page preview** to view the complete wedding site with desktop/mobile toggles. The preview is not a publication.
+
+The interface is wedding-focused while the other event types remain deferred. Photos and local drafts are still browser-specific. Supabase setup and secure cross-device RSVP are not part of the frontend UX cleanup.
 
 ## Where to edit
 
@@ -40,6 +51,7 @@ Both styles use the **same underlying event data and the same nine features**. S
 - `builder-core.js`, `builder.css` — reusable wedding engine and styling
 - `builder-editor.js` — Content, Features, Design and Publish controls
 - `builder-photos.js` — local photo uploads and image editing controls
+- `wedding-flow.js`, `wedding-flow.css` — five-step wedding wizard, draft recovery, editor flow and full-page preview
 - `cloud-config.js` — **public** Supabase URL/key placeholder
 - `cloud.js` — optional cloud publishing and public URL loading
 - `supabase/schema.sql` and `supabase/SETUP.md` — database setup and security guidance
@@ -50,3 +62,7 @@ Both styles use the **same underlying event data and the same nine features**. S
 **Not production-ready.** The cloud publication beta has a configured backend, but email authentication redirect settings and live publication tests remain pending. Local drafts and guest RSVP data stay in the current browser. Personalized guest links do not work across devices. The optional cloud layer publishes a **public snapshot** of the wedding website only: guest lists are omitted, and public photo files are stored in a public bucket. Real cross-device RSVP, secure guest tokens, private event visibility, payments, cloud-synced drafts, security testing and production data management are future milestones.
 
 Never commit a service_role/secret key, API private key, personal token, or database password to this public repository.
+
+## QA status
+
+Syntax and simulated creation-flow checks were run for wedding setup, validation, draft recovery, local save, feature editing and preview navigation. GitHub Actions includes `tests/wedding-flow-smoke.cjs` alongside the modular builder smoke test. **Full rendered browser/device QA and GitHub Pages deployment verification are outstanding.**
