@@ -15,6 +15,7 @@
 - [x] Full-page desktop and mobile wedding previews
 - [x] Improved mobile editing and navigation controls
 - [x] Simulated end-to-end smoke tests and CI workflow
+- [x] Inline builder readiness feedback for missing names, date, time, venue, and RSVP deadline
 - [ ] Visual browser QA, device testing and accessibility audit
 
 ## Stage 2 — Real authentication and data
