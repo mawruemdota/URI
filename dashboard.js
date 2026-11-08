@@ -15,7 +15,7 @@ function card(e){
  return '<article class="uri-dash-card" data-event-id="'+id+'" data-status="'+(published(e)?'published':'draft')+'" data-search="'+T((name+' '+(e.venue||'')+' '+(e.type||'')).toLowerCase())+'">'
  +'<div class="uri-dash-cover">'+cover+'<span class="uri-dash-status uri-dash-status-'+(published(e)?'published':e.status==='published'?'test':'draft')+'">'+T(s)+'</span></div>'
  +'<div class="uri-dash-card-body"><span class="uri-dash-type">'+T(e.type||'Event')+'</span><h3>'+T(name)+'</h3>'
- +'<div class="uri-dash-meta"><span>◷ '+T(e.date?fmt(e.date):'Date not set')+'</span><span>Edited '+T(stampText(e))+'</span></div>'
+ +'<div class="uri-dash-meta"><span>◷ '+T(e.date?fmt(e.date):'Date not set')+'</span><span>Edited '+T(stampText(e))+'</span></div>'+(e.type==='Wedding'&&window.URIReadiness?'<div class="uri-dash-readiness"><strong>'+window.URIReadiness.status(e).percent+'% complete</strong><button type="button" onclick="uriDashAction(\'review\',this.closest(\'[data-event-id]\').dataset.eventId)">View checklist →</button></div>':'')
  +'<div class="uri-dash-card-footer"><span>'+count+' test guest'+(count===1?'':'s')+'</span>'
  +'<div class="uri-dash-card-actions">'
  +'<button type="button" class="btn primary" onclick="uriDashAction(\'edit\',this.closest(\'[data-event-id]\').dataset.eventId)">Edit</button>'
@@ -66,7 +66,7 @@ window.uriDashReset=()=>{query='';activeFilter='all';activeSort='edited';renderD
 function saveSafely(){try{save();return true}catch(err){alert('Browser storage is full. No changes were saved.');return false}}
 window.uriDashAction=function(action,id){
  const e=events().find(x=>String(x.id)===String(id));if(!e)return;
- if(action==='edit'||action==='preview'||action==='manage'){
+ if(action==='edit'||action==='preview'||action==='manage'||action==='review'){
   const previous=state.current;state.current=e.id;
   if(!saveSafely()){state.current=previous;return}
   if(action==='preview'){
@@ -74,7 +74,7 @@ window.uriDashAction=function(action,id){
    else{tab='share';route('event')}
    return;
   }
-  tab=action==='manage'?'overview':'edit';route('event');return;
+  tab=action==='manage'?'overview':'edit';route('event');if(action==='review')window.uriBPanel?.('review');return;
  }
  if(action==='duplicate'){
   let clone;try{clone=JSON.parse(JSON.stringify(e))}catch(err){alert('Unable to duplicate this invitation.');return}
@@ -82,7 +82,7 @@ window.uriDashAction=function(action,id){
   clone.created=Date.now();clone.updatedAt=clone.created;
   clone.status='draft';clone.cloudPublished=false;delete clone.cloudSlug;
   clone.title=(title(e)||'Wedding')+' (Copy)';
-  clone.guests=[];delete clone.rsvpAnswers;
+  clone.guests=[];clone.households=[];delete clone.rsvpAnswers;
   state.events.push(clone);
   if(!saveSafely()){state.events.pop();return}
   activeFilter='all';query='';renderDashboard();return;
