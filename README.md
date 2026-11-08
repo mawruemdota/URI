@@ -17,6 +17,14 @@ Two wedding styles inspired by the owner's supplied visual references:
 
 Both styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
 
+## Reference-inspired wedding refinement
+
+- **Romantic Botanical** uses a portrait-left, ivory-right cover, original vector botanical flourishes, delicate italic names, a framed story letter, a countdown, and a circular photo detail when the gallery has images.
+- **Minimalist Editorial** uses a stationery-inspired three-column cover (details, central photo and names, timeline), handwritten headings, fine borders, and a second full-width monogram/photo/story spread.
+- Both templates use the same editable wedding content and feature controls. Timeline/details previews in the Editorial cover automatically hide or change when those features are disabled.
+- Layouts respond to the available container width, including the desktop and mobile previews in the builder. The supplied example photographs are visual references only and are not included as production assets; users upload their own photos.
+- Code-level regression checks run under `tests/wedding-template-smoke.cjs`. Real browser and device visual QA remains outstanding.
+
 ## Wedding Builder: six upgrades
 
 1. **Feature Manager 2.0:** enable/disable sections, move up/down, and drag on desktop. The default order is Welcome / Hero, Our Story, Photo Gallery, Wedding Countdown, Event Details, Event Timeline, Dress Code (off), Gift Registry (off), RSVP.
