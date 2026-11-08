@@ -27,6 +27,16 @@
 - [x] Add wedding-template regression tests to CI
 - [ ] Review screenshots on real devices and compare visually against the supplied references
 
+## UI design review polish (code complete; live browser QA pending)
+- [x] Wider desktop editor canvas, clearer hierarchy, consistent control sizing and focus states
+- [x] True-width scaled 1024px desktop and 390px mobile previews inside the editor
+- [x] True-width scaled 1080px desktop and 390px mobile full-page previews
+- [x] Keyboard focus and scroll retention when toggling or reordering features
+- [x] Explicit centered and immersive cover variants; responsive story variants
+- [x] Matching two-card template collection, polished preview placeholders and text treatments
+- [x] Add UI preview regression tests to GitHub CI
+- [ ] Capture live site screenshots and perform browser accessibility, layout and device testing
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
