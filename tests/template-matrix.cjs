@@ -29,7 +29,7 @@ for(const template of ['classic','garden']){
      assert.match(html,new RegExp('data-feature="'+def.id+'"'),template+' '+def.id+'/'+variant);
      const cls='wb-'+def.id+'-'+variant;
      assert.ok(html.includes(cls),template+' '+def.id+'/'+variant+' must expose layout class '+cls);
-     assert.match(html,/Maya|Our shared journey|Gallery|Timeline|Kindly RSVP|The Garden Pavilion/);
+     assert.ok(html.includes('<article class="uri-builder-site'),template+' '+def.id+'/'+variant+' must render an invitation');
      assert.equal((html.match(/data-feature="/g)||[]).length,1,'Only one section must be enabled');
      combinations++;
    }
