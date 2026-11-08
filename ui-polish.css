@@ -393,3 +393,24 @@ body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;p
   .hero-art{border-radius:15px}
   #features .features{grid-template-columns:1fr}
 }
+
+
+/* Full-page preview uses the same truthful sizing as the editor preview. */
+.wf-full-canvas{
+  overflow:auto;overscroll-behavior:contain;
+  min-height:0;padding:20px;border-radius:12px;
+}
+.wf-full-stage{position:relative;max-width:none!important}
+.wf-full-content{
+  max-width:none!important;
+  position:relative;transform-origin:top left;
+  margin:0!important;
+}
+.wf-full-hint{
+  color:#6f7c71;font-size:11px;text-align:right;
+  font-variant-numeric:tabular-nums;padding:8px 2px 0;
+}
+@media(max-width:700px){
+  .wf-full-canvas{padding:8px}
+  .wf-full-hint{font-size:10px}
+}
