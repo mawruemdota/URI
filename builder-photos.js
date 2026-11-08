@@ -66,9 +66,10 @@ function move(i,j){
 window.uriBPhotoMove=(i,delta)=>{if(move(i,i+delta))afterUpdate('Photo order saved.')};
 window.uriBPhotoRemove=i=>{
  const e=event();if(!e||!e.photos[i])return;
+ if(typeof confirm==='function'&&!confirm('Remove this gallery photo from the invitation?'))return;
  if(persistOrRollback(x=>{x.photos.splice(i,1)}))afterUpdate('Photo removed.');
 };
-window.uriBHeroRemove=()=>{if(persistOrRollback(e=>{e.heroPhoto=''}))afterUpdate('Cover photograph removed.')};
+window.uriBHeroRemove=()=>{if(typeof confirm==='function'&&!confirm('Remove the wedding cover photograph?'))return;if(persistOrRollback(e=>{e.heroPhoto=''}))afterUpdate('Cover photograph removed.')};
 window.uriPhotoDragStart=(ev,i)=>{
  const e=event();if(!e||!e.photos[i]||!ev.dataTransfer)return;
  dragIndex=i;ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain','uri-photo-'+i);
