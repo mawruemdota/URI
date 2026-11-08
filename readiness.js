@@ -42,9 +42,10 @@ function panel(e){
 }
 function row(x){return '<article class="uri-ready-item '+(x.done?'is-done':'needs-work')+'"><span aria-hidden="true">'+(x.done?'✓':'○')+'</span><div><strong>'+T(x.label)+'</strong><small>'+(x.done?'Complete':T(x.help))+'</small></div>'+(x.done?'':'<button type="button" onclick="uriReadinessFix(\''+x.panel+'\',\''+x.target+'\')">Fix →</button>')+'</article>'}
 window.URIReadiness={items,status,summary,panel};
-window.uriReadinessShow=()=>{if(window.uriBPanel)window.uriBPanel('review');else{tab='edit';eventPage();window.uriBPanel?.('review')}};
+window.uriReadinessShow=()=>{if(tab!=='edit'){tab='edit';eventPage()}window.uriBPanel?.('review')};
 window.uriReadinessFix=(panel,target)=>{
  if(panel==='guests'){tab='guests';eventPage();return}
+ if(tab!=='edit'){tab='edit';eventPage()}
  if(window.uriBEditTarget)window.uriBEditTarget(panel,target);
  else if(window.uriBPanel)window.uriBPanel(panel==='content'||panel==='photos'?panel:'content');
 };
