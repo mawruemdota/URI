@@ -248,7 +248,7 @@ window.uriPhotoClose=function(silent=false){
  if(!silent&&f&&f.isConnected&&f.focus)f.focus({preventScroll:true});
 };
 window.uriPhotoDecoratePreview=function(){
- const preview=document.getElementById('wbLivePreview');if(!preview)return;
+ const preview=document.getElementById('wbLivePreview');if(!preview||typeof preview.querySelector!=='function')return;
  function add(node,label,kind,i){
   if(!node||node.querySelector('.wb-preview-photo-edit'))return;
   const button=document.createElement('button');
