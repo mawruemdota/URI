@@ -23,8 +23,9 @@ function rerender(opts={}){
     if(window.scrollTo)window.scrollTo(0,y);
   },0);
 }
-window.uriBPanel=p=>{if(LABELS[p]){panel=p;rerender({scrollTop:true})}};
+window.uriBPanel=p=>{if(LABELS[p]){if(panel!==p&&window.uriPhotoClose)window.uriPhotoClose(true);panel=p;rerender({scrollTop:true})}};
 function fitLivePreview(){
+  if(window.uriPhotoDecoratePreview)window.uriPhotoDecoratePreview();
   const surface=document.getElementById('wbPreviewSurface');
   const stage=document.getElementById('wbPreviewStage');
   const preview=document.getElementById('wbLivePreview');
