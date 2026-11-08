@@ -49,6 +49,18 @@ Duplication preserves the wedding design and content but resets the duplicated i
 
 **Tests:** `tests/details-dashboard-smoke.cjs` covers older weddings, venues, map-link safety, activity schedules, publishing snapshots, duplication and deletion safeguards. `tests/browser-wedding.cjs` includes desktop/mobile navigation and automated browser scenarios for the new Content editor and Dashboard. Browser workflow execution, real-device checks, and screenshot inspection remain pending.
 
+## Readiness, direct editing, and Guest Management / RSVP 2.0 (November 2026)
+
+**Invitation readiness:** URI now displays a checklist and completion percentage in the editor and Dashboard 2.0. The Review tab separates required fields (names, valid wedding date, ceremony time and venue, valid RSVP deadline if specified, and enabled reception details) from optional suggestions (story, photos, map directions and local guest planning). "Fix" controls navigate to relevant editing fields. The frontend publish action refuses to proceed while required details are missing; production validation must also be enforced by the future backend.
+
+**Direct preview editing:** Only the private editor preview gets Edit controls on the wedding names, story, ceremony/reception venues, timeline activities, and each section. These shortcuts navigate to the matching Content, Photos, or Guests editor controls; the public invitation remains presentation-only. Photo edit controls continue to open the non-destructive crop dialog.
+
+**Guests & RSVP 2.0 — local testing:** The Guests & RSVP tab supports households, guest categories, email notes, plus-one allowances, household seat limits, total event capacity, optional or required text/choice questions, local test responses, RSVP counts, and CSV import/export. Responses enforce per-guest plus-one allowances, household and event seat limits. Analytics summarize local responses. Local RSVP previews use the existing test-only invitation route.
+
+**Not secure online RSVP:** These guest-specific URLs are not authenticated, confidential, or cross-device. All guest and household data stays in the current browser. **Do not distribute these test URLs to real guests**, or treat the test response counts as production records. No emails or messages are sent by the UI. The public invitation explicitly states online RSVP is not yet enabled. Secure online replies, abuse protection, verification, access controls, and real collaboration are future Supabase milestones.
+
+Regression tests: `tests/experience-smoke.cjs` (readiness, preview navigation, legacy grouping, capacity limits, custom questions, privacy and duplication) plus the extended `tests/browser-wedding.cjs` (Chromium walkthrough and screenshots). Code-level tests have been simulated; hosted-browser and physical mobile QA still require verification.
+
 ## Wedding Builder: six upgrades
 
 1. **Feature Manager 2.0:** enable/disable sections, move up/down, and drag on desktop. The default order is Welcome / Hero, Our Story, Photo Gallery, Wedding Countdown, Event Details, Event Timeline, Dress Code (off), Gift Registry (off), RSVP.
