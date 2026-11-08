@@ -38,7 +38,7 @@ vm.runInContext(fs.readFileSync('builder-core.js','utf8'),ctx);
 vm.runInContext(fs.readFileSync('builder-photos.js','utf8'),ctx);
 (async()=>{
  const U=window.URIBuilder,html=window.uriBuilderPhotosPanel(e);
- assert.match(html,/Photo Manager/);assert.match(html,/wb-photo-grip/);assert.match(html,/aria-label="Move photo right"/);
+ assert.match(html,/<h3>Photos<\/h3>/);assert.match(html,/wb-photo-grip/);assert.match(html,/aria-label="Move photo right"/);
  assert.match(html,/Edit crop/);assert.match(html,/Photo gallery/);
  window.uriPhotoOpen('gallery',0);
  assert.match(host.innerHTML,/role="dialog"/);assert.ok(bodyClass.has('uri-photo-dialog-open'));
