@@ -1,0 +1,273 @@
+/* URI UI polish — review pass 2026-11
+   Scope: creator experience + wedding renderers. Content & data remain unchanged. */
+
+/* App shell and system-wide control rhythm */
+:root{
+  --ui-shadow:0 10px 34px rgba(37,52,46,.045);
+  --ui-focus:#2a8061;
+}
+html{scroll-behavior:smooth}
+body{background:#f8f8f5;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{touch-action:manipulation}
+button{transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{
+  outline:3px solid rgba(40,128,96,.48)!important;outline-offset:3px!important;
+}
+.top{box-shadow:0 1px 0 rgba(35,47,41,.025);backdrop-filter:saturate(1.1)}
+.btn{border-radius:10px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn.primary{background:#17664f}
+.btn.primary:hover{background:#10523f}
+.btn:not(.primary):hover{background:#f5f8f5}
+.panel,.card,.sidebar{box-shadow:var(--ui-shadow)}
+.eyebrow{letter-spacing:.16em}
+
+/* The editor is a working canvas, not a narrow column beside a 240px sidebar. */
+body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;padding-right:28px}
+.workspace:has(.wb-editor){grid-template-columns:180px minmax(0,1fr);gap:24px;align-items:start}
+.workspace:has(.wb-editor)>div:last-child{min-width:0}
+.workspace:has(.wb-editor)>.sidebar{
+  position:sticky;top:94px;min-width:0;padding:10px;border-radius:13px;
+  background:#fff;border-color:#e9eae6;box-shadow:none;
+}
+.workspace:has(.wb-editor)>.sidebar button{
+  padding:12px 13px;font-size:12px;font-weight:550;min-height:43px;
+  border-radius:9px;transition:background-color .12s ease;
+}
+.workspace:has(.wb-editor)>.sidebar button.active{
+  background:#edf4ee;color:#175b46;box-shadow:inset 3px 0 #226a50;
+}
+.workspace:has(.wb-editor)>.sidebar button:hover:not(.active){background:#f5f7f4;color:#2c4e3d}
+.wb-editor-grid{
+  grid-template-columns:minmax(325px,.81fr) minmax(460px,1.17fr);
+  gap:24px;align-items:start;
+}
+.wb-editor-controls{
+  border-radius:14px;border:1px solid #e5e8e1;background:#fff;
+  padding:24px;box-shadow:0 12px 35px rgba(37,52,46,.035);
+}
+.wb-editor-controls>h3{
+  font:500 27px/1.13 'Playfair Display',serif;
+  letter-spacing:-.022em;color:#29372f;
+}
+.wb-editor-controls>p{
+  font-size:12px;line-height:1.65;color:#65756b;
+  margin:7px 0 20px;
+}
+.wb-editor .wb-builder-heading h2{
+  font-size:clamp(28px,2.6vw,37px);line-height:1.12;letter-spacing:-.035em;
+}
+.wb-builder-heading .eyebrow{font-size:10px}
+.wb-builder-heading p{max-width:580px;line-height:1.6}
+.wb-builder-status .chip{border-radius:6px;padding:6px 10px;font-weight:650}
+.wb-builder-route{gap:6px;margin-bottom:17px}
+.wb-builder-route span{border-radius:7px;font-size:11px;line-height:1.2}
+.wb-editor .wb-tabs{
+  gap:4px;padding-bottom:7px;border-bottom:1px solid #e6eae4;
+  margin-bottom:20px;flex-wrap:nowrap;scrollbar-width:thin;
+}
+.wb-tabs button{
+  min-height:43px;border-radius:8px 8px 0 0;padding:11px 13px;
+  font-size:12px;font-weight:650;color:#66776c;
+}
+.wb-tabs button:hover:not(.active){background:#f0f4ef;color:#2b5d48}
+.wb-tabs button.active{
+  color:#175b45;background:#edf5ef;
+  box-shadow:inset 0 -2px #276e52;
+}
+.wb-feature-list{gap:9px}
+.wb-feature-item{background:#fff;padding:14px;border-color:#e6e9e3;border-radius:11px}
+.wb-feature-item:hover{border-color:#a8c8b7;box-shadow:0 3px 12px rgba(27,75,53,.04)}
+.wb-feature-check strong{font-size:13px;color:#2d3f34}
+.wb-feature-check small{font-size:11px;line-height:1.45}
+.wb-feature-check input{width:18px;height:18px;margin-top:1px}
+.wb-drag{color:#a1aaa2;font-size:21px;user-select:none}
+.wb-movers button,.wb-photo-actions button{
+  min-width:36px;min-height:34px;border-radius:8px;
+}
+.wb-movers button:hover:not(:disabled),.wb-photo-actions button:hover:not(:disabled){background:#eef5ef;border-color:#aec9b6}
+.wb-variant{margin:11px 0 0 35px}
+.wb-variant span{font-weight:500;color:#66766a}
+.wb-field{gap:7px;margin:14px 0}
+.wb-field>span{font-size:12px;font-weight:650;color:#405345}
+.wb-field input,.wb-field select,.wb-field textarea{
+  border-radius:9px;border-color:#dfe5de;
+  padding:12px;color:#24352b;background:#fff;
+  font-size:14px;line-height:1.4;
+}
+.wb-field input:hover,.wb-field select:hover,.wb-field textarea:hover{border-color:#aec2b2}
+.wb-field textarea{line-height:1.65}
+.wb-template-choices{gap:14px}
+.wb-template-pick{padding:9px;border-radius:12px;transition:border-color .15s}
+.wb-template-pick.selected{box-shadow:0 0 0 2px rgba(34,109,80,.1)}
+.wb-template-pick:hover{border-color:#7aa58d}
+.wb-template-pick>strong{margin:10px 5px 4px;font-size:12px}
+.wb-colors{gap:12px;margin-bottom:15px}
+.wb-colors label{font-weight:650;color:#4c6254}
+.wb-colors input{cursor:pointer}
+.wb-upload{border-radius:10px;border-color:#afc4b4;background:#f9fbf9;padding:15px;line-height:1.5}
+.wb-upload:hover{border-color:#588a6b;background:#f1f7f2}
+.wb-upload input{max-width:100%}
+.wb-photo-card{border-radius:11px;background:#fff}
+.wb-builder-footer{gap:10px;margin-top:25px}
+.wb-builder-footer .btn{font-size:12px}
+
+/* A desktop preview should never quietly become a mobile layout.
+   The 1024px site is scaled visually; it is not reflowed to the editor panel. */
+.wb-editor-preview{top:92px;min-width:0}
+.wb-preview-toolbar{margin-bottom:10px;flex-wrap:wrap}
+.wb-preview-toolbar strong{font-size:13px;letter-spacing:-.01em}
+.wb-preview-toolbar>div{border:1px solid #dce2dc;background:#fff;border-radius:8px}
+.wb-preview-toolbar button{font-size:12px;font-weight:600;padding:9px 13px;min-height:35px}
+.wb-preview-toolbar button[aria-pressed="true"]{background:#246c50;color:white;border-radius:6px}
+.wb-preview-surface{
+  background:#efede9;border:1px solid #dfdfd9;border-radius:14px;
+  padding:16px;max-height:min(78vh,850px);overflow:auto;
+  container-type:normal;overscroll-behavior:contain;
+}
+.wb-preview-surface #wbLivePreview{
+  max-width:none!important;transform-origin:top left;
+  margin:0!important;position:relative;
+}
+.wb-preview-stage{position:relative;display:block;max-width:none!important}
+.wb-preview-scale{
+  color:#69766c;text-align:right;font-size:11px;
+  padding:7px 3px 0;font-variant-numeric:tabular-nums;
+}
+.wb-preview-actions{margin-top:8px;border-top:1px solid #e6e8e3;padding-top:12px}
+.wb-preview-actions .btn{border-color:#becdc1;background:#fff;font-size:12px}
+.wb-preview-actions .btn:hover{background:#eef6ef}
+.wb-preview-actions .wb-preview-note{margin:0;color:#78857b;font-size:11px}
+.wb-preview-surface .uri-builder-site{box-shadow:0 8px 34px rgba(36,45,36,.12)!important}
+.wb-readiness{border-radius:9px}
+.wb-mobile-actions{box-shadow:0 -8px 24px rgba(36,52,42,.07)}
+
+/* Public invitation finishing touches. Restrained rather than faux-3D. */
+.uri-builder-site{
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"kern" 1;
+}
+.uri-builder-site .wb-photo-empty{
+  background:linear-gradient(145deg,#ded9d1,#c8beb1);
+  color:#554f48;letter-spacing:.04em;
+  font:500 11px/1.55 Montserrat,sans-serif;
+  display:flex;flex-direction:column;gap:11px;
+}
+.uri-builder-site .wb-photo-empty:before{
+  content:"✧";display:grid;place-items:center;
+  border:1px solid rgba(82,77,71,.26);border-radius:50%;
+  width:44px;height:44px;font:27px/1 'Cormorant Garamond',serif;
+  color:#716a61;background:rgba(255,255,255,.12);
+}
+.wb-theme-botanical .wb-botanical-cover .wb-hero-image{
+  background:#d9d0c6;
+}
+.wb-theme-botanical .wb-botanical-cover .wb-names{
+  letter-spacing:-.035em;
+}
+.wb-theme-botanical .wb-botanical-round-photo .wb-photo-empty{
+  font-size:7px;text-align:center;padding:8px;gap:4px;
+}
+.wb-theme-botanical .wb-botanical-round-photo .wb-photo-empty:before{width:24px;height:24px;font-size:17px}
+.wb-theme-botanical .wb-botanical-story{overflow:hidden}
+.wb-theme-botanical .wb-botanical-story p{overflow-wrap:anywhere}
+.wb-theme-editorial .wb-editorial-main .wb-names{
+  max-width:100%;overflow-wrap:break-word;
+  text-wrap:balance;
+}
+.wb-theme-editorial .wb-editorial-cover{
+  border-top:1px solid color-mix(in srgb,var(--wb-ink) 15%,transparent)!important;
+}
+.wb-theme-editorial .wb-editorial-landscape{
+  background:#e7e1d8;
+}
+.wb-theme-editorial .wb-editorial-story-names strong{
+  max-width:100%;overflow-wrap:anywhere;text-wrap:balance;
+}
+.wb-theme-editorial .wb-editorial-side-title{
+  overflow-wrap:break-word;line-height:1.05;
+}
+.wb-theme-editorial .wb-editorial-story-center p{
+  max-width:360px;overflow-wrap:anywhere;
+}
+.uri-builder-site .wb-gallery-controls button{
+  min-width:44px;min-height:44px;width:44px;height:44px;
+  transition:background-color .15s,border-color .15s;
+}
+.uri-builder-site .wb-gallery-controls button:hover{
+  background:color-mix(in srgb,var(--wb-accent) 12%,transparent);
+}
+.uri-builder-site .wb-details-grid strong,.uri-builder-site .wb-timeline li span{
+  overflow-wrap:anywhere;
+}
+.uri-builder-site .wb-footer{
+  border-top:1px solid var(--wb-hairline);
+  font-size:10px;letter-spacing:.16em;
+}
+.wf-full-canvas{
+  background:#efede9;box-shadow:inset 0 0 0 1px rgba(42,50,41,.035);
+}
+.wf-full-bar{background:#f8f8f5}
+.wf-full-bar>span{letter-spacing:.01em}
+.wf-full-content{box-shadow:0 10px 35px rgba(36,45,36,.1)}
+.wf-full-modes button[aria-pressed="true"]{background:#246c50;color:#fff}
+
+/* Usable tablet and phone workspaces. */
+@media(max-width:1260px){
+  .wb-editor-grid{grid-template-columns:1fr}
+  .wb-editor-preview{position:static}
+  .wb-preview-surface{max-height:720px}
+}
+@media(max-width:1100px){
+  body:has(.wb-editor) .wrap{padding:20px}
+  .workspace:has(.wb-editor){grid-template-columns:1fr;gap:14px}
+  .workspace:has(.wb-editor)>.sidebar{
+    position:static;display:flex;overflow-x:auto;
+    gap:5px;padding:7px;white-space:nowrap;scrollbar-width:thin;
+  }
+  .workspace:has(.wb-editor)>.sidebar button{
+    width:auto;flex:0 0 auto;
+  }
+  .workspace:has(.wb-editor)>.sidebar button.active{box-shadow:inset 0 -2px #226a50}
+  .wb-editor-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  body:has(.wb-editor) .wrap{padding:18px 15px 70px}
+  .wb-editor-controls{padding:17px}
+  .wb-editor .wb-tabs{gap:2px;scroll-snap-type:x proximity}
+  .wb-editor .wb-tabs button{scroll-snap-align:start;padding:11px 12px}
+  .wb-builder-heading{gap:12px}
+  .wb-builder-status{align-items:flex-start}
+  .wb-preview-toolbar button{padding:9px 12px}
+  .wb-preview-surface{padding:12px;max-height:620px}
+  .wb-preview-actions{align-items:flex-start}
+  .wb-preview-actions .wb-preview-note{width:100%;text-align:left}
+  .wb-photo-card{grid-template-columns:100px minmax(0,1fr)}
+  .wb-field input,.wb-field select,.wb-field textarea,
+  .wf-field input,.wf-field textarea{font-size:16px}
+  .wb-movers button,.wb-photo-actions button{min-width:42px;min-height:40px}
+  .wb-feature-item{padding:12px}
+  .wb-variant{margin-left:0}
+  .wb-builder-footer-actions{width:100%}
+  .wb-builder-footer-actions .btn{flex:1}
+  .wf-full-bar{gap:8px}
+  .wf-full-canvas{padding:8px}
+}
+@media(max-width:430px){
+  .wb-editor-controls{padding:14px}
+  .wb-feature-top{gap:6px}
+  .wb-feature-check strong{font-size:12px}
+  .wb-feature-check small{font-size:10px}
+  .wb-movers{gap:2px}
+  .wb-movers button{padding:6px;min-width:35px;min-height:38px}
+  .wb-photo-card{grid-template-columns:78px minmax(0,1fr);gap:9px}
+  .wb-preview-surface{padding:8px}
+  .wb-preview-scale{font-size:10px}
+  .wb-colors{gap:6px}
+  .wb-colors label{font-size:10px}
+  .wf-full-canvas{padding:4px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  button{transition:none!important}
+}
