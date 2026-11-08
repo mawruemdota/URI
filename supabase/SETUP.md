@@ -1,41 +1,34 @@
 # URI Cloud Publishing Setup (Supabase)
 
+**Project URI created and connected on November 8, 2026.** Project reference: `sclthfeqievigrcjoohh` (Singapore). The database schema, row-level security policies and public media bucket have been applied and verified. The publishable key and URL are already in `cloud-config.js`. **Email redirect settings and real browser sign-in/publishing tests still need to be completed.**
+
 This is **optional beta infrastructure**. Without these steps the wedding builder works entirely in local browser storage. Do not use for real guest responses until the separate secure RSVP backend is implemented and security-tested.
 
-## 1. Create your Supabase project
-Create a Supabase project in your own account. Keep the project database password, secret keys, and service_role key private.
+## 1. Project creation — completed
+The dedicated **URI** project has been created in the mawruem organization. Keep all database passwords, secret keys and service_role keys private.
 
-## 2. Install the database schema
-Open **SQL Editor** inside Supabase and run the full contents of `supabase/schema.sql`.
+## 2. Database migration — completed
+Migration `uri_initial_publication_and_storage` has been applied to the URI project. The source SQL remains available at `supabase/schema.sql`.
 This creates:
 - `public.uri_publications` — published website snapshots, with owner access and read-only published visibility.
 - `uri-wedding-public` — a **public** media bucket, with owner-scoped upload permissions.
 
 The bucket is intentionally public, because published wedding website images are viewable by visitors. **Never put private or confidential photographs in it.** Publishing a new version can leave unused old uploads in storage; cleanup is not implemented yet.
 
-## 3. Configure email authentication
+## 3. Configure email authentication — action required
 In Supabase Authentication settings, enable email sign-in and configure the allowed Site URL / redirect URL:
 `https://mawruemdota.github.io/URI/`
 
 The current app requests an email magic link. Email delivery may have rate limits until you configure your own email provider. After clicking the magic link, return to your event's Publish tab.
 
-## 4. Connect your public frontend
-Edit `cloud-config.js` in the public GitHub repository:
-
-```js
-window.URI_CLOUD_CONFIG = {
-  url: 'https://YOUR-PROJECT.supabase.co',
-  publishableKey: 'YOUR_PUBLIC_PUBLISHABLE_OR_ANON_KEY'
-};
-```
-
-The URL and the **publishable/anon key** are designed for client-side use when RLS is correctly configured. **Never paste a secret, service_role key, database password, or any private token into a public repository.**
+## 4. Public frontend connection — completed
+The public project URL and publishable key have been committed to `cloud-config.js`. This is safe for a public site only because the policies enforce access controls. **Never publish a service_role/secret key, database password or any private token.**
 
 ## 5. Publish and test
 1. Enable GitHub Pages from `main` and `/(root)`, if not already enabled.
 2. Open `https://mawruemdota.github.io/URI/`.
 3. Create a Wedding event, then open **Edit Invitation → Publish**.
-4. Sign in, and publish your invitation.
+4. Sign in using the magic link, and publish your invitation.
 5. Open the generated public URL in a different browser or private window.
 6. Edit a section, then **publish again** for that change to appear on the public website.
 7. Test **Unpublish**, then confirm the public link becomes unavailable.
