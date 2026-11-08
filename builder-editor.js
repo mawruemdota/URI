@@ -4,7 +4,7 @@
 const U=window.URIBuilder;
 let panel='content',viewport='desktop',dragging='';
 const T=v=>esc(v==null?'':String(v));
-const LABELS={content:'Content',features:'Features',design:'Design',photos:'Photos',publish:'Publish'};
+const LABELS={content:'Content',features:'Features',design:'Design',photos:'Photos',review:'Review',publish:'Publish'};
 function event(){let e=current();return e&&e.type==='Wedding'?U.model(e):null}
 function rerender(opts={}){
   const y=typeof window.scrollY==='number'?window.scrollY:0;
@@ -26,6 +26,7 @@ function rerender(opts={}){
 window.uriBPanel=p=>{if(LABELS[p]){if(panel!==p&&window.uriPhotoClose)window.uriPhotoClose(true);panel=p;rerender({scrollTop:true})}};
 function fitLivePreview(){
   if(window.uriPhotoDecoratePreview)window.uriPhotoDecoratePreview();
+  if(window.uriBDecorateSections)window.uriBDecorateSections();
   const surface=document.getElementById('wbPreviewSurface');
   const stage=document.getElementById('wbPreviewStage');
   const preview=document.getElementById('wbLivePreview');
@@ -73,12 +74,12 @@ window.uriBTemplate=value=>{let e=event();if(!e||!['classic','garden'].includes(
 window.uriBDesign=(key,value)=>{let e=event();if(!e)return;let base=U.presets[e.template];if(!Object.hasOwn(base,key))return;if(['bg','ink','accent'].includes(key)&&!/^#[0-9a-fA-F]{6}$/.test(value))return;if(['body','heading'].includes(key)&&!U.fonts[value])return;if(key==='spacing'&&!['compact','balanced','airy'].includes(value))return;e.designByTemplate[e.template]||={};e.designByTemplate[e.template][key]=value;U.persist();U.refresh()};
 window.uriBResetDesign=()=>{let e=event();if(!e)return;delete e.designByTemplate[e.template];U.persist();rerender()};
 function readinessIssues(e){const issues=[];if(!(e.name1||'').trim()||!(e.name2||'').trim())issues.push('Add both partners’ names');if(!e.date)issues.push('Choose the wedding date');else{const d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(e.date<today)issues.push('Choose a current or future wedding date')}if(!e.time)issues.push('Add the start time');if(!(e.venue||'').trim())issues.push('Add the wedding venue');if(e.deadline&&e.date&&e.deadline>e.date)issues.push('Set the RSVP deadline on or before the wedding date');return issues}
-function readinessMarkup(e){const issues=readinessIssues(e);return issues.length?'<div class="wb-readiness wb-readiness-attention"><strong>'+issues.length+' detail'+(issues.length===1?'':'s')+' to review</strong><span>'+issues.map(x=>T(x)).join(' · ')+'</span>'+(panel!=='content'?'<button type="button" class="btn small" onclick="uriBPanel(\'content\')">Edit details</button>':'')+'</div>':'<div class="wb-readiness wb-readiness-ready"><strong>✓ Essential details complete</strong><span>Personalize the rest of your website, then preview it before publishing.</span></div>'}
+function readinessMarkup(e){if(window.URIReadiness)return window.URIReadiness.summary(e);const issues=readinessIssues(e);return issues.length?'<div class="wb-readiness wb-readiness-attention"><strong>'+issues.length+' detail'+(issues.length===1?'':'s')+' to review</strong><span>'+issues.map(x=>T(x)).join(' · ')+'</span>'+(panel!=='content'?'<button type="button" class="btn small" onclick="uriBPanel(\'content\')">Edit details</button>':'')+'</div>':'<div class="wb-readiness wb-readiness-ready"><strong>✓ Essential details complete</strong><span>Personalize the rest of your website, then preview it before publishing.</span></div>'}
 function updateReadiness(e){let node=document.getElementById('wbReadiness');if(node)node.innerHTML=readinessMarkup(e)}
 window.uriBuilderUpdateReadiness=updateReadiness;
-function field(e,key,label,type='text'){return '<label class="wb-field"><span>'+label+'</span><input type="'+type+'" value="'+T(e[key]||'')+'" oninput="uriBSet(\''+key+'\',this.value)"></label>'}
-function area(e,key,label){return '<label class="wb-field"><span>'+label+'</span><textarea rows="3" oninput="uriBSet(\''+key+'\',this.value)">'+T(e[key]||'')+'</textarea></label>'}
-function config(e,key,label,fallback,rows=3){return '<label class="wb-field"><span>'+label+'</span><textarea rows="'+rows+'" oninput="uriBConfig(\''+key+'\',this.value)">'+T(e.featureConfig[key]??fallback)+'</textarea></label>'}
+function field(e,key,label,type='text'){return '<label class="wb-field" data-uri-field="'+key+'"><span>'+label+'</span><input type="'+type+'" value="'+T(e[key]||'')+'" oninput="uriBSet(\''+key+'\',this.value)"></label>'}
+function area(e,key,label){return '<label class="wb-field" data-uri-field="'+key+'"><span>'+label+'</span><textarea rows="3" oninput="uriBSet(\''+key+'\',this.value)">'+T(e[key]||'')+'</textarea></label>'}
+function config(e,key,label,fallback,rows=3){return '<label class="wb-field" data-uri-field="'+key+'"><span>'+label+'</span><textarea rows="'+rows+'" oninput="uriBConfig(\''+key+'\',this.value)">'+T(e.featureConfig[key]??fallback)+'</textarea></label>'}
 function content(e){
  return '<h3>Invitation Content</h3><p>Wedding names, venues and schedule are shared by both templates.</p>'
  +'<div class="wb-fieldgrid">'+field(e,'name1','First partner')+field(e,'name2','Second partner')+field(e,'title','Dashboard title (optional)')+field(e,'deadline','RSVP deadline','date')+'</div>'
@@ -94,12 +95,12 @@ function features(e){return '<h3>Feature Manager 2.0</h3><p>Enable sections, cho
 function design(e){let d=U.design(e),options=(key,name,choices)=>'<label class="wb-field"><span>'+name+'</span><select onchange="uriBDesign(\''+key+'\',this.value)">'+choices.map(([id,label])=>'<option value="'+id+'" '+(d[key]===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>';return '<h3>Design Manager</h3><p>Each wedding template has independent color, font and spacing settings.</p><div class="wb-template-choices">'+TEMPLATES.map(t=>'<button type="button" aria-pressed="'+(e.template===t.id)+'" class="wb-template-pick '+(e.template===t.id?'selected':'')+'" onclick="uriBTemplate(\''+t.id+'\')">'+(window.URIBuilder?'<div class="template-preview uri-ref-thumb">'+window.URIBuilder.cover({...e,template:t.id})+'</div>':templateThumb(t))+'<strong>'+t.name+'</strong><small class="wb-template-caption">'+(t.id===e.template?'Current template':'Switch without losing content')+'</small></button>').join('')+'</div><div class="wb-colors">'+[['bg','Background'],['ink','Text'],['accent','Accent']].map(([key,label])=>'<label><input type="color" value="'+d[key]+'" oninput="uriBDesign(\''+key+'\',this.value)"><span>'+label+'</span></label>').join('')+'</div>'+options('heading','Heading font',[['cormorant','Cormorant Garamond'],['allura','Allura Script'],['playfair','Playfair Display'],['montserrat','Montserrat'],['dm','DM Sans']])+options('body','Body font',[['cormorant','Cormorant Garamond'],['montserrat','Montserrat'],['dm','DM Sans'],['playfair','Playfair Display']])+options('spacing','Section spacing',[['compact','Compact'],['balanced','Balanced'],['airy','Airy']])+'<button type="button" class="btn small" onclick="uriBResetDesign()">Reset template style</button>'}
 function photos(e){return window.uriBuilderPhotosPanel?window.uriBuilderPhotosPanel(e):'<p>The photo manager is loading.</p>'}
 function publishing(e){return '<h3>Database & Publishing</h3>'+(window.URICloud?window.URICloud.panel(e):'<div class="banner notice">Cloud publishing is not configured. This event is saved in your browser.</div>')+'<div class="banner notice">Guest lists are not included in public invitations. Cross-device RSVP collection requires a separately secured guest system.</div>'}
-const BUILDER_STEPS=['content','features','design','photos','publish'];
+const BUILDER_STEPS=['content','features','design','photos','review','publish'];
 window.uriBNext=function(delta){let i=BUILDER_STEPS.indexOf(panel),next=Math.min(BUILDER_STEPS.length-1,Math.max(0,i+delta));window.uriBPanel(BUILDER_STEPS[next]);let h=document.querySelector('.wb-editor');if(h&&h.scrollIntoView)h.scrollIntoView({behavior:'smooth',block:'start'})};
 window.uriBuilderEditor=function(e){
   U.model(e);
   scheduleFit();
-  let active=({content,features,design,photos,publish:publishing}[panel]||content)(e);
+  let active=({content,features,design,photos,review:e=>window.URIReadiness?window.URIReadiness.panel(e):readinessMarkup(e),publish:publishing}[panel]||content)(e);
   let index=BUILDER_STEPS.indexOf(panel),next=BUILDER_STEPS[index+1],previous=BUILDER_STEPS[index-1];
   let nextButton=next?'<button type="button" class="btn primary" onclick="uriBNext(1)">Next: '+LABELS[next]+' →</button>':'<button type="button" class="btn primary" onclick="uriFlowOpenPreview(\'event\')">Preview full website ↗</button>';
   return '<div class="wb-editor"><div class="wb-builder-heading"><div><span class="eyebrow">Your wedding website</span><h2>Customize your invitation</h2><p>Complete the details, arrange sections, choose your design, and preview the finished website.</p></div><div class="wb-builder-status"><span class="chip">'+(e.cloudPublished?'Published snapshot':'Draft')+'</span><span class="wb-save-label" id="wbSaveState" role="status">✓ Saved in this browser</span><button type="button" class="btn small wb-preview-shortcut" onclick="uriFlowOpenPreview(\'event\')">Preview website ↗</button></div></div>'
