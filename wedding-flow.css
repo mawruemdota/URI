@@ -1,0 +1,121 @@
+/* URI Wedding Flow 2.0: cohesive creation, editor and full-page preview */
+.wf-wizard{max-width:1120px;padding-top:24px}
+.wf-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.wf-save{font-size:12px;color:#426c55;display:flex;gap:6px;align-items:center}
+.wf-save:before{content:'✓';font-size:14px;font-weight:700}
+.wf-progress-head h2{margin:10px 0 7px;font-size:clamp(28px,3.5vw,43px);letter-spacing:-.5px}
+.wf-progress-head p{margin:0 0 22px;font-size:14px}
+.wf-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 22px}
+.wf-steps button{display:flex;align-items:center;gap:9px;justify-content:center;padding:10px 5px;border:1px solid #e2e6dd;background:#fff;border-radius:10px;min-width:0;color:#66746b;font-size:12px}
+.wf-steps button span{width:23px;height:23px;display:grid;place-items:center;border-radius:50%;background:#e9ece6;font-weight:700;flex:0 0 auto}
+.wf-steps button small{font-weight:700;font-size:11px;white-space:nowrap}
+.wf-steps button.done{border-color:#9fc5ac;color:#1c674d}
+.wf-steps button.done span{background:#d9f0e0;color:#1a6b4a}
+.wf-steps button.current{border-color:var(--green);background:#edf5ef;color:#176b55}
+.wf-steps button.current span{background:var(--green);color:white}
+.wf-steps button:disabled{opacity:.52;cursor:default}
+.wf-wizard .wizard-shell{grid-template-columns:minmax(0,1fr) minmax(260px,340px)}
+.wf-wizard .wizard-main{min-width:0}
+.wf-panel{padding:28px}
+.wf-panel .wf-field:first-child{margin-top:4px}
+.wf-panel .wizard-error{margin-top:0}
+.wf-field{display:flex;flex-direction:column;gap:8px;margin:15px 0;text-align:left}
+.wf-field>span{font-size:13px;font-weight:700;color:var(--ink)}
+.wf-field>span small{font-weight:400;color:var(--muted)}
+.wf-field>span b{color:#a35245}
+.wf-field input,.wf-field textarea{width:100%;min-width:0;border:1px solid #d9ded7;border-radius:11px;padding:13px;background:white;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px}
+.wf-field input:focus,.wf-field textarea:focus{outline:2px solid #83b99a;border-color:#287252}
+.wf-field [aria-invalid=true]{border-color:#b9574d;box-shadow:0 0 0 1px #b9574d}
+.wf-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wf-two .wf-field{margin:6px 0}
+.wf-helper{font-size:12px;color:#758178;background:#f6f7f3;padding:12px 14px;border-radius:10px;margin-top:15px}
+.wf-designs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.wf-design{border:2px solid #e4e7df;border-radius:15px;background:#fff;padding:10px;text-align:left;min-width:0;transition:border-color .12s}
+.wf-design:hover{border-color:#83b49c}
+.wf-design.active{border-color:var(--green);box-shadow:0 0 0 3px #176b5514}
+.wf-design .template-preview{height:215px;overflow:hidden}
+.wf-design strong{font-size:14px;margin:12px 3px 3px;display:block}
+.wf-design small{color:var(--muted);font-size:11px;display:block;margin:0 3px;min-height:30px}
+.wf-selected{display:block;margin:9px 3px 2px;font-size:12px;font-weight:700;color:var(--green)}
+.wf-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--line);padding-top:22px;margin-top:24px}
+.wf-review{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.wf-review-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.wf-review-card:last-child{border-bottom:0}
+.wf-review-card>div{min-width:0}
+.wf-review-card small{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}
+.wf-review-card strong{font-size:13px;overflow-wrap:anywhere}
+.wf-review-actions{margin-top:15px}
+.wf-resume{border:1px solid #c8dec9;background:#eff6ed;padding:12px 16px;border-radius:12px;margin:0 0 17px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px}
+.wf-side{background:#eae7e0;padding:14px}
+.wf-side .wb-cover-mini{height:380px;max-height:380px;min-height:350px;box-shadow:none}
+.wf-side-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.wf-side-head h3{font:19px 'Playfair Display',serif;margin:2px 0 14px}
+.wf-side-head span{font-size:11px;color:#7a857c}
+.wf-side>.btn{width:100%;margin-top:12px}
+.wf-preview-mobile{display:none;width:100%;margin-top:14px}
+.wf-full{max-width:1300px;margin:0 auto;padding:12px 22px 55px}
+.wf-full-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:72px;background:var(--bg);z-index:10;padding:13px 0;border-bottom:1px solid var(--line);font-size:12px;font-weight:600}
+.wf-full-bar>span{color:var(--muted);text-align:center}
+.wf-full-modes{display:flex;gap:6px}
+.wf-full-modes button[aria-pressed=true]{background:var(--green);color:white;border-color:var(--green)}
+.wf-full-canvas{background:#e9e7e0;padding:22px;border-radius:16px;margin-top:18px;min-height:500px}
+.wf-full-content{width:min(100%,1080px);margin:auto;box-shadow:0 8px 32px #00000014}
+.wf-full-canvas[data-mode=mobile] .wf-full-content{width:390px;max-width:100%}
+.wf-full-canvas .uri-builder-site{width:100%}
+.wb-builder-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.wb-builder-heading h2{margin:5px 0;font-size:clamp(25px,3vw,35px)}
+.wb-builder-heading p{margin:0;font-size:13px;max-width:620px}
+.wb-builder-status{display:flex;align-items:center;flex-direction:column;gap:7px;flex-shrink:0}
+.wb-save-label{font-size:11px;color:#4f735e}
+.wb-builder-route{display:flex;align-items:center;gap:8px;margin:0 0 15px;color:#89958b;font-size:12px}
+.wb-builder-route span{padding:7px 12px;border:1px solid var(--line);border-radius:30px;background:white}
+.wb-builder-route span.complete{color:#2b6a50;background:#e5f2e8;border-color:#c6ddca}
+.wb-builder-route span.active{color:var(--green);border-color:var(--green);font-weight:700}
+.wb-editor .wb-tabs{margin-bottom:15px}
+.wb-editor-controls{align-self:start}
+.wb-builder-footer{margin-top:25px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wb-builder-footer>span{font-size:11px;color:var(--muted)}
+.wb-builder-footer-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.wb-builder-footer-actions .btn{font-size:12px;padding:10px 11px}
+.wb-preview-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px}
+.wb-preview-actions .btn{font-size:12px;padding:9px 13px}
+.wb-preview-actions p{flex:1;text-align:right;margin:0;font-size:11px}
+.wb-mobile-actions{display:none}
+.wf-wizard .wf-side .wb-cover-copy strong{font-size:36px}
+.wf-wizard .wf-side .wb-cover-editorial .wb-cover-copy strong{font-size:33px}
+@media(max-width:960px){
+ .wf-wizard .wizard-shell{grid-template-columns:1fr}
+ .wf-wizard .wizard-side{display:none}
+ .wf-wizard{max-width:760px}
+ .wf-preview-mobile{display:block}
+ .wb-editor-preview{position:static}
+ .wb-mobile-actions{display:flex;position:sticky;bottom:0;z-index:6;background:#fff;border:1px solid var(--line);box-shadow:0 -7px 24px #263d2c12;border-radius:13px;padding:9px 12px;margin-top:12px;align-items:center;justify-content:space-between;gap:8px}
+ .wb-mobile-actions .btn{padding:10px 13px;font-size:12px}
+ .wb-mobile-actions span{font-size:10px;color:#64806a}
+}
+@media(max-width:760px){
+ .wf-progress-head h2{font-size:31px}
+ .wf-steps{gap:3px}
+ .wf-steps button{flex-direction:column;gap:3px;padding:8px 2px;font-size:10px}
+ .wf-steps button small{font-size:9px}
+ .wf-full{padding:8px 12px 35px}
+ .wf-full-bar{top:64px;flex-wrap:wrap;justify-content:space-between}
+ .wf-full-bar>span{order:3;width:100%;font-size:11px;text-align:left}
+ .wf-full-canvas{padding:10px}
+ .wb-builder-heading{flex-wrap:wrap}
+ .wb-builder-status{flex-direction:row}
+ .wb-preview-actions p{text-align:left}
+}
+@media(max-width:500px){
+ .wf-two,.wf-designs{grid-template-columns:1fr}
+ .wf-designs{gap:10px}
+ .wf-design .template-preview{height:175px}
+ .wf-panel{padding:17px}
+ .wf-resume{align-items:flex-start;flex-direction:column}
+ .wf-steps button small{font-size:8px}
+ .wf-steps button span{width:21px;height:21px}
+ .wf-full-modes .btn{padding:8px 9px}
+ .wb-builder-route span{padding:6px 8px;font-size:10px}
+ .wb-builder-footer{display:block}
+ .wb-builder-footer-actions{margin-top:12px;justify-content:flex-start}
+}
