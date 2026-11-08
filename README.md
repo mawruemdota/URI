@@ -33,6 +33,12 @@ The wedding landing page now presents two balanced template cards. Photo placeho
 
 **Verification limitation:** Live GitHub Pages and browser screenshots were unavailable to this session. JavaScript syntax, source-level structure, and simulated flows were checked; pixel-accurate visual QA on real devices is still outstanding.
 
+## Minimal interface copy pass
+
+The homepage, wedding setup, builder, Photo Manager, dashboard, readiness checklist, and guest management now use shorter headings and fewer redundant helper captions. Decorative Unicode symbols were removed from visible controls and invitation content; important accessibility names, instructions and local-RSVP warnings remain. The Romantic Botanical template retains its original vector illustration as part of its core design. Styling refinements load through `minimal-ui.css`.
+
+Automated JavaScript and simulated wedding-flow checks pass, but live desktop/mobile screenshots and device-specific visual review are not verified.
+
 ## Wedding Details 2.0 and Dashboard 2.0
 
 ### Flexible wedding information
