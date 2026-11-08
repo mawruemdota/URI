@@ -62,7 +62,7 @@ function guestRows(e){
  return guests.length?guests.map(g=>'<article class="uri-guest-row" data-guest-id="'+T(g.id)+'">'
   +'<div class="uri-guest-main"><strong>'+T(g.name)+'</strong><small>'+T(household(e,g.householdId)?.name||'Individual')+' · '+T(g.category||'General')+(g.plusOnesAllowed?' · +'+number(g.plusOnesAllowed,5)+' allowed':'')+'</small></div>'
   +'<span class="uri-guest-status uri-guest-status-'+T(g.status)+'">'+T(g.status)+'</span>'
-  +'<div class="uri-guest-row-actions"><button type="button" onclick="uriGuestsTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Test RSVP</button><button type="button" onclick="uriGuestsEdit(this.closest(\'[data-guest-id]\').dataset.guestId)">Edit</button><button type="button" onclick="uriGuestsRemove(this.closest(\'[data-guest-id]\').dataset.guestId)">Remove</button></div></article>').join(''):'<div class="uri-guests-blank">No guests match. Add someone or clear the filters.</div>';
+  +'<div class="uri-guest-row-actions"><button type="button" onclick="uriGuestsTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Test RSVP</button><button type="button" onclick="uriGuestsCopyTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Copy test URL</button><button type="button" onclick="uriGuestsEdit(this.closest(\'[data-guest-id]\').dataset.guestId)">Edit</button><button type="button" onclick="uriGuestsRemove(this.closest(\'[data-guest-id]\').dataset.guestId)">Remove</button></div></article>').join(''):'<div class="uri-guests-blank">No guests match. Add someone or clear the filters.</div>';
 }
 function questionRows(e){
  return e.rsvpSettings.questions.map((q,i)=>'<div class="uri-question-row"><div><strong>'+T(q.label)+'</strong><small>'+T(q.type==='choice'?'Multiple choice: '+(Array.isArray(q.options)?q.options.join(', '):''):'Short answer')+(q.required?' · Required':'')+'</small></div><button type="button" onclick="uriGuestsRemoveQuestion('+i+')">Remove</button></div>').join('');
@@ -78,7 +78,7 @@ function panel(e){
   +'<div class="uri-guest-layout"><section class="uri-guest-panel">'+guestForm(e,edit)+'</section>'
   +'<section class="uri-guest-panel"><h3>Households</h3><p>Group invitees and optionally limit seats in each household.</p>'
   +'<form class="uri-household-form" onsubmit="uriHouseholdAdd(event)"><label>Household name<input required name="household" maxlength="100" placeholder="e.g. Cruz Family"></label><label>Seats (0 = unlimited)<input name="seats" type="number" value="0" min="0" max="50"></label><button class="btn" type="submit">Add</button></form>'
-  +'<div class="uri-household-list">'+(e.households.length?e.households.map(h=>'<div class="uri-household-row"><span><strong>'+T(h.name)+'</strong><small>'+e.guests.filter(g=>g.householdId===h.id).length+' guests · '+(number(h.seatLimit,50)?number(h.seatLimit,50)+' seats':'No seat limit')+'</small></span><button type="button" onclick="uriHouseholdRemove(\''+T(h.id)+'\')">Remove</button></div>').join(''):'<small>No households added.</small>')+'</div></section></div>'
+  +'<div class="uri-household-list">'+(e.households.length?e.households.map(h=>'<div class="uri-household-row" data-household-id="'+T(h.id)+'"><span><strong>'+T(h.name)+'</strong><small>'+e.guests.filter(g=>g.householdId===h.id).length+' guests</small></span><label>Seat limit<input type="number" min="0" max="50" aria-label="Seat limit for '+T(h.name)+'" value="'+number(h.seatLimit,50)+'" onchange="uriHouseholdSeats(this.closest(\'[data-household-id]\').dataset.householdId,this.value)"></label><button type="button" onclick="uriHouseholdRemove(this.closest(\'[data-household-id]\').dataset.householdId)">Remove</button></div>').join(''):'<small>No households added.</small>')+'</div></section></div>'
   +'<section class="uri-guest-panel"><div class="uri-guest-tools"><div><h3>Guest list</h3><small>'+u.people+' invited · '+u.reserved+' allocated seats · '+u.confirmed+' confirmed</small></div><div class="uri-guest-import"><button type="button" class="btn small" onclick="uriGuestsExport()">Export CSV</button><label class="uri-import-label">Import CSV<input type="file" accept=".csv,text/csv" onchange="uriGuestsImport(event)"></label></div></div>'
   +'<div class="uri-guest-toolbar"><label>Find guests<input type="search" placeholder="Search name, household, category" value="'+T(search)+'" oninput="uriGuestsSearch(this.value)"></label><label>Status<select onchange="uriGuestsFilter(this.value)">'+['all','pending','attending','declined'].map(x=>'<option value="'+x+'" '+(x===filter?'selected':'')+'>'+x+'</option>').join('')+'</select></label></div>'
   +'<div class="uri-guest-rows">'+guestRows(e)+'</div></section>'
@@ -96,6 +96,7 @@ window.uriGuestsUpdate=ev=>{ev.preventDefault();const fd=new FormData(ev.target)
 window.uriGuestsRemove=id=>{if(!confirm('Remove this guest and their local test response?'))return;if(persist(e=>{e.guests=e.guests.filter(x=>x.id!==id)})){editing='';success('Guest removed.')}};
 window.uriHouseholdAdd=ev=>{ev.preventDefault();const fd=new FormData(ev.target),name=String(fd.get('household')||'').trim().slice(0,100);if(!name)return;const e=getEvent();if(e.households.some(h=>h.name.toLowerCase()===name.toLowerCase())){notice='That household already exists.';eventPage();return}
  if(persist(e=>e.households.push({id:token('h'),name,seatLimit:number(fd.get('seats'),50)})))success('Household created.')};
+window.uriHouseholdSeats=(id,value)=>{if(persist(e=>{const h=e.households.find(x=>x.id===id);if(h)h.seatLimit=number(value,50)}))success('Household seat limit updated.')};
 window.uriHouseholdRemove=id=>{const e=getEvent();if(e.guests.some(g=>g.householdId===id)){notice='Move the guests to another household before removing this one.';eventPage();return}if(persist(e=>{e.households=e.households.filter(h=>h.id!==id)}))success('Household removed.')};
 window.uriGuestsCapacity=value=>{if(persist(e=>{e.rsvpSettings.capacity=number(value,10000)}))success('Guest capacity saved.')};
 window.uriGuestsAddQuestion=ev=>{ev.preventDefault();const fd=new FormData(ev.target),label=String(fd.get('label')||'').trim().slice(0,120),type=fd.get('type')==='choice'?'choice':'text';const options=String(fd.get('options')||'').split('|').map(x=>x.trim()).filter(Boolean).slice(0,12);const e=getEvent();if(!label||e.rsvpSettings.questions.length>=12){notice='A maximum of 12 questions is supported.';eventPage();return}if(type==='choice'&&options.length<2){notice='Provide at least two choices separated by |.';eventPage();return}
@@ -104,6 +105,14 @@ window.uriGuestsRemoveQuestion=i=>{if(persist(e=>{e.rsvpSettings.questions.splic
 window.uriGuestsSearch=v=>{search=String(v||'').slice(0,100);eventPage()};
 window.uriGuestsFilter=v=>{filter=statusSet.includes(v)?v:'all';eventPage()};
 window.uriGuestsTest=id=>{const e=getEvent();if(!e?.guests.find(g=>g.id===id))return;location.hash='#invite/'+encodeURIComponent(e.id)+'.'+encodeURIComponent(id);render()};
+window.uriGuestsCopyTest=async id=>{
+ const e=getEvent();if(!e?.guests.find(g=>g.id===id))return;
+ const url=location.origin+location.pathname+'#invite/'+encodeURIComponent(e.id)+'.'+encodeURIComponent(id);
+ if(!confirm('This is an unprotected test URL that works only in this browser. Do not send it to real guests. Copy anyway?'))return;
+ if(navigator.clipboard&&window.isSecureContext){
+  try{await navigator.clipboard.writeText(url);alert('Local testing URL copied.')}catch(_){prompt('Copy local test URL:',url)}
+ }else prompt('Copy local test URL:',url);
+};
 function guestPage(input){
  const bits=String(input||'').split('.'),eventId=decodeURIComponent(bits[0]||''),guestId=decodeURIComponent(bits[1]||'');
  const e=state.events.find(x=>x.id===eventId&&x.type==='Wedding'),g=e?.guests.find(x=>x.id===guestId);
@@ -183,5 +192,17 @@ window.uriGuestsImport=async ev=>{
   success(list.length+' guests imported for local planning.');
  }catch(err){notice=err.message;eventPage()}finally{ev.target.value=''}
 };
-window.URIGuests={ensure,panel,guestPage,summary,usage,parseCSV};
+function analytics(e){
+ ensure(e);const u=usage(e),answers={};
+ for(const q of e.rsvpSettings.questions){
+  const responses=e.guests.filter(g=>g.status==='attending').map(g=>g.answers[q.id]).filter(Boolean);
+  answers[q.id]={label:q.label,responses};
+ }
+ return '<div class="uri-rsvp-analytics"><span class="eyebrow">Local RSVP test analytics</span><h2>Response overview</h2><p>These counts come only from responses saved in this browser.</p>'
+  +stats(e)
+  +'<div class="uri-guest-panel"><h3>Seat allocation</h3><p>'+u.confirmed+' of '+(u.capacity||'unlimited')+' seats confirmed. '+u.reserved+' invitations allocated including permitted plus-ones.</p>'
+  +'<div class="uri-rsvp-answer-list">'+Object.values(answers).map(q=>'<div><strong>'+T(q.label)+'</strong><span>'+q.responses.length+' responses</span><ul>'+q.responses.slice(0,30).map(v=>'<li>'+T(v)+'</li>').join('')+'</ul></div>').join('')+'</div>'
+  +'<button type="button" class="btn" onclick="tab=\'guests\';eventPage()">Manage guests →</button></div></div>';
+}
+window.URIGuests={ensure,panel,guestPage,summary,usage,parseCSV,analytics};
 })();
