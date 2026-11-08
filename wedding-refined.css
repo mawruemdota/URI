@@ -316,3 +316,55 @@
 @media(prefers-reduced-motion:reduce){
  .uri-builder-site *, .uri-ref-thumb *{transition:none!important;animation:none!important}
 }
+
+/* Miniature designs mirror the actual templates in selection, wizard and homepage. */
+.wb-mini-romance{grid-template-columns:35% 65%!important;background:#f6f0e8}
+.wb-mini-romance .wb-cover-copy{position:relative;isolation:isolate;overflow:hidden;background:var(--wb-bg,#f6f0e8);color:var(--wb-ink,#49483d);padding:18px 12px;gap:14px}
+.wb-mini-romance .wb-cover-photo{background:#c9b7a9;display:grid;place-items:center}
+.wb-mini-romance .wb-cover-photo>span{font:65px 'Cormorant Garamond',serif;color:#eae0d5}
+.wb-mini-romance .wb-cover-copy>small{font:400 11px/1.5 'Cormorant Garamond',serif;letter-spacing:.03em;text-align:center;z-index:1}
+.wb-mini-romance .wb-cover-copy>strong{font:italic 41px/.84 'Cormorant Garamond',serif;letter-spacing:-.04em;z-index:1}
+.wb-mini-romance .wb-cover-copy>strong em{font:400 13px/1.3 'Cormorant Garamond',serif;letter-spacing:0;margin:9px 0}
+.wb-mini-romance .wb-mini-date{font:400 15px 'Cormorant Garamond',serif;z-index:1}
+.wb-mini-romance .wb-mini-flowers{position:absolute;top:-19px;right:-16px;width:110px;opacity:.44;z-index:0}
+.wb-mini-romance .wb-mini-flowers svg{width:100%;height:auto}
+.wb-mini-stationery{display:grid!important;grid-template-columns:22% 56% 22%!important;background:var(--wb-bg,#fff);color:var(--wb-ink,#272727);border:1px solid #e4e2df}
+.wb-mini-stationery .wb-mini-details,.wb-mini-stationery .wb-mini-timeline{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:16px;padding:25px 6px;border-right:1px solid #0002;min-width:0;text-align:center}
+.wb-mini-stationery .wb-mini-timeline{border-right:0;border-left:1px solid #0002}
+.wb-mini-stationery .wb-editorial-side-title{font:400 28px/.9 Allura,cursive;letter-spacing:-.03em}
+.wb-mini-stationery .wb-mini-details strong{font:600 10px Montserrat,sans-serif;overflow-wrap:anywhere}
+.wb-mini-stationery .wb-mini-details small,.wb-mini-stationery .wb-mini-timeline small{font:400 8px/1.4 Montserrat,sans-serif;letter-spacing:.06em;overflow-wrap:anywhere}
+.wb-mini-stationery .wb-mini-main{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;gap:15px;padding:24px 12px;min-width:0}
+.wb-mini-stationery .wb-mini-landscape{height:145px;width:100%;background:#e1dcd4;display:grid;place-items:center}
+.wb-mini-stationery .wb-mini-landscape img{width:100%;height:100%;object-fit:cover}
+.wb-mini-stationery .wb-mini-landscape span{font:34px 'Cormorant Garamond',serif;color:#ad9c8c}
+.wb-mini-stationery .wb-mini-main>small{font:500 8px Montserrat,sans-serif;letter-spacing:.12em}
+.wb-mini-stationery .wb-mini-main>strong{font:400 47px/.84 Allura,cursive;letter-spacing:0;overflow-wrap:anywhere}
+.wb-mini-stationery .wb-mini-main>strong em{font:400 .65em Allura,cursive}
+.wb-mini-stationery .wb-mini-date{font:600 11px Montserrat,sans-serif;letter-spacing:.1em}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-details,
+.uri-ref-thumb .wb-mini-stationery .wb-mini-timeline{padding:12px 2px;gap:8px}
+.uri-ref-thumb .wb-mini-stationery .wb-editorial-side-title{font-size:19px}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-details small,
+.uri-ref-thumb .wb-mini-stationery .wb-mini-timeline small{font-size:5px}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-details strong{font-size:7px}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-main{padding:12px 5px;gap:6px}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-landscape{height:75px}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-main>strong{font-size:28px}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-main>small{font-size:5px}
+.uri-ref-thumb .wb-mini-stationery .wb-mini-date{font-size:7px}
+.uri-ref-thumb .wb-mini-romance .wb-cover-copy{padding:9px 5px;gap:7px}
+.uri-ref-thumb .wb-mini-romance .wb-cover-copy>small{font-size:7px}
+.uri-ref-thumb .wb-mini-romance .wb-cover-copy>strong{font-size:28px}
+.uri-ref-thumb .wb-mini-romance .wb-cover-copy>strong em{font-size:10px;margin:5px}
+.uri-ref-thumb .wb-mini-romance .wb-mini-date{font-size:10px}
+.uri-ref-thumb .wb-mini-romance .wb-mini-flowers{width:65px}
+@media(max-width:560px){
+ .wb-mini-stationery .wb-mini-details,.wb-mini-stationery .wb-mini-timeline{gap:10px;padding:20px 5px}
+ .wb-mini-stationery .wb-editorial-side-title{font-size:22px}
+ .wb-mini-stationery .wb-mini-main{gap:11px;padding:14px 7px}
+ .wb-mini-stationery .wb-mini-main>strong{font-size:36px}
+ .wb-mini-stationery .wb-mini-landscape{height:100px}
+ .wb-mini-stationery .wb-mini-main>small{font-size:6px}
+ .wb-mini-romance .wb-cover-copy>strong{font-size:35px}
+}
