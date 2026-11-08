@@ -3,7 +3,7 @@
 ## Stage 1 — UI/UX polish (in progress)
 - [x] Responsive navigation improvements (browser QA pending)
 - [x] Five-step wedding wizard, inline validation, persistent draft recovery, progress and full-page preview (browser QA pending)
-- [ ] Consistent editor, templates, dashboard, and empty states (wedding editor polished; dashboard and empty states still pending)
+- [x] Consistent wedding editor, templates, dashboard, and empty states (mobile browser QA pending)
 - [x] Compact invitation previews, reusable wedding layout components and live desktop/mobile editor preview (browser QA pending)
 - [ ] Complete accessibility checks and real desktop/mobile end-to-end browser testing (simulated flow tests added)
 
@@ -56,6 +56,21 @@
 - [x] Add Node smoke tests and extend Chromium browser QA screenshots
 - [ ] Verify GitHub Actions Chromium run results and inspect images for visual regressions
 - [ ] Manually test touch panning and image selection on iOS Safari and Android Chrome
+
+## Wedding Details 2.0 and Dashboard 2.0 (2026-11-08)
+- [x] Separate ceremony and reception details, optional different dates and times
+- [x] Individual venue names, addresses, HTTPS directions links, and arrival notes
+- [x] Structured, editable, reorderable activities with notes, dates and location assignments
+- [x] Preserve older single-venue weddings and migrate legacy text-based timelines
+- [x] Include wedding venue and timeline records in the public invitation payload
+- [x] Wedding dashboard with invitation cards, event dates, last-edited data and status
+- [x] Search, draft/published filters, sorting and edit/preview actions
+- [x] Local duplication without guest lists or publishing credentials
+- [x] Safe local deletion and protective blocking for locally recorded published snapshots
+- [x] New regression suite and extended Chromium browser QA
+- [ ] Verify the current GitHub Actions Chromium workflow run and inspect screenshot artifacts
+- [ ] Test iOS Safari and Android Chrome using actual devices
+- [ ] Implement cross-device draft synchronization and real-time published status after returning to Supabase
 
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
