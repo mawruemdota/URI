@@ -40,9 +40,9 @@ function usage(e){
 function success(msg){notice=msg;eventPage()}
 function persist(fn){
  const e=getEvent();if(!e)return false;
- const old={guests:JSON.parse(JSON.stringify(e.guests)),households:JSON.parse(JSON.stringify(e.households)),rsvpSettings:JSON.parse(JSON.stringify(e.rsvpSettings))};
- fn(e);
- try{save();return true}catch(_){e.guests=old.guests;e.households=old.households;e.rsvpSettings=old.rsvpSettings;notice='Browser storage is full. Your changes were not saved.';eventPage();return false}
+ const old={guests:JSON.parse(JSON.stringify(e.guests)),households:JSON.parse(JSON.stringify(e.households)),rsvpSettings:JSON.parse(JSON.stringify(e.rsvpSettings)),updatedAt:e.updatedAt};
+ fn(e);e.updatedAt=Date.now();
+ try{save();return true}catch(_){e.guests=old.guests;e.households=old.households;e.rsvpSettings=old.rsvpSettings;e.updatedAt=old.updatedAt;notice='Browser storage is full. Your changes were not saved.';eventPage();return false}
 }
 function stats(e){const u=usage(e);return '<div class="uri-guest-stats">'+[['Invited',u.people],['Accepted',u.attending],['Seats confirmed',u.confirmed],['Pending',u.pending],['Declined',u.declined]].map(([k,v])=>'<div><strong>'+v+'</strong><span>'+k+'</span></div>').join('')+'</div>'}
 function options(items,selected,empty){return (empty?'<option value="">'+T(empty)+'</option>':'')+items.map(item=>'<option value="'+T(item.id)+'" '+(item.id===selected?'selected':'')+'>'+T(item.name)+'</option>').join('')}
@@ -148,9 +148,9 @@ window.uriGuestsRespond=ev=>{
   const occupied=other.filter(x=>x.householdId===h.id).reduce((n,x)=>n+1+number(x.plusOnesConfirmed,x.plusOnesAllowed),0);
   if(occupied+(response==='attending'?1+plus:0)>number(h.seatLimit,50)){alert('This response exceeds the household seat limit.');return}
  }
- const old={status:g.status,plus:g.plusOnesConfirmed,answers:g.answers,at:g.respondedAt};
- g.status=response;g.plusOnesConfirmed=plus;g.answers=answers;g.respondedAt=Date.now();
- try{save();notice='Local test response saved.';guestPage(e.id+'.'+g.id)}catch(_){Object.assign(g,{status:old.status,plusOnesConfirmed:old.plus,answers:old.answers,respondedAt:old.at});alert('Unable to save this response in this browser.')}
+ const old={status:g.status,plus:g.plusOnesConfirmed,answers:g.answers,at:g.respondedAt,updatedAt:e.updatedAt};
+ g.status=response;g.plusOnesConfirmed=plus;g.answers=answers;g.respondedAt=Date.now();e.updatedAt=Date.now();
+ try{save();notice='Local test response saved.';guestPage(e.id+'.'+g.id)}catch(_){e.updatedAt=old.updatedAt;Object.assign(g,{status:old.status,plusOnesConfirmed:old.plus,answers:old.answers,respondedAt:old.at});alert('Unable to save this response in this browser.')}
 };
 function summary(e){ensure(e);const u=usage(e);return '<div class="uri-guests-summary"><strong>'+u.people+' guests</strong> · '+u.confirmed+' confirmed seats · '+u.pending+' pending<button type="button" class="btn small" onclick="tab=\'guests\';eventPage()">Manage guests</button></div>'}
 function csvCell(value){let s=String(value??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
