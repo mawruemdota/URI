@@ -24,7 +24,7 @@ const scenario=function(){
  state.events.push(e);state.current=e.id;tab='edit';eventPage();
  const U=window.URIBuilder,D=window.URIWeddingDetails;
  const migrated=D.getTimeline(e).length===2&&D.getTimeline(e)[1].title==='Reception';
- const editor=root.innerHTML.includes('Ceremony & reception')&&root.innerHTML.includes('Wedding timeline');
+ const editor=root.innerHTML.includes('data-wedding-section="ceremony"')&&root.innerHTML.includes('wb-schedule-editor-list');
  window.uriWeddingDetailSet('ceremony','mapUrl','https://maps.google.com/?q=chapel');
  window.uriWeddingReception(true);
  window.uriWeddingDetailSet('reception','date','2032-09-19');
