@@ -2,7 +2,7 @@
 .wf-wizard{max-width:1120px;padding-top:24px}
 .wf-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 .wf-save{font-size:12px;color:#426c55;display:flex;gap:6px;align-items:center}
-.wf-save:before{content:'✓';font-size:14px;font-weight:700}
+.wf-save:before{content:'';font-size:14px;font-weight:700}
 .wf-progress-head h2{margin:10px 0 7px;font-size:clamp(28px,3.5vw,43px);letter-spacing:-.5px}
 .wf-progress-head p{margin:0 0 22px;font-size:14px}
 .wf-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 22px}
@@ -126,3 +126,5 @@
 /* Priority 1: editor readiness feedback matches setup validation. */
 .wb-readiness-wrap{margin:-5px 0 18px}.wb-readiness{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid #d5e0d4;background:#f1f6f1;border-radius:12px;padding:12px 14px;font-size:12px;color:#365541}.wb-readiness strong{font-weight:700;white-space:nowrap}.wb-readiness span{flex:1;min-width:150px;line-height:1.55}.wb-readiness-attention{border-color:#e8d4b8;background:#fff9ed;color:#745422}.wb-readiness .btn{background:white;flex-shrink:0}.wb-readiness-ready{border-color:#c8e4d2}
 @media(max-width:520px){.wb-readiness{align-items:flex-start;flex-direction:column}.wb-readiness span{min-width:0}.wb-readiness .btn{width:100%}}
+
+.wf-save:before{display:none!important}
