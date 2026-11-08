@@ -368,7 +368,7 @@ body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;p
   margin:16px 5px 3px;color:#24352b;
   font-size:16px;font-weight:650;
 }
-#templates .template span{
+#templates .template > span{
   font-size:12px;line-height:1.55;
   margin:3px 5px 8px;color:#738076;
 }
