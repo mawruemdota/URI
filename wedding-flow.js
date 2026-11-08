@@ -35,11 +35,36 @@ wizardStep=function(n){if(n<0||n>4)return;step=n;wizardError='';badField='';pers
 window.uriFlowFresh=function(){if(confirm('Start a new wedding invitation? Your unfinished setup draft will be replaced.')){resetWizard();resumeNotice=false;wizardView()}};
 wizardView=function(){let body=pageBody(),preview=window.URIBuilder?window.URIBuilder.cover(wizard):inv(wizard);app.innerHTML='<div class="wrap wizard wf-wizard"><div class="wf-header"><button type="button" class="btn ghost" onclick="route(\'home\')">← Back to home</button><div id="wf-save" class="wf-save" role="status">'+(draftSaved?'Draft saved in this browser':'Unable to save draft in this browser')+'</div></div>'+(resumeNotice?'<div class="wf-resume" role="status">Your unfinished wedding setup has been restored. <button type="button" class="btn small" onclick="uriFlowFresh()">Start fresh</button></div>':'')+'<div class="wf-progress-head"><div><span class="eyebrow">Wedding website · Step '+(step+1)+' of 5</span><h2>'+HEADS[step]+'</h2><p>'+SUBS[step]+'</p></div></div><nav class="wf-steps" aria-label="Wedding setup progress">'+HEADS.map((h,i)=>'<button type="button" class="'+(i===step?'current':i<step?'done':'upcoming')+'" '+(i>step?'disabled':'')+' aria-current="'+(i===step?'step':'false')+'" onclick="wizardStep('+i+')"><span>'+(i<step?'✓':i+1)+'</span><small>'+['Design','Couple','Details','Message','Review'][i]+'</small></button>').join('')+'</nav><div class="wizard-shell"><main class="wizard-main"><div class="panel wf-panel">'+(wizardError?'<div id="wf-error" class="wizard-error" role="alert" tabindex="-1">'+T(wizardError)+'</div>':'')+body+'<div class="wf-actions"><button type="button" class="btn" onclick="wizardStep(step-1)" '+(step===0?'disabled':'')+'>← Back</button><button type="button" class="btn primary" onclick="nextWizard()">'+(step===4?'Save & customize →':'Continue →')+'</button></div></div><button type="button" class="btn wf-preview-mobile" onclick="uriFlowOpenPreview(\'draft\')">Preview your wedding website ↗</button></main><aside class="wizard-side wf-side"><div class="wf-side-head"><h3>Invitation cover</h3><span>Live preview</span></div><div id="wizardLive">'+preview+'</div><button type="button" class="btn small" onclick="uriFlowOpenPreview(\'draft\')">Full website preview ↗</button></aside></div></div>'};
 nextWizard=function(){if(step<4){if(!validate(step)){showError();return}step++;persistDraft();wizardView();window.scrollTo(0,0);return}for(let s=0;s<4;s++){if(!validate(s)){step=s;showError();return}}let e={...defaults(),...wizard,type:'Wedding',id:'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),guests:[],status:'draft',created:Date.now()};if(window.URIBuilder)window.URIBuilder.model(e);state.events.push(e);const oldCurrent=state.current;state.current=e.id;try{save()}catch(err){state.events.pop();state.current=oldCurrent;wizardError='Browser storage is full or unavailable. Your draft was not created.';showError();return}clearDraft();resumeNotice=false;tab='edit';route('event');if(window.uriBPanel)window.uriBPanel('content');window.scrollTo(0,0)};
-function fullPreview(e,back){let content=window.URIBuilder?window.URIBuilder.render(e):inv(e);app.innerHTML='<div class="wf-full"><div class="wf-full-bar"><button type="button" class="btn" onclick="uriFlowBackPreview()">← '+(back==='draft'?'Back to setup':'Back to editor')+'</button><span>Full wedding website preview · Not published</span><div class="wf-full-modes"><button type="button" class="btn small" aria-pressed="true" data-wf-mode="desktop" onclick="uriFlowMode(\'desktop\')">Desktop</button><button type="button" class="btn small" aria-pressed="false" data-wf-mode="mobile" onclick="uriFlowMode(\'mobile\')">Mobile</button></div></div><div class="wf-full-canvas" id="wfFullCanvas" data-mode="desktop"><div class="wf-full-content">'+content+'</div></div></div>'}
+function fullPreview(e,back){let content=window.URIBuilder?window.URIBuilder.render(e):inv(e);app.innerHTML='<div class="wf-full"><div class="wf-full-bar"><button type="button" class="btn" onclick="uriFlowBackPreview()">← '+(back==='draft'?'Back to setup':'Back to editor')+'</button><span>Full wedding website preview · Not published</span><div class="wf-full-modes"><button type="button" class="btn small" aria-pressed="true" data-wf-mode="desktop" onclick="uriFlowMode(\'desktop\')">Desktop</button><button type="button" class="btn small" aria-pressed="false" data-wf-mode="mobile" onclick="uriFlowMode(\'mobile\')">Mobile</button></div></div><div class="wf-full-canvas" id="wfFullCanvas" data-mode="desktop"><div class="wf-full-stage" id="wfFullStage"><div class="wf-full-content" id="wfFullContent">'+content+'</div></div></div><div class="wf-full-hint" id="wfFullScale">1024px desktop layout</div></div>';setTimeout(()=>{if(window.uriFlowFit)window.uriFlowFit()},0)}
 let previewFrom='event',previewEvent='';
 window.uriFlowOpenPreview=function(which){if(which==='draft'){previewFrom='draft';route('preview-wizard')}else{let e=current();if(!e)return;previewFrom='event';previewEvent=e.id;route('preview/'+e.id)}window.scrollTo(0,0)};
 window.uriFlowBackPreview=function(){if(previewFrom==='draft'){route('create')}else{if(previewEvent)state.current=previewEvent;tab='edit';route('event')}window.scrollTo(0,0)};
-window.uriFlowMode=function(mode){let c=document.getElementById('wfFullCanvas');if(c)c.dataset.mode=mode==='mobile'?'mobile':'desktop';document.querySelectorAll('[data-wf-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-wf-mode')===mode)))};
+window.uriFlowFit=function(){
+  const canvas=document.getElementById('wfFullCanvas');
+  const stage=document.getElementById('wfFullStage');
+  const content=document.getElementById('wfFullContent');
+  if(!canvas||!stage||!content||!canvas.clientWidth)return;
+  const mobile=canvas.dataset.mode==='mobile';
+  const width=mobile?390:1080,available=Math.max(0,canvas.clientWidth-24);
+  const scale=Math.min(1,available/width);
+  content.style.width=width+'px';
+  content.style.maxWidth='none';
+  content.style.transformOrigin='top left';
+  content.style.transform='scale('+scale+')';
+  stage.style.width=width*scale+'px';
+  stage.style.height=Math.ceil(content.scrollHeight*scale)+'px';
+  stage.style.margin='auto';
+  const caption=document.getElementById('wfFullScale');
+  if(caption)caption.textContent=(mobile?'390px mobile layout':'1080px desktop layout')+' · '+Math.round(scale*100)+'% scale';
+  if(content.querySelectorAll)content.querySelectorAll('img').forEach(img=>{if(!img.complete)img.addEventListener('load',window.uriFlowFit,{once:true})});
+};
+window.uriFlowMode=function(mode){
+  const c=document.getElementById('wfFullCanvas');
+  if(c)c.dataset.mode=mode==='mobile'?'mobile':'desktop';
+  document.querySelectorAll('[data-wf-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-wf-mode')===mode)));
+  setTimeout(window.uriFlowFit,0);
+};
+if(window.addEventListener)window.addEventListener('resize',()=>{if(window.uriFlowFit)window.uriFlowFit()});
 const oldRender=render;
 render=function(){window.__uriLastRenderedHash=location.hash;let r=location.hash.slice(1)||'home';if(r==='preview-wizard'){previewFrom='draft';fullPreview(wizard,'draft');return}if(r.startsWith('preview/')){let id=r.slice(8),e=state.events.find(e=>e.id===id);if(!e){route('dashboard');return}previewFrom='event';previewEvent=id;fullPreview(e,'event');return}return oldRender()};
 const currentRoute=location.hash.slice(1);
