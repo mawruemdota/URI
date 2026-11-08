@@ -28,6 +28,8 @@ jobs:
         run: node tests/details-dashboard-smoke.cjs
       - name: Verify readiness, direct edits and local RSVP 2.0
         run: node tests/experience-smoke.cjs
+      - name: Verify direct preview focus targets and edit buttons
+        run: node tests/inline-edit-smoke.cjs
 
   browser-qa:
     runs-on: ubuntu-latest
