@@ -17,7 +17,7 @@ function rerender(opts={}){
     }
     if(opts.focusId){
       const row=document.querySelector('[data-feature-id="'+opts.focusId+'"]');
-      const control=row&&row.querySelector(opts.checkbox?'input[type="checkbox"]':'[data-move-dir="'+opts.delta+'"]');
+      const control=row&&typeof row.querySelector==='function'?row.querySelector(opts.checkbox?'input[type="checkbox"]':'[data-move-dir="'+opts.delta+'"]'):null;
       if(control&&control.focus)control.focus({preventScroll:true});
     }
     if(window.scrollTo)window.scrollTo(0,y);
