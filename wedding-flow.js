@@ -6,7 +6,7 @@ const HEADS=['Choose your wedding design','Introduce the couple','When and where
 const SUBS=['Pick a starting style. You can change it later without losing your details.',
   'Tell us whose wedding we are celebrating.',
   'Add the essential details your guests will need.',
-  'Write a short welcome and decide when guests should reply.',
+  'Add a favorite photo, a welcome message, and an RSVP deadline.',
   'Check everything before opening your wedding website builder.'];
 let wizardError='',badField='',resumeNotice=false,draftSaved=true;
 const T=x=>esc(x==null?'':String(x));
@@ -19,11 +19,69 @@ function migrateLegacy(){try{let v=JSON.parse(sessionStorage.getItem(WIZARD_KEY)
 function pickField(k,label,type,required,placeholder){let val=wizard[k]||'';return '<label class="wf-field" for="wf-'+k+'"><span>'+label+(required?' <b aria-hidden="true">*</b>':' <small>(optional)</small>')+'</span><input id="wf-'+k+'" name="'+k+'" type="'+type+'" '+(type==='date'&&k==='date'?'min="'+localToday()+'" ':'')+'value="'+T(val)+'" placeholder="'+T(placeholder||'')+'" '+(required?'required ':'')+'aria-invalid="'+(badField===k)+'" oninput="wizardSet(\''+k+'\',this.value)" /></label>'}
 function textMessage(){return '<label class="wf-field" for="wf-message"><span>A note to your guests <small>(optional)</small></span><textarea id="wf-message" rows="4" maxlength="1500" oninput="wizardSet(\'message\',this.value)">'+T(wizard.message||'')+'</textarea></label>'}
 function detailCard(name,value,edit){return '<div class="wf-review-card"><div><small>'+name+'</small><strong>'+T(value)+'</strong></div><button type="button" class="btn small" onclick="wizardStep('+edit+')">Edit</button></div>'}
-function reviewBody(){let t=TEMPLATES.find(x=>x.id===wizard.template)||TEMPLATES[0];return '<div class="wf-review">'+detailCard('Design',t.name,0)+detailCard('Couple',(wizard.name1||'Your name')+' & '+(wizard.name2||'Partner name'),1)+detailCard('Date and time',(wizard.date?fmt(wizard.date):'Choose a date')+' · '+(wizard.time||'To be confirmed'),2)+detailCard('Venue',wizard.venue||'Add a venue',2)+detailCard('RSVP deadline',wizard.deadline?fmt(wizard.deadline):'Not specified',3)+'</div><div class="wf-review-actions"><button type="button" class="btn" onclick="uriFlowOpenPreview(\'draft\')">View full wedding website ↗</button></div><p class="wf-helper">Saving will create a private draft in this browser and open the full editor. It will not publish your wedding website or send invitations.</p>'}
-function pageBody(){if(step===0)return '<div class="wf-designs">'+TEMPLATES.map(t=>'<button type="button" class="wf-design '+(wizard.template===t.id?'active':'')+'" aria-pressed="'+(wizard.template===t.id)+'" onclick="wizardSet(\'template\',\''+t.id+'\');wizardView()">'+templateThumb(t)+'<strong>'+T(t.name)+'</strong><small>'+T(t.desc)+'</small><span class="wf-selected">'+(wizard.template===t.id?'✓ Selected':'Choose design')+'</span></button>').join('')+'</div>';
+function reviewBody(){let t=TEMPLATES.find(x=>x.id===wizard.template)||TEMPLATES[0];return '<div class="wf-review">'+detailCard('Design',t.name,0)+detailCard('Couple',(wizard.name1||'Your name')+' & '+(wizard.name2||'Partner name'),1)+detailCard('Date and time',(wizard.date?fmt(wizard.date):'Choose a date')+' · '+(wizard.time||'To be confirmed'),2)+detailCard('Venue',wizard.venue||'Add a venue',2)+detailCard('Cover photo',wizard.heroPhoto?'Added — ready to personalize':'Optional — add one now or in the editor',3)+detailCard('RSVP deadline',wizard.deadline?fmt(wizard.deadline):'Not specified',3)+'</div><div class="wf-review-actions"><button type="button" class="btn" onclick="uriFlowOpenPreview(\'draft\')">View full wedding website ↗</button></div><p class="wf-helper">Saving will create a private draft in this browser and open the full editor. It will not publish your wedding website or send invitations.</p>'}
+
+function photoBody(){
+  let src=typeof wizard.heroPhoto==='string'&&wizard.heroPhoto.startsWith('data:image/')?wizard.heroPhoto:'';
+  return '<section class="wf-photo-step"><div class="wf-photo-heading"><div><strong>Your cover photograph</strong><span>Optional · JPEG, PNG or WebP · maximum 12 MB</span></div>'+(src?'<button type="button" class="btn small" onclick="uriFlowClearPhoto()">Remove</button>':'')+'</div>'
+    +(src?'<div class="wf-photo-current"><img src="'+T(src)+'" alt="Wedding photograph selected for the invitation cover"><span>Cover photo added. You can change its crop and focus in the editor.</span></div>':'<div class="wf-photo-empty"><span class="wf-photo-glyph" aria-hidden="true">✧</span><strong>Make it personal with a photograph</strong><span>You can skip this and add photos later.</span></div>')
+    +'<label class="wf-photo-choose"><span>'+(src?'Replace cover photograph':'Choose a cover photograph')+'</span><input type="file" accept="image/jpeg,image/png,image/webp" onchange="uriFlowPhoto(event)"></label><p id="wfPhotoStatus" class="wf-photo-status" role="status" aria-live="polite"></p></section>';
+}
+function compressWeddingPhoto(file){
+  return new Promise((resolve,reject)=>{
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type))return reject(new Error('Choose a JPEG, PNG, or WebP photograph.'));
+    if(file.size>12*1024*1024)return reject(new Error('The photograph is too large. Choose a file smaller than 12 MB.'));
+    if(file.size===0)return reject(new Error('The selected file is empty.'));
+    if(typeof URL==='undefined'||!URL.createObjectURL)return reject(new Error('Image upload is not supported by this browser.'));
+    const url=URL.createObjectURL(file),image=new Image();
+    image.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('The image could not be opened. Try another file.'))};
+    image.onload=()=>{
+      try{
+        let scale=Math.min(1,1300/Math.max(image.width,image.height)),canvas=document.createElement('canvas');
+        canvas.width=Math.max(1,Math.round(image.width*scale));
+        canvas.height=Math.max(1,Math.round(image.height*scale));
+        canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+        let data=canvas.toDataURL('image/jpeg',.72);
+        URL.revokeObjectURL(url);
+        resolve(data);
+      }catch(err){URL.revokeObjectURL(url);reject(err)}
+    };
+    image.src=url;
+  });
+}
+window.uriFlowPhoto=async function(ev){
+  const file=ev.target.files?.[0],status=document.getElementById('wfPhotoStatus');
+  if(!file)return;
+  if(status)status.textContent='Preparing your photograph…';
+  const previous=wizard.heroPhoto||'',settings=wizard.heroSettings;
+  try{
+    wizard.heroPhoto=await compressWeddingPhoto(file);
+    wizard.heroSettings={...(wizard.heroSettings||{}),x:50,y:50,alt:'Wedding couple'};
+    if(!persistDraft()){
+      wizard.heroPhoto=previous;wizard.heroSettings=settings;
+      persistDraft();
+      throw new Error('This browser does not have enough storage. Please use a smaller image or add it after setup.');
+    }
+    wizardView();
+  }catch(err){
+    wizard.heroPhoto=previous;wizard.heroSettings=settings;
+    if(status)status.textContent=err.message||'Unable to add photograph.';
+  }
+};
+window.uriFlowClearPhoto=function(){
+  const prior=wizard.heroPhoto,settings=wizard.heroSettings;
+  wizard.heroPhoto='';
+  if(!persistDraft()){
+    wizard.heroPhoto=prior;wizard.heroSettings=settings;
+    alert('Unable to save this change in your browser.');
+    return;
+  }
+  wizardView();
+};
+function pageBody(){if(step===0)return '<div class="wf-designs">'+TEMPLATES.map(t=>'<button type="button" class="wf-design '+(wizard.template===t.id?'active':'')+'" aria-pressed="'+(wizard.template===t.id)+'" onclick="wizardSet(\'template\',\''+t.id+'\');wizardView()">'+(window.URIBuilder?'<div class="template-preview uri-ref-thumb">'+window.URIBuilder.cover({...wizard,template:t.id})+'</div>':templateThumb(t))+'<strong>'+T(t.name)+'</strong><small>'+T(t.desc)+'</small><span class="wf-selected">'+(wizard.template===t.id?'✓ Selected':'Choose design')+'</span></button>').join('')+'</div>';
 if(step===1)return '<div class="wf-two">'+pickField('name1',"Partner one's name",'text',true,'e.g. Maria')+pickField('name2',"Partner two's name",'text',true,'e.g. Juan')+'</div><p class="wf-helper">Names will appear on the wedding cover. You can edit them again later.</p>';
 if(step===2)return '<div class="wf-two">'+pickField('date','Wedding date','date',true)+pickField('time','Start time','time',true)+'</div>'+pickField('venue','Ceremony or event venue','text',true,'e.g. The Garden Pavilion')+pickField('address','Venue address','text',false,'City, province')+'<p class="wf-helper">If the ceremony and reception are at different places, you can add that information in the editor.</p>';
-if(step===3)return textMessage()+pickField('deadline','RSVP deadline','date',false)+'<p class="wf-helper">Your RSVP settings are a draft. Guests cannot submit responses across devices until the secure RSVP system is complete.</p>';
+if(step===3)return photoBody()+textMessage()+pickField('deadline','RSVP deadline','date',false)+'<p class="wf-helper">Your RSVP settings are a draft. Guests cannot submit responses across devices until the secure RSVP system is complete.</p>';
 return reviewBody()}
 function validate(at){wizardError='';badField='';if(at===0){if(!TEMPLATES.some(t=>t.id===wizard.template)){wizardError='Please choose a wedding design.';badField='template'}}else if(at===1){if(!(wizard.name1||'').trim()){wizardError="Enter the first partner's name.";badField='name1'}else if(!(wizard.name2||'').trim()){wizardError="Enter the second partner's name.";badField='name2'}}else if(at===2){for(let [key,msg] of [['date','Choose a wedding date.'],['time','Choose a starting time.'],['venue','Enter the event venue.']]){if(!(wizard[key]||'').trim()){wizardError=msg;badField=key;break}}if(!wizardError&&wizard.date<localToday()){wizardError='The wedding date cannot be in the past.';badField='date'}}else if(at===3){if(wizard.deadline&&wizard.date&&wizard.deadline>wizard.date){wizardError='RSVP deadline must be on or before the wedding date.';badField='deadline'}else if(wizard.deadline&&wizard.deadline<localToday()){wizardError='RSVP deadline cannot be in the past.';badField='deadline'}}return !wizardError}
 function showError(){wizardView();let f=document.getElementById('wf-'+badField);if(f&&typeof f.focus==='function')f.focus();else{let n=document.getElementById('wf-error');if(n&&typeof n.focus==='function')n.focus()}}
