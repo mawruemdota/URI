@@ -44,7 +44,7 @@ vm.runInContext(editor,context,{filename:'builder-editor.js'});
 const markup=window.uriBuilderEditor(e);
 assert.match(markup,/id="wbPreviewStage"/);
 assert.match(markup,/id="wbPreviewScale"/);
-assert.match(markup,/Live wedding preview/);
+assert.match(markup,/wb-preview-toolbar[\s\S]*?Preview/);
 window.uriBViewport('desktop');
 assert.equal(elements.wbLivePreview.style.width,'1024px');
 assert.equal(elements.wbPreviewStage.style.width,(568/1024*1024)+'px');
