@@ -40,7 +40,7 @@ function panel(e){
   +'<div class="uri-ready-group"><h4>Recommended</h4>'+s.list.filter(x=>!x.blocking).map(row).join('')+'</div>'
   +'<p class="uri-ready-security">RSVP remains a local test until the secure guest backend is connected.</p></section>';
 }
-function row(x){return '<article class="uri-ready-item '+(x.done?'is-done':'needs-work')+'"><div><strong>'+T(x.label)+'</strong><small>'+(x.done?'Complete':T(x.help))+'</small></div>'+(x.done?'':'<button type="button" onclick="uriReadinessFix(\''+x.panel+'\',\''+x.target+'\')">Fix</button>')+'</article>'}
+function row(x){return '<article class="uri-ready-item '+(x.done?'is-done':'needs-work')+'"><div><strong>'+T(x.label)+'</strong><small>'+(x.done?'':T(x.help))+'</small></div>'+(x.done?'':'<button type="button" onclick="uriReadinessFix(\''+x.panel+'\',\''+x.target+'\')">Fix</button>')+'</article>'}
 window.URIReadiness={items,status,summary,panel};
 window.uriReadinessShow=()=>{if(tab!=='edit'){tab='edit';eventPage()}window.uriBPanel?.('review')};
 window.uriReadinessFix=(panel,target)=>{
