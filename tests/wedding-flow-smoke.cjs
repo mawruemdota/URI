@@ -43,6 +43,11 @@ const scenario=function(){
   r.created=state.events.length===1&&tab==='edit'&&location.hash==='#event';
   r.draft=e.status==='draft'&&e.type==='Wedding';
   r.content=root.innerHTML.includes('Invitation Content');
+  r.readiness=root.innerHTML.includes('Essential details complete');
+  window.uriBSet('venue','');window.uriBPanel('content');
+  r.readinessWarns=root.innerHTML.includes('Add the wedding venue');
+  window.uriBSet('venue','Garden');window.uriBPanel('content');
+  r.readinessRecovers=root.innerHTML.includes('Essential details complete');
   r.draftCleared=!localStorage.getItem('uri-wedding-wizard-v3');
   window.uriBPanel('features');r.features=root.innerHTML.includes('Feature Manager 2.0');
   window.uriBMove('timeline',-1);r.reorder=e.featureOrder.indexOf('timeline')===4;
