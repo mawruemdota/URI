@@ -64,7 +64,7 @@
 #wbLivePreview .wb-photo{position:relative}
 #wbLivePreview .wb-preview-photo-edit{position:absolute;inset:0;z-index:4;display:flex;align-items:flex-start;justify-content:flex-end;padding:12px;border:0;background:transparent;color:#244f35;cursor:pointer}
 #wbLivePreview .wb-preview-photo-edit>span{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:7px 11px;border-radius:7px;font:700 11px 'DM Sans',sans-serif;background:rgba(255,255,252,.95);border:1px solid #d5ded3;box-shadow:0 2px 10px rgba(25,37,24,.15)}
-#wbLivePreview .wb-preview-photo-edit>span:before{content:'✎';font-size:15px;line-height:1}
+#wbLivePreview .wb-preview-photo-edit>span:before{content:'';font-size:15px;line-height:1}
 #wbLivePreview .wb-preview-photo-edit:hover{background:rgba(35,53,37,.1)}
 #wbLivePreview .wb-preview-photo-edit:focus-visible{outline:3px solid #377952;outline-offset:-4px}
 
@@ -138,3 +138,5 @@ body.uri-photo-dialog-open{overflow:hidden}
  .wb-crop-footer button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){.wb-photo-tile-image,.wb-photo-grip{transition:none}}
+
+#wbLivePreview .wb-preview-photo-edit>span:before{display:none!important}
