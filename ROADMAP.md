@@ -18,6 +18,15 @@
 - [x] Inline builder readiness feedback for missing names, date, time, venue, and RSVP deadline
 - [ ] Visual browser QA, device testing and accessibility audit
 
+## Priority 2 wedding template refinement (implemented in code; visual QA pending)
+- [x] Romantic Botanical: 35/65 portrait and ivory cover, ornamental botanical vectors, italic serif names and circular photo detail
+- [x] Minimalist Editorial: three-column details/photo/timeline cover, handwritten typography and monogram story panel
+- [x] Distinct section treatments, gallery framing, timelines and responsive tablet/mobile compositions
+- [x] Consistent miniature previews in the homepage, template selector and creation wizard
+- [x] Preserve shared feature order, visibility, custom text and uploaded photos while switching designs
+- [x] Add wedding-template regression tests to CI
+- [ ] Review screenshots on real devices and compare visually against the supplied references
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
