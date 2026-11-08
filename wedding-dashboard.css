@@ -157,3 +157,12 @@
  .uri-dash-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
  .uri-dash-stats>div{padding:12px 9px}
 }
+
+/* Container-query fallbacks ensure mobile previews match actual narrow pages. */
+@container (max-width:575px){
+ .uri-builder-site .wb-wedding-venues .wb-venues{grid-template-columns:1fr}
+ .uri-builder-site .wb-timeline-horizontal ol{grid-template-columns:1fr}
+ .uri-builder-site .wb-wedding-schedule .wb-schedule-item{grid-template-columns:minmax(78px,31%) minmax(0,1fr)}
+ .uri-builder-site .wb-wedding-venues .wb-venue-card{padding:21px 19px}
+}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
