@@ -45,7 +45,7 @@ assert.ok(focused.at(-1).includes('name1'));
 reception.children[0].click({preventDefault(){},stopPropagation(){}});
 assert.ok(focused.at(-1).includes('reception-venue'));
 timeline2.children[0].click({preventDefault(){},stopPropagation(){}});
-assert.ok(focused.at(-1).includes('timeline'));
+assert.ok(focused.at(-1).includes('data-uri-schedule-index="1"'));
 sections.at(-1).children[0].click({preventDefault(){},stopPropagation(){}});
 assert.equal(ctx.tab,'guests');
 console.log('Direct editing passed: section buttons, names, venues, timeline, guests, and no duplicate overlays.');
