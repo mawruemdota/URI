@@ -12,3 +12,5 @@ jobs:
           node-version: '22'
       - name: Run modular builder smoke tests
         run: node tests/builder-smoke.cjs
+      - name: Run wedding setup and editor flow smoke tests
+        run: node tests/wedding-flow-smoke.cjs
