@@ -271,3 +271,80 @@ body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;p
   html{scroll-behavior:auto}
   button{transition:none!important}
 }
+
+
+/* Hero variants require explicit rules: generic .wb-hero rules predate the
+   newer reference-inspired covers and otherwise override photo positioning. */
+.wb-theme-botanical .wb-botanical-cover.wb-hero-centered{
+  display:grid;grid-template-columns:1fr;min-height:0;
+}
+.wb-theme-botanical .wb-botanical-cover.wb-hero-centered .wb-hero-image{
+  position:relative;inset:auto;height:340px;min-height:340px;
+}
+.wb-theme-botanical .wb-botanical-cover.wb-hero-centered .wb-hero-copy{
+  min-height:480px;max-width:none;padding-top:50px;padding-bottom:45px;
+}
+.wb-theme-botanical .wb-botanical-cover.wb-hero-immersive{
+  display:block;position:relative;min-height:690px;isolation:isolate;
+}
+.wb-theme-botanical .wb-botanical-cover.wb-hero-immersive .wb-hero-image{
+  position:absolute;inset:0;height:100%;min-height:690px;
+}
+.wb-theme-botanical .wb-botanical-cover.wb-hero-immersive .wb-hero-copy{
+  z-index:1;position:relative;min-height:690px;
+  width:min(90%,560px);margin:auto;padding:64px 40px;
+  background:rgba(248,242,233,.9);color:var(--wb-ink);
+  border-left:1px solid rgba(82,73,68,.13);
+  border-right:1px solid rgba(82,73,68,.13);
+}
+.wb-theme-botanical .wb-botanical-cover.wb-hero-immersive .wb-hero-copy p{
+  color:var(--wb-ink);
+}
+.wb-theme-editorial .wb-editorial-cover.wb-hero-immersive .wb-hero-image{
+  position:relative;inset:auto;min-height:0;height:100%;width:100%;
+}
+.wb-theme-editorial .wb-editorial-cover.wb-hero-centered .wb-hero-image{
+  position:relative;inset:auto;min-height:0;height:100%;
+}
+
+/* Distinguish the shared Story variants without changing the user's text. */
+.wb-theme-botanical .wb-botanical-story.wb-story-quote p{
+  font:italic clamp(24px,3.3cqw,38px)/1.34 var(--wb-heading);
+  max-width:760px;
+}
+.wb-theme-botanical .wb-botanical-story.wb-story-columns{
+  display:grid;grid-template-columns:1fr 1.5fr;
+  align-items:center;text-align:left;gap:14px 36px;
+}
+.wb-theme-botanical .wb-botanical-story.wb-story-columns .wb-kicker,
+.wb-theme-botanical .wb-botanical-story.wb-story-columns .wb-botanical-divider,
+.wb-theme-botanical .wb-botanical-story.wb-story-columns .wb-botanical-signature{
+  grid-column:1/-1;
+}
+.wb-theme-botanical .wb-botanical-story.wb-story-columns h2{grid-column:1}
+.wb-theme-botanical .wb-botanical-story.wb-story-columns p{
+  grid-column:2;font-size:18px;
+}
+.wb-theme-botanical .wb-botanical-story.wb-story-columns .wb-botanical-signature{
+  justify-self:end;
+}
+@container (max-width:575px){
+  .wb-theme-botanical .wb-botanical-cover.wb-hero-immersive{
+    min-height:620px;
+  }
+  .wb-theme-botanical .wb-botanical-cover.wb-hero-immersive .wb-hero-image{
+    height:100%;min-height:620px;
+  }
+  .wb-theme-botanical .wb-botanical-cover.wb-hero-immersive .wb-hero-copy{
+    min-height:620px;padding:38px 23px;width:min(93%,440px);
+  }
+  .wb-theme-botanical .wb-botanical-cover.wb-hero-centered .wb-hero-image{
+    height:260px;min-height:260px;
+  }
+  .wb-theme-botanical .wb-botanical-story.wb-story-columns{
+    display:flex;flex-direction:column;gap:12px;text-align:center;
+  }
+  .wb-theme-botanical .wb-botanical-story.wb-story-columns p{
+    max-width:440px;
+  }
+}
