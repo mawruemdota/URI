@@ -154,7 +154,7 @@ body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;p
   display:flex;flex-direction:column;gap:11px;
 }
 .uri-builder-site .wb-photo-empty:before{
-  content:"✧";display:grid;place-items:center;
+  content:"";display:grid;place-items:center;
   border:1px solid rgba(82,77,71,.26);border-radius:50%;
   width:44px;height:44px;font:27px/1 'Cormorant Garamond',serif;
   color:#716a61;background:rgba(255,255,255,.12);
@@ -477,3 +477,5 @@ body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;p
   .wf-photo-current{grid-template-columns:86px 1fr}
   .wf-photo-current img{height:92px;width:86px}
 }
+
+.uri-builder-site .wb-photo-empty:before{display:none!important}
