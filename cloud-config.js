@@ -1,6 +1,6 @@
-// Public configuration only. Copy your Supabase Project URL and publishable/anon key here.
-// NEVER add a secret key or service_role key to this public GitHub repository.
+// URI public Supabase configuration (publishable key only).
+// Row Level Security protects the database. Never commit secret or service_role keys.
 window.URI_CLOUD_CONFIG = {
-  url: '',
-  publishableKey: ''
+  url: "https://sclthfeqievigrcjoohh.supabase.co",
+  publishableKey: "sb_publishable_ee_V3x917TGywcChblOEpw_nf__4sNQ"
 };
