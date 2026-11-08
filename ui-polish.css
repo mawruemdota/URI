@@ -348,3 +348,48 @@ body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;p
     max-width:440px;
   }
 }
+
+
+/* Landing gallery: exactly two wedding templates, not an incomplete three-card row. */
+#templates .templates{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  max-width:930px;margin:27px auto 0;gap:22px;
+}
+#templates .template{
+  padding:14px;border-radius:15px;background:#fff;
+  border:1px solid #e6e8e2;box-shadow:var(--ui-shadow);
+  text-align:left;overflow:hidden;
+}
+#templates .template:hover,#templates .template:focus-visible{
+  border-color:#709d80;box-shadow:0 9px 25px rgba(37,52,46,.09);
+}
+#templates .template-preview{height:255px;border-radius:8px;overflow:hidden}
+#templates .template strong{
+  margin:16px 5px 3px;color:#24352b;
+  font-size:16px;font-weight:650;
+}
+#templates .template span{
+  font-size:12px;line-height:1.55;
+  margin:3px 5px 8px;color:#738076;
+}
+.hero-art{
+  background:#ebe9e2;border:1px solid #e5e3dc;border-radius:20px;
+}
+.hero-art .wb-cover-mini{
+  box-shadow:0 13px 36px rgba(43,47,40,.1);
+}
+#features .card{border-color:#e8eae5;background:#fff}
+#features .card h3{font-size:21px;line-height:1.25}
+#features .card p{line-height:1.65}
+#pricing .card{border-color:#e8eae5}
+.wf-designs .wf-design{background:#fff}
+.wf-designs .wf-design.active{box-shadow:0 0 0 2px rgba(24,100,76,.1)}
+.wf-designs .wf-design:focus-visible{outline-offset:4px}
+.wf-review-card{background:#fff}
+.wf-wizard .wf-progress-head h2{letter-spacing:-.035em}
+@media(max-width:750px){
+  #templates .templates{grid-template-columns:1fr;max-width:500px;gap:16px}
+  #templates .template-preview{height:235px}
+  .hero-art{border-radius:15px}
+  #features .features{grid-template-columns:1fr}
+}
