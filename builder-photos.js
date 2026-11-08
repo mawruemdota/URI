@@ -20,21 +20,21 @@ function photoCard(p,i,total){
    +formatSelect(i,p.crop)
    +'<div class="wb-photo-tile-actions"><button type="button" class="wb-photo-action-primary" onclick="uriPhotoOpen(\'gallery\','+i+')">Adjust photo</button>'
    +'<label class="wb-photo-replace">Replace<input aria-label="Replace photo '+n+'" type="file" accept="image/jpeg,image/png,image/webp" onchange="uriBPhotoUpload(event,\'replace\','+i+')"></label></div>'
-   +'<div class="wb-photo-actions"><button type="button" aria-label="Move photo left" '+(i===0?'disabled':'')+' onclick="uriBPhotoMove('+i+',-1)">←</button><button type="button" aria-label="Move photo right" '+(i===total-1?'disabled':'')+' onclick="uriBPhotoMove('+i+',1)">→</button><button type="button" class="wb-remove-photo" onclick="uriBPhotoRemove('+i+')">Remove</button></div></div></article>';
+   +'<div class="wb-photo-actions"><button type="button" aria-label="Move photo left" '+(i===0?'disabled':'')+' onclick="uriBPhotoMove('+i+',-1)">Previous</button><button type="button" aria-label="Move photo right" '+(i===total-1?'disabled':'')+' onclick="uriBPhotoMove('+i+',1)">Next</button><button type="button" class="wb-remove-photo" onclick="uriBPhotoRemove('+i+')">Remove</button></div></div></article>';
 }
 window.uriBuilderPhotosPanel=function(e){
  U.model(e);const hero=U.photo({src:e.heroPhoto||'',...e.heroSettings}),n=e.photos.length;
- return '<section class="wb-photo-manager"><div class="wb-photo-manager-head"><div><h3>Photo Manager</h3><p>Crop, zoom, arrange and replace photographs. All edits are non-destructive.</p></div><span class="wb-photo-count">'+n+' / 8 gallery</span></div>'
+ return '<section class="wb-photo-manager"><div class="wb-photo-manager-head"><div><h3>Photos</h3></div><span class="wb-photo-count">'+n+' / 8 gallery</span></div>'
    +'<div id="wbPhotoNotice" class="wb-photo-notice" role="status" aria-live="polite"></div>'
-   +'<div class="wb-photo-section"><div class="wb-photo-section-heading"><div><strong>Cover photograph</strong><small>Used in both wedding designs</small></div></div>'
+   +'<div class="wb-photo-section"><div class="wb-photo-section-heading"><div><strong>Cover photograph</strong></div></div>'
    +'<div class="wb-photo-hero"><button type="button" class="wb-photo-hero-thumb" onclick="uriPhotoOpen(\'hero\',0)" aria-label="Adjust cover photograph">'+U.picture(hero,'wb-photo-card-image','Add your couple photo')+'</button>'
    +'<div class="wb-photo-hero-actions"><p>'+(e.heroPhoto?'Adjust how the couple appears in portrait and landscape layouts.':'Start by choosing a favorite photograph of the couple.')+'</p>'
-   +(e.heroPhoto?'<button class="btn small" type="button" onclick="uriPhotoOpen(\'hero\',0)">Edit crop & zoom</button>':'')
+   +(e.heroPhoto?'<button class="btn small" type="button" onclick="uriPhotoOpen(\'hero\',0)">Edit crop</button>':'')
    +'<label class="wb-photo-replace wb-photo-choose"><span>'+(e.heroPhoto?'Replace cover':'Upload cover')+'</span><input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload or replace cover photograph" onchange="uriBPhotoUpload(event,\'hero\')"></label>'
    +(e.heroPhoto?'<button type="button" class="wb-photo-remove-link" onclick="uriBHeroRemove()">Remove cover</button>':'')+'</div></div></div>'
-   +'<div class="wb-photo-section"><div class="wb-photo-section-heading"><div><strong>Photo gallery</strong><small>Drag by the handle to reorder. Use arrows on mobile.</small></div></div>'
+   +'<div class="wb-photo-section"><div class="wb-photo-section-heading"><div><strong>Photo gallery</strong><small>Drag to reorder or use the move controls.</small></div></div>'
    +'<label class="wb-upload wb-photo-add"><strong>Add photos</strong><span>JPEG, PNG or WebP · up to 8 photos · maximum 12 MB each</span><input type="file" multiple accept="image/jpeg,image/png,image/webp" onchange="uriBPhotoUpload(event,\'gallery\')" '+(n>=8?'disabled':'')+'></label>'
-   +(n?'<div class="wb-photo-cards wb-photo-grid">'+e.photos.map((p,i)=>photoCard(p,i,n)).join('')+'</div>':'<div class="wb-photo-empty-list"><span aria-hidden="true">▧</span><strong>No gallery photos yet</strong><p>Upload photos here. The gallery will appear automatically on your invitation.</p></div>')
+   +(n?'<div class="wb-photo-cards wb-photo-grid">'+e.photos.map((p,i)=>photoCard(p,i,n)).join('')+'</div>':'<div class="wb-photo-empty-list"><strong>No gallery photos</strong></div>')
    +'</div><div class="wb-photo-local-note">Your images are saved in this browser until you publish. Photo framing can be changed again at any time.</div><div id="wbPhotoDialogHost"></div></section>';
 };
 function setNotice(message){const el=document.getElementById('wbPhotoNotice');if(el)el.textContent=message}
@@ -148,8 +148,8 @@ function source(kind,index){
 function cropDialog(){
  const v=dialog.value,frame=dialog.frame,k=dialog.kind;
  return '<div class="wb-crop-overlay" role="presentation" onclick="if(event.target===this)uriPhotoClose()"><div class="wb-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="wbCropTitle">'
-  +'<header class="wb-crop-header"><div><span class="wb-crop-kicker">Photo Manager</span><h3 id="wbCropTitle">'+(k==='hero'?'Adjust cover photo':'Adjust gallery photo '+(dialog.index+1))+'</h3><p>Drag the image to reposition. Use zoom for a closer crop.</p></div><button type="button" class="wb-crop-close" data-photo-close aria-label="Close crop editor" onclick="uriPhotoClose()">×</button></header>'
-  +'<div class="wb-crop-body"><div class="wb-crop-canvas"><div id="wbCropFrame" class="wb-crop-frame wb-crop-'+frame+'" onpointerdown="uriPhotoPointerDown(event)" onpointermove="uriPhotoPointerMove(event)" onpointerup="uriPhotoPointerUp(event)" onpointercancel="uriPhotoPointerUp(event)">'+U.picture(v,'wb-crop-photo')+'<div class="wb-crop-grid" aria-hidden="true"></div></div><span class="wb-crop-hint">Drag to move your photo · No original pixels are removed</span></div>'
+  +'<header class="wb-crop-header"><div><span class="wb-crop-kicker">Photo Manager</span><h3 id="wbCropTitle">'+(k==='hero'?'Adjust cover photo':'Adjust gallery photo '+(dialog.index+1))+'</h3></div><button type="button" class="wb-crop-close" data-photo-close aria-label="Close crop editor" onclick="uriPhotoClose()">×</button></header>'
+  +'<div class="wb-crop-body"><div class="wb-crop-canvas"><div id="wbCropFrame" class="wb-crop-frame wb-crop-'+frame+'" onpointerdown="uriPhotoPointerDown(event)" onpointermove="uriPhotoPointerMove(event)" onpointerup="uriPhotoPointerUp(event)" onpointercancel="uriPhotoPointerUp(event)">'+U.picture(v,'wb-crop-photo')+'<div class="wb-crop-grid" aria-hidden="true"></div></div><span class="wb-crop-hint">Drag to reposition</span></div>'
   +'<div class="wb-crop-controls"><label class="wb-field"><span>'+(k==='hero'?'Preview frame':'Gallery shape')+'</span><select id="wbCropShape" onchange="uriPhotoDraft(\'crop\',this.value)">'+(k==='hero'?[['portrait','Botanical portrait'],['landscape','Editorial landscape']]:FORMATS).map(([id,label])=>'<option value="'+id+'" '+(frame===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>'
   +'<label class="wb-field"><span>Zoom <output id="wbCropZoomText">'+Math.round(v.zoom*100)+'%</output></span><input id="wbCropZoom" type="range" min="1" max="3" step=".05" value="'+v.zoom+'" oninput="uriPhotoDraft(\'zoom\',this.value)"></label>'
   +'<label class="wb-field"><span>Horizontal focus</span><input id="wbCropX" type="range" min="0" max="100" step="1" value="'+v.x+'" oninput="uriPhotoDraft(\'x\',this.value)"></label>'
@@ -157,7 +157,7 @@ function cropDialog(){
   +'<label class="wb-field"><span>Photo description</span><input id="wbCropAlt" type="text" maxlength="180" value="'+T(v.alt)+'" oninput="uriPhotoDraft(\'alt\',this.value)" placeholder="Describe the photograph"></label>'
   +'<button type="button" class="btn small wb-crop-reset" onclick="uriPhotoReset()">Reset framing</button>'
   +'<label class="wb-photo-replace wb-crop-replace">Replace photograph<input aria-label="Replace photograph while cropping" type="file" accept="image/jpeg,image/png,image/webp" onchange="uriBPhotoUpload(event,\''+(k==='hero'?'hero':'replace')+'\','+dialog.index+')"></label></div></div>'
-  +'<footer class="wb-crop-footer"><span>Changes are saved when you select Apply.</span><div><button type="button" class="btn" onclick="uriPhotoClose()">Cancel</button><button type="button" class="btn primary" onclick="uriPhotoApply()">Apply crop</button></div></footer></div></div>';
+  +'<footer class="wb-crop-footer"><div><button type="button" class="btn" onclick="uriPhotoClose()">Cancel</button><button type="button" class="btn primary" onclick="uriPhotoApply()">Apply crop</button></div></footer></div></div>';
 }
 window.uriPhotoOpen=function(kind,index=0,fromPreview=false){
  const e=event();if(!e||!['hero','gallery'].includes(kind))return;
