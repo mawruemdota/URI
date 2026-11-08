@@ -60,6 +60,15 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     assert.ok(original.heroPhoto.startsWith('data:image/jpeg;base64,'));
     assert.equal(original.template,'garden');
     await image(page,'04-editor-content.png');
+    // Invitation checklist and contextual editing from the wedding preview.
+    await page.locator('.wb-tabs button').filter({hasText:'Review'}).click();
+    await page.locator('.uri-ready-panel').waitFor();
+    assert.match(await page.locator('.uri-ready-panel').innerText(),/Required for publishing/);
+    await image(page,'04b-readiness-checklist.png');
+    await page.locator('.wb-tabs button').filter({hasText:'Content'}).click();
+    await page.locator('#wbLivePreview [data-feature="hero"] .wb-names .wb-inline-edit').waitFor();
+    await page.locator('#wbLivePreview [data-feature="hero"] .wb-names .wb-inline-edit').click();
+    assert.equal(await page.locator('[data-uri-field="name1"] input').count(),1);
     // Design choice previews must show this couple, not generic demo names.
     await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
     assert.match(await page.locator('.wb-template-choices').innerText(),/Maya/);
@@ -170,6 +179,32 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     page.once('dialog',dialog=>dialog.accept());
     await page.locator('.uri-dash-card').filter({hasText:'(Copy)'}).getByRole('button',{name:'Delete'}).click();
     assert.equal(await page.locator('.uri-dash-card').count(),1);
+    // Guests & RSVP 2.0: household, allocations, local personalized responses and analytics.
+    await page.locator('.uri-dash-card').first().getByRole('button',{name:'Edit'}).click();
+    await page.locator('.sidebar button').filter({hasText:'Guests & RSVP'}).click();
+    await page.locator('.uri-guests').waitFor();
+    await page.locator('.uri-household-form input[name="household"]').fill('Cruz Family');
+    await page.locator('.uri-household-form input[name="seats"]').fill('2');
+    await page.locator('.uri-household-form button').click();
+    await page.locator('.uri-guest-form input[name="name"]').fill('Sofia Cruz');
+    await page.locator('.uri-guest-form select[name="householdId"]').selectOption({label:'Cruz Family'});
+    await page.locator('.uri-guest-form input[name="plusOnesAllowed"]').fill('1');
+    await page.locator('.uri-guest-form button[type="submit"]').click();
+    assert.equal(await page.locator('.uri-guest-row').count(),1);
+    await image(page,'15-guest-management.png');
+    await page.locator('.uri-guest-row').first().getByRole('button',{name:'Test RSVP'}).click();
+    await page.locator('.uri-rsvp-paper').waitFor();
+    await page.locator('input[name="response"][value="attending"]').check();
+    await page.locator('input[name="plusOnes"]').fill('1');
+    await page.getByRole('button',{name:'Save test response'}).click();
+    const savedRSVP=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].guests[0]);
+    assert.equal(savedRSVP.status,'attending');
+    assert.equal(savedRSVP.plusOnesConfirmed,1);
+    await image(page,'16-local-rsvp.png');
+    await page.goto(url+'#event',{waitUntil:'domcontentloaded'});
+    await page.locator('.sidebar button').filter({hasText:'Analytics'}).click();
+    assert.match(await page.locator('.uri-rsvp-analytics').innerText(),/2 confirmed/);
+    await image(page,'17-rsvp-analytics.png');
     assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
     console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
   }finally{await browser.close()}
