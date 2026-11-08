@@ -1,0 +1,109 @@
+/* Browser QA: run node tests/browser-wedding.cjs after installing Playwright Chromium.
+ * Exercises the real DOM on localhost, no Supabase accounts or production data. */
+const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
+const assert=require('node:assert/strict');
+const {chromium}=require('playwright');
+const base=path.resolve(__dirname,'..');
+const shots=path.resolve(base,'artifacts/wedding-browser');
+fs.mkdirSync(shots,{recursive:true});
+const mime={'.html':'text/html','.css':'text/css','.js':'application/javascript','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'};
+const server=http.createServer((req,res)=>{
+  let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/URI\/?/,'').replace(/^\/+/, '')||'index.html';
+  if(name.endsWith('/'))name+='index.html';
+  const file=path.resolve(base,name);
+  if(!file.startsWith(base+path.sep)&&file!==path.join(base,'index.html')){res.writeHead(403);res.end('Forbidden');return}
+  fs.readFile(file,(err,body)=>{if(err){res.writeHead(404);res.end('Not found');return}res.writeHead(200,{'content-type':(mime[path.extname(file)]||'text/plain')+'; charset=utf-8','cache-control':'no-store'});res.end(body)});
+});
+const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aCH8AAAAASUVORK5CYII=','base64');
+const clickNext=async page=>page.locator('.wf-actions .btn.primary').click();
+const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullPage:true});
+(async()=>{
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const url='http://127.0.0.1:'+server.address().port+'/URI/';
+  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+  let errors=[];
+  try{
+    const context=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1});
+    // Browser QA does not sign in, call the user's database, or publish anything.
+    await context.route('**/cloud-config.js',route=>route.fulfill({status:200,contentType:'application/javascript',body:'window.URI_CLOUD_CONFIG={url:"",publishableKey:""};'}));
+    await context.route('https://cdn.jsdelivr.net/**',route=>route.fulfill({status:200,contentType:'application/javascript',body:''}));
+    const page=await context.newPage();
+    page.on('pageerror',e=>errors.push(e.message));
+    await page.goto(url,{waitUntil:'domcontentloaded'});
+    await page.locator('#templates .template').first().click();
+    assert.match(await page.locator('body').innerText(),/Choose your wedding design/);
+    await image(page,'01-select-template.png');
+    await page.locator('.wf-design').nth(1).click();
+    await clickNext(page);
+    await page.locator('#wf-name1').fill('Maya');
+    await page.locator('#wf-name2').fill('Emir');
+    await clickNext(page);
+    await page.locator('#wf-date').fill('2032-09-18');
+    await page.locator('#wf-time').fill('16:00');
+    await page.locator('#wf-venue').fill('The Garden Pavilion');
+    await page.locator('#wf-address').fill('Cavite, Philippines');
+    await clickNext(page);
+    assert.match(await page.locator('.wf-photo-step').innerText(),/Your cover photograph/);
+    await page.locator('.wf-photo-choose input[type="file"]').setInputFiles({name:'cover.png',mimeType:'image/png',buffer:PNG});
+    await page.locator('.wf-photo-current').waitFor({timeout:10000});
+    await page.locator('#wf-message').fill('Please join our wedding celebration.');
+    await page.locator('#wf-deadline').fill('2032-09-01');
+    await image(page,'02-add-cover-photo.png');
+    await clickNext(page);
+    assert.match(await page.locator('.wf-review').innerText(),/Cover photo/);
+    await image(page,'03-review.png');
+    await clickNext(page);
+    await page.locator('.wb-editor').waitFor();
+    assert.match(await page.locator('#wbLivePreview').innerText(),/Maya/);
+    assert.match(await page.locator('#wbLivePreview').innerText(),/Emir/);
+    const original=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
+    assert.ok(original.heroPhoto.startsWith('data:image/jpeg;base64,'));
+    assert.equal(original.template,'garden');
+    await image(page,'04-editor-content.png');
+    // Design choice previews must show this couple, not generic demo names.
+    await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
+    assert.match(await page.locator('.wb-template-choices').innerText(),/Maya/);
+    assert.match(await page.locator('.wb-template-choices').innerText(),/Emir/);
+    await image(page,'05-design-options.png');
+    await page.locator('.wb-template-pick').first().click();
+    await page.locator('#wbLivePreview .wb-theme-botanical').waitFor();
+    const botanical=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
+    assert.equal(botanical.template,'classic');
+    assert.equal(botanical.message,'Please join our wedding celebration.');
+    assert.ok(botanical.heroPhoto.startsWith('data:image/jpeg'));
+    await image(page,'06-botanical-preview.png');
+    // Unfilled gallery must be invisible, not a public-facing upload placeholder.
+    assert.equal(await page.locator('#wbLivePreview [data-feature="gallery"]').count(),0);
+    await page.locator('.wb-tabs button').filter({hasText:'Features'}).click();
+    const section=page.locator('.wb-feature-item[data-feature-id="gallery"]');
+    assert.match(await section.innerText(),/Add photos in Photos tab/);
+    await section.locator('button[data-move-dir="-1"]').click();
+    const moved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].featureOrder);
+    assert.ok(moved.indexOf('gallery')<moved.indexOf('story'));
+    await image(page,'07-features.png');
+    await page.locator('.wb-tabs button').filter({hasText:'Photos'}).click();
+    await page.locator('.wb-upload').filter({hasText:'Photo gallery'}).locator('input[type="file"]').setInputFiles({name:'gallery.png',mimeType:'image/png',buffer:PNG});
+    await page.locator('.wb-photo-card').last().waitFor();
+    assert.equal(await page.locator('#wbLivePreview [data-feature="gallery"]').count(),1);
+    await image(page,'08-photo-gallery.png');
+    // Check full-size browser preview and template switching.
+    await page.getByRole('button',{name:/Full-page preview/}).click();
+    await page.locator('.wf-full-content .wb-theme-botanical').waitFor();
+    await image(page,'09-full-desktop.png');
+    await page.getByRole('button',{name:'Mobile'}).click();
+    await page.waitForTimeout(120);
+    assert.equal(await page.locator('#wfFullContent').evaluate(el=>el.style.width),'390px');
+    await image(page,'10-full-mobile.png');
+    await page.getByRole('button',{name:/Back to editor/}).click();
+    await page.setViewportSize({width:390,height:844});
+    await page.locator('.wb-editor').waitFor();
+    await page.locator('.wb-preview-toolbar button').filter({hasText:'Mobile'}).click();
+    const frame=await page.locator('#wbLivePreview').evaluate(el=>el.style.width);
+    assert.equal(frame,'390px');
+    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
+    assert.ok(overflow<=3,'Mobile editor overflows viewport by '+overflow+'px');
+    await image(page,'11-mobile-editor.png');
+    assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
+    console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
+  }finally{await browser.close()}
+})().catch(err=>{console.error(err);process.exitCode=1}).finally(()=>server.close());
