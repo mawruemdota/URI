@@ -2,10 +2,20 @@
 
 ## Stage 1 — UI/UX polish (in progress)
 - [x] Responsive navigation improvements (browser QA pending)
-- [x] Wizard validation, draft recovery, progress and live preview (browser QA pending)
-- [ ] Consistent editor, templates, dashboard, and empty states
+- [x] Five-step wedding wizard, inline validation, persistent draft recovery, progress and full-page preview (browser QA pending)
+- [ ] Consistent editor, templates, dashboard, and empty states (wedding editor polished; dashboard and empty states still pending)
 - [x] Compact invitation previews, reusable wedding layout components and live desktop/mobile editor preview (browser QA pending)
-- [ ] Complete accessibility checks and end-to-end browser testing
+- [ ] Complete accessibility checks and real desktop/mobile end-to-end browser testing (simulated flow tests added)
+
+## Priority 1 wedding UX cleanup (implemented in code, browser QA pending)
+- [x] Wedding-first template choice and five-step setup
+- [x] Review and save directly into the wedding website editor
+- [x] Consistent Content → Features → Design → Photos → Publish navigation
+- [x] Local autosave status and resume-on-return for unfinished setup
+- [x] Full-page desktop and mobile wedding previews
+- [x] Improved mobile editing and navigation controls
+- [x] Simulated end-to-end smoke tests and CI workflow
+- [ ] Visual browser QA, device testing and accessibility audit
 
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
