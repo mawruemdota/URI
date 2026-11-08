@@ -1,0 +1,159 @@
+/* URI — Wedding Details 2.0 + Dashboard 2.0
+   Same data fields are rendered consistently in Botanical and Editorial. */
+.wb-wedding-venues .wb-venues{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:18px;margin-top:20px}
+.wb-venue-card{min-width:0;display:flex;flex-direction:column;gap:10px;border:1px solid color-mix(in srgb,var(--wb-ink) 18%,transparent);padding:23px 22px;background:color-mix(in srgb,var(--wb-bg) 92%,white)}
+.wb-venue-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid color-mix(in srgb,var(--wb-ink) 20%,transparent);padding-bottom:12px}
+.wb-venue-head>span:last-child{font:30px 'Cormorant Garamond',serif;color:var(--wb-accent)}
+.uri-builder-site .wb-venue-card h3{font:500 clamp(24px,2.8cqw,37px)/1.12 var(--wb-heading);margin:0;overflow-wrap:anywhere}
+.wb-venue-when{display:grid;gap:3px}
+.wb-venue-when strong{font:500 17px var(--wb-heading)}
+.wb-venue-when span{font-size:13px}
+.uri-builder-site .wb-venue-address{font-size:13px;line-height:1.5;opacity:.83}
+.uri-builder-site .wb-venue-instructions{font-size:13px;line-height:1.6;padding:13px 0 0;border-top:1px solid color-mix(in srgb,var(--wb-ink) 12%,transparent)}
+.uri-builder-site .wb-map-link{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;margin-top:auto;padding-top:8px;font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:4px}
+.wb-map-link:hover{color:var(--wb-accent)}
+.wb-theme-botanical .wb-wedding-venues{background:var(--wb-wash)}
+.wb-theme-botanical .wb-venue-card{background:var(--wb-bg);border-color:color-mix(in srgb,var(--wb-accent) 30%,transparent)}
+.wb-theme-botanical .wb-venue-head .wb-kicker{font-size:11px;letter-spacing:.18em}
+.wb-theme-editorial .wb-venue-card{background:transparent;border:1px solid var(--wb-hairline)}
+.wb-theme-editorial .wb-venue-card h3{font-family:var(--wb-heading);font-size:clamp(29px,3.5cqw,41px)}
+.wb-theme-editorial .wb-wedding-venues .wb-venues{gap:12px}
+.wb-theme-editorial .wb-venue-card{padding:20px 17px}
+
+/* Structured timeline displays activity name, date, notes and location. */
+.uri-builder-site .wb-wedding-schedule ol{display:grid;grid-template-columns:1fr;gap:0;margin:16px 0 0;padding:0;list-style:none}
+.uri-builder-site .wb-wedding-schedule .wb-schedule-item{display:grid;grid-template-columns:minmax(82px,32%) minmax(0,1fr);align-items:start;gap:15px;padding:18px 0;border-bottom:1px solid color-mix(in srgb,var(--wb-ink) 17%,transparent);border-left:0;background:none}
+.uri-builder-site .wb-schedule-time{display:grid;gap:4px}
+.uri-builder-site .wb-schedule-time strong{font-weight:700;font-size:14px;line-height:1.3;min-width:0}
+.uri-builder-site .wb-schedule-time small{font-size:10px;opacity:.72}
+.uri-builder-site .wb-schedule-copy{min-width:0}
+.uri-builder-site .wb-schedule-copy b{font:500 clamp(19px,2.2cqw,24px)/1.18 var(--wb-heading);display:block}
+.uri-builder-site .wb-schedule-copy p{font-size:12px;line-height:1.65;margin:7px 0 0}
+.uri-builder-site .wb-schedule-copy small{font-size:11px;opacity:.75;display:block;margin-top:6px}
+.uri-builder-site .wb-timeline-horizontal ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px}
+.uri-builder-site .wb-timeline-horizontal .wb-schedule-item{display:flex;flex-direction:column;gap:9px;border:0;border-top:2px solid var(--wb-accent);padding:15px 5px}
+.uri-builder-site .wb-timeline-horizontal .wb-schedule-time strong{font-size:13px}
+.wb-theme-botanical .wb-wedding-schedule .wb-schedule-copy b{font-style:italic}
+.wb-theme-editorial .wb-wedding-schedule .wb-schedule-copy b{font-family:var(--wb-heading);font-size:25px}
+.wb-theme-editorial .wb-wedding-schedule .wb-schedule-item{border-color:var(--wb-hairline)}
+
+/* Editor venue and schedule modules */
+.wb-details-editor{display:grid;gap:16px;margin:22px 0}
+.wb-details-editor-head{display:grid;gap:5px;margin:8px 0 0}
+.wb-details-editor-head h3,.wb-extra-details h3{font:500 24px/1.2 'Playfair Display',serif;margin:0;color:#2d4635}
+.wb-details-editor-head p,.wb-extra-details p{font-size:12px;color:#6a7b6e;margin:0;line-height:1.6}
+.wb-venue-editor{border:1px solid #e2e8e0;border-radius:12px;padding:18px;background:#fcfdfa}
+.wb-venue-editor-title{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:9px}
+.wb-venue-editor-title strong{font-size:14px;color:#305840}
+.wb-venue-editor-title small{font-size:11px;color:#788579}
+.wb-details-editor .wb-field{margin:9px 0}
+.wb-reception-toggle{display:flex;gap:12px;align-items:flex-start;padding:16px;border:1px solid #cddccd;border-radius:11px;background:#f5faf4;cursor:pointer}
+.wb-reception-toggle input{width:20px;height:20px;accent-color:#276e4e;flex:0 0 auto;margin:0}
+.wb-reception-toggle span{display:grid;gap:5px}
+.wb-reception-toggle strong{font-size:13px;color:#30503b}
+.wb-reception-toggle small{font-size:11px;line-height:1.6;color:#6b806e}
+.wb-schedule-editor-title{margin-top:15px}
+.wb-schedule-editor-list{display:grid;gap:12px}
+.wb-schedule-editor-row{padding:16px;border-radius:11px;border:1px solid #e1e7df;background:#fff}
+.wb-schedule-editor-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.wb-schedule-editor-head strong{font-size:13px;color:#345640}
+.wb-schedule-editor-head>div{display:flex;gap:5px;flex-wrap:wrap}
+.wb-schedule-editor-head button{min-width:35px;min-height:36px;background:#f8faf7;border:1px solid #e1e7e0;border-radius:7px;padding:5px 9px;font-size:11px;color:#406249}
+.wb-schedule-editor-head button:hover:not(:disabled){background:#ebf4ec}
+.wb-schedule-editor-head button:disabled{opacity:.35}
+.wb-schedule-editor-head button:last-child{color:#925749}
+.wb-add-schedule{background:#eef6ef;color:#285c3c;border:1px dashed #85b18f;justify-self:start}
+.wb-add-schedule:hover{background:#e1f0e5}
+.wb-extra-details{border-top:1px solid #e5e8e2;padding-top:19px;margin-top:23px}
+.wb-extra-details>p{margin:5px 0 15px}
+
+/* Dashboard 2.0 — visual event management */
+.uri-dash-wrap{max-width:1260px;padding-top:36px}
+.uri-dash-heading{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.uri-dash-heading h1{font-size:clamp(36px,4vw,55px);margin:8px 0;letter-spacing:-.045em}
+.uri-dash-heading p{font-size:13px;line-height:1.7;margin:5px 0 0}
+.uri-dash-heading>.btn{min-height:46px;white-space:nowrap;padding:11px 18px}
+.uri-dash-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:28px 0 22px}
+.uri-dash-stats>div{border:1px solid #e4e9e1;border-radius:13px;padding:18px 20px;background:#fff;display:flex;align-items:center;gap:15px}
+.uri-dash-stats strong{font:500 32px 'Playfair Display',serif;color:#244b34;line-height:1}
+.uri-dash-stats span{font-size:12px;color:#687b6e;line-height:1.5}
+.uri-dash-toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:22px 0 10px}
+.uri-dash-search{flex:1;min-width:min(100%,210px)}
+.uri-dash-search input{width:100%;background:#fff;border:1px solid #dfe7dd;padding:12px 14px;font-size:13px;border-radius:9px;min-height:44px;color:#294232}
+.uri-dash-filters{display:flex;gap:3px;padding:3px;border:1px solid #e1e6dd;border-radius:9px;background:#fff}
+.uri-dash-filters button{background:transparent;border:0;border-radius:7px;min-height:36px;padding:7px 13px;color:#687b6e;font-size:12px;font-weight:650}
+.uri-dash-filters button[aria-pressed=true]{background:#e7f2e9;color:#2c6845}
+.uri-dash-sort{display:flex;gap:7px;align-items:center;font-size:12px;color:#677a6c}
+.uri-dash-sort select{min-height:44px;border:1px solid #dfe7dd;border-radius:8px;background:#fff;padding:9px;color:#2f4b39}
+.uri-dash-results{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#66766a;font-size:11px;margin:0 0 13px}
+.uri-dash-results small{font-size:11px;color:#829085}
+.uri-dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:18px;align-items:stretch}
+.uri-dash-card{background:#fff;border:1px solid #e2e6df;border-radius:15px;min-width:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 24px rgba(35,51,35,.03)}
+.uri-dash-card:hover{border-color:#b7ccba;box-shadow:0 15px 36px rgba(36,61,39,.075)}
+.uri-dash-card[hidden]{display:none!important}
+.uri-dash-cover{height:225px;position:relative;overflow:hidden;background:#ece8de;display:flex;align-items:stretch;justify-content:stretch}
+.uri-dash-cover .wb-cover-mini{width:100%;min-height:0!important;max-height:none!important;height:100%!important;border:0;box-shadow:none}
+.uri-dash-cover .wb-mini-stationery .wb-mini-details,.uri-dash-cover .wb-mini-stationery .wb-mini-timeline{padding:15px 4px;gap:7px}
+.uri-dash-cover .wb-mini-stationery .wb-mini-main{padding:12px 6px;gap:9px}
+.uri-dash-cover .wb-mini-stationery .wb-mini-landscape{height:105px}
+.uri-dash-cover .wb-mini-stationery .wb-mini-main>strong{font-size:34px}
+.uri-dash-cover .wb-mini-stationery .wb-editorial-side-title{font-size:21px}
+.uri-dash-cover .wb-mini-stationery .wb-mini-details small,.uri-dash-cover .wb-mini-stationery .wb-mini-timeline small{font-size:6px}
+.uri-dash-cover .wb-mini-stationery .wb-mini-details strong{font-size:8px}
+.uri-dash-cover .wb-mini-romance .wb-cover-copy{padding:11px 7px;gap:10px}
+.uri-dash-cover .wb-mini-romance .wb-cover-copy>strong{font-size:32px}
+.uri-dash-cover .wb-mini-romance .wb-cover-copy>small{font-size:8px}
+.uri-dash-cover .wb-mini-romance .wb-mini-date{font-size:12px}
+.uri-dash-cover .wb-mini-romance .wb-mini-flowers{width:79px}
+.uri-dash-status{position:absolute;top:12px;right:12px;background:#fff;color:#436047;border-radius:6px;padding:6px 9px;font-size:10px;font-weight:700;box-shadow:0 2px 8px #25382522}
+.uri-dash-status-published{background:#dff1e2;color:#1f6843}
+.uri-dash-status-test{background:#fff0d5;color:#835f22}
+.uri-dash-status-draft{background:#fff;color:#42594b}
+.uri-dash-generic{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;width:100%;background:linear-gradient(125deg,#e1e9da,#f8f3ea);padding:15px}
+.uri-dash-generic>span{font-size:10px;letter-spacing:.19em;text-transform:uppercase;color:#45644c}
+.uri-dash-generic>strong{font:italic 30px 'Playfair Display',serif;color:#314634;text-align:center;overflow-wrap:anywhere}
+.uri-dash-card-body{padding:17px;display:flex;flex-direction:column;gap:9px;flex:1}
+.uri-dash-type{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#6d8171;font-weight:750}
+.uri-dash-card h3{font:500 24px/1.16 'Playfair Display',serif;margin:0;color:#253e2b;overflow-wrap:anywhere}
+.uri-dash-meta{display:grid;gap:3px;font-size:11px;color:#718173;line-height:1.55}
+.uri-dash-card-footer{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:auto;flex-wrap:wrap;padding-top:8px;border-top:1px solid #ecf0e9}
+.uri-dash-card-footer>span{font-size:10px;color:#788b7c}
+.uri-dash-card-actions{display:flex;gap:7px}
+.uri-dash-card-actions .btn{padding:8px 11px;min-height:36px;font-size:11px}
+.uri-dash-secondary-actions{display:flex;gap:8px;justify-content:space-between;border-top:1px solid #f0f2ee;padding-top:8px}
+.uri-dash-secondary-actions button{border:0;background:transparent;padding:7px 8px;color:#53725c;font-size:11px;font-weight:650}
+.uri-dash-secondary-actions button:hover{color:#1e4f31;text-decoration:underline}
+.uri-dash-secondary-actions button.uri-dash-delete{color:#985e55}
+.uri-dash-empty,.uri-dash-no-results{border:1px dashed #b8cbbb;border-radius:17px;background:#fff;padding:60px 22px;text-align:center}
+.uri-dash-empty-art{font:68px 'Cormorant Garamond',serif;color:#6c9477}
+.uri-dash-empty h2{font:500 31px 'Playfair Display',serif}
+.uri-dash-empty p,.uri-dash-no-results p{font-size:13px;margin:4px auto 17px;max-width:420px}
+.uri-dash-no-results[hidden]{display:none!important}
+.uri-dash-footnote{color:#859187;font-size:11px;line-height:1.6;margin:25px 0}
+@media(max-width:760px){
+ .wb-wedding-venues .wb-venues{grid-template-columns:1fr}
+ .wb-venue-card{padding:18px}
+ .uri-builder-site .wb-wedding-schedule .wb-schedule-item{grid-template-columns:minmax(75px,30%) minmax(0,1fr);gap:10px}
+ .uri-builder-site .wb-timeline-horizontal ol{grid-template-columns:1fr}
+ .wb-venue-editor{padding:14px}
+ .wb-schedule-editor-row{padding:12px}
+ .wb-schedule-editor-head{align-items:flex-start;flex-wrap:wrap}
+ .uri-dash-heading{align-items:flex-start;flex-direction:column;gap:12px}
+ .uri-dash-heading>.btn{width:100%}
+ .uri-dash-stats{gap:8px;margin:20px 0}
+ .uri-dash-stats>div{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:13px 11px}
+ .uri-dash-stats strong{font-size:27px}
+ .uri-dash-stats span{font-size:10px}
+ .uri-dash-toolbar{align-items:stretch;flex-direction:column}
+ .uri-dash-search{width:100%}
+ .uri-dash-filters{justify-content:space-evenly}
+ .uri-dash-sort{justify-content:space-between}
+ .uri-dash-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+ .uri-dash-results{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:400px){
+ .wb-schedule-editor-head button{min-height:41px;min-width:40px}
+ .uri-dash-grid{grid-template-columns:1fr}
+ .uri-dash-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .uri-dash-stats>div{padding:12px 9px}
+}
