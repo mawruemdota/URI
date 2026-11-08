@@ -41,7 +41,7 @@ window.uriFlowOpenPreview=function(which){if(which==='draft'){previewFrom='draft
 window.uriFlowBackPreview=function(){if(previewFrom==='draft'){route('create')}else{if(previewEvent)state.current=previewEvent;tab='edit';route('event')}window.scrollTo(0,0)};
 window.uriFlowMode=function(mode){let c=document.getElementById('wfFullCanvas');if(c)c.dataset.mode=mode==='mobile'?'mobile':'desktop';document.querySelectorAll('[data-wf-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-wf-mode')===mode)))};
 const oldRender=render;
-render=function(){let r=location.hash.slice(1)||'home';if(r==='preview-wizard'){previewFrom='draft';fullPreview(wizard,'draft');return}if(r.startsWith('preview/')){let id=r.slice(8),e=state.events.find(e=>e.id===id);if(!e){route('dashboard');return}previewFrom='event';previewEvent=id;fullPreview(e,'event');return}return oldRender()};
+render=function(){window.__uriLastRenderedHash=location.hash;let r=location.hash.slice(1)||'home';if(r==='preview-wizard'){previewFrom='draft';fullPreview(wizard,'draft');return}if(r.startsWith('preview/')){let id=r.slice(8),e=state.events.find(e=>e.id===id);if(!e){route('dashboard');return}previewFrom='event';previewEvent=id;fullPreview(e,'event');return}return oldRender()};
 const currentRoute=location.hash.slice(1);
 if(currentRoute==='create'||currentRoute==='preview-wizard'){
   let prior=readDraft()||migrateLegacy();
