@@ -37,6 +37,16 @@
 - [x] Add UI preview regression tests to GitHub CI
 - [ ] Capture live site screenshots and perform browser accessibility, layout and device testing
 
+## Template creation reliability pass (2026-11-08)
+- [x] Personalize style choices in wizard and editor with user-entered details and photo
+- [x] Optional hero-photo upload, validation, compression, removal and draft recovery in wedding setup
+- [x] Hide empty photo gallery from invite without disabling or reordering the feature
+- [x] Exhaustive 42-combination feature/layout rendering matrix and wizard photo tests
+- [x] Add Chromium browser journey automation and screenshot artifact upload to GitHub Actions
+- [ ] Confirm the browser-qa workflow succeeds and inspect its screenshot artifacts
+- [ ] Complete manual Safari/iOS and Chrome/Android UI checks on physical devices
+- [ ] Revisit cloud publishing authentication, image storage, and guest RSVP security
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
