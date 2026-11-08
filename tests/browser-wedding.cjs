@@ -85,20 +85,42 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     await page.locator('.wb-upload').filter({hasText:'Photo gallery'}).locator('input[type="file"]').setInputFiles([{name:'gallery-one.png',mimeType:'image/png',buffer:PNG},{name:'gallery-two.png',mimeType:'image/png',buffer:PNG}]);
     await page.locator('.wb-photo-cards .wb-photo-card').nth(1).waitFor({timeout:10000});
     assert.equal(await page.locator('#wbLivePreview [data-feature="gallery"]').count(),1);
-    await page.locator('.wb-photo-cards .wb-photo-card').first().locator('select').selectOption('square');
+    // Photo Manager 2.0: non-destructive crop, zoom, pan, drag reorder and fallback arrows.
+    await page.locator('.wb-photo-tile-image').first().click();
+    await page.getByRole('dialog',{name:/Adjust gallery photo/}).waitFor();
+    await page.locator('#wbCropShape').selectOption('portrait');
+    await page.locator('#wbCropZoom').evaluate(el=>{el.value='1.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
+    const cropBox=await page.locator('#wbCropFrame').boundingBox();
+    await page.mouse.move(cropBox.x+cropBox.width*.5,cropBox.y+cropBox.height*.5);
+    await page.mouse.down();
+    await page.mouse.move(cropBox.x+cropBox.width*.65,cropBox.y+cropBox.height*.5,{steps:4});
+    await page.mouse.up();
+    await image(page,'08-crop-dialog.png');
+    await page.getByRole('button',{name:'Apply crop'}).click();
+    let photoData=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].photos);
+    assert.equal(photoData[0].zoom,1.5);
+    assert.equal(photoData[0].crop,'portrait');
+    assert.notEqual(photoData[0].x,50);
+    await page.locator('.wb-photo-grip').first().dragTo(page.locator('.wb-photo-tile').last());
+    photoData=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].photos);
+    assert.equal(photoData[0].alt,'gallery-two');
     await page.locator('.wb-photo-cards .wb-photo-card').first().locator('button[aria-label="Move photo right"]').click();
-    const photosState=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].photos);
-    assert.equal(photosState[0].alt,'gallery-two');
-    assert.equal(photosState[1].crop,'square');
-    await image(page,'08-photo-gallery.png');
+    photoData=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].photos);
+    assert.equal(photoData[0].alt,'gallery-one');
+    assert.equal(photoData[0].zoom,1.5);
+    assert.equal(photoData[0].crop,'portrait');
+    await page.locator('#wbLivePreview .wb-preview-photo-edit[aria-label="Edit wedding cover photograph"]').click();
+    await page.getByRole('dialog',{name:/Adjust cover photo/}).waitFor();
+    await page.getByRole('button',{name:'Cancel'}).click();
+    await image(page,'09-photo-gallery.png');
     // Check full-size browser preview and template switching.
     await page.getByRole('button',{name:/Full-page preview/}).click();
     await page.locator('.wf-full-content .wb-theme-botanical').waitFor();
-    await image(page,'09-full-desktop.png');
+    await image(page,'10-full-desktop.png');
     await page.getByRole('button',{name:'Mobile'}).click();
     await page.waitForTimeout(120);
     assert.equal(await page.locator('#wfFullContent').evaluate(el=>el.style.width),'390px');
-    await image(page,'10-full-mobile.png');
+    await image(page,'11-full-mobile.png');
     await page.getByRole('button',{name:/Back to editor/}).click();
     await page.setViewportSize({width:390,height:844});
     await page.locator('.wb-editor').waitFor();
@@ -107,7 +129,7 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     assert.equal(frame,'390px');
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
     assert.ok(overflow<=3,'Mobile editor overflows viewport by '+overflow+'px');
-    await image(page,'11-mobile-editor.png');
+    await image(page,'12-mobile-photo-manager.png');
     // A browser reload must preserve both templates' content and gallery edits.
     await page.reload({waitUntil:'domcontentloaded'});
     await page.locator('.sidebar button').filter({hasText:'Edit invitation'}).click();
@@ -116,8 +138,9 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     assert.equal(persisted.name1,'Maya');
     assert.equal(persisted.name2,'Emir');
     assert.equal(persisted.template,'classic');
-    assert.equal(persisted.photos[0].alt,'gallery-two');
-    assert.equal(persisted.photos[1].crop,'square');
+    assert.equal(persisted.photos[0].alt,'gallery-one');
+    assert.equal(persisted.photos[0].crop,'portrait');
+    assert.equal(persisted.photos[0].zoom,1.5);
     assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
     console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
   }finally{await browser.close()}
