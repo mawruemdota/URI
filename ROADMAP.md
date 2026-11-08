@@ -72,6 +72,21 @@
 - [ ] Test iOS Safari and Android Chrome using actual devices
 - [ ] Implement cross-device draft synchronization and real-time published status after returning to Supabase
 
+## Readiness, direct editing, and Guest Management / RSVP 2.0 (2026-11-09)
+- [x] Readiness checklist with publishing blockers, optional suggestions, progress and editor shortcuts
+- [x] Dashboard completion progress and a dedicated Review editor tab
+- [x] Direct editing shortcuts from private preview to names, story, venue, timeline and RSVP guest planning
+- [x] Household and guest management with categories, plus-one allowances and seat allocations
+- [x] Local test RSVP page with custom text/choice questions and guest-specific responses
+- [x] Household and total-event seat-limit checks; local RSVP analytics
+- [x] CSV import and export for local guest planning
+- [x] Keep guest and household data out of public invitation publication payloads
+- [x] Mark public wedding RSVP as unavailable until secure online replies exist
+- [x] Add regression tests for readiness, guest planning and limits; extend Chromium journey
+- [ ] Verify GitHub Actions browser tests, screenshots, real-device usability and accessibility
+- [ ] Implement secure, cross-device RSVP storage, personalized invite tokens, event ownership and privacy policies using the backend
+- [ ] Configure genuine guest delivery and notifications only after security and consent requirements
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
