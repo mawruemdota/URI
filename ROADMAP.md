@@ -87,6 +87,14 @@
 - [ ] Implement secure, cross-device RSVP storage, personalized invite tokens, event ownership and privacy policies using the backend
 - [ ] Configure genuine guest delivery and notifications only after security and consent requirements
 
+## Minimal interface copy polish
+- [x] Simplify landing page, wizard, wedding editor, dashboard, guest and readiness text
+- [x] Remove decorative arrow, checkmark, heart and floral glyphs from text and controls
+- [x] Keep botanical art, accessible labels, and necessary local-demo safety warnings
+- [x] Rebalance spacing and remove empty ornament holders with `minimal-ui.css`
+- [x] Update existing smoke checks for streamlined interface copy
+- [ ] Verify live GitHub Pages visuals on desktop, iOS Safari and Android Chrome
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
