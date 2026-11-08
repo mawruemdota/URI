@@ -414,3 +414,12 @@ body:has(.wb-editor) .wrap{max-width:1490px;padding-top:24px;padding-left:28px;p
   .wf-full-canvas{padding:8px}
   .wf-full-hint{font-size:10px}
 }
+
+
+/* Keep the full preview one tap away when the editor must stack on laptops. */
+@media(max-width:1260px){
+  .wb-preview-shortcut{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:9px 12px;font-size:11px;line-height:1.2;
+  }
+}
