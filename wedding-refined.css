@@ -196,7 +196,7 @@
   display:grid;place-items:center;position:relative;flex:0 0 auto;
 }
 .wb-theme-editorial .wb-editorial-story-monogram::before,.wb-theme-editorial .wb-editorial-story-monogram::after{
-  position:absolute;content:'❧';font:23px 'Cormorant Garamond',serif;color:var(--wb-accent);
+  position:absolute;content:'';font:23px 'Cormorant Garamond',serif;color:var(--wb-accent);
 }
 .wb-theme-editorial .wb-editorial-story-monogram::before{left:7px;bottom:7px;transform:rotate(-30deg)}
 .wb-theme-editorial .wb-editorial-story-monogram::after{right:7px;top:7px;transform:rotate(150deg)}
@@ -368,3 +368,7 @@
  .wb-mini-stationery .wb-mini-main>small{font-size:6px}
  .wb-mini-romance .wb-cover-copy>strong{font-size:35px}
 }
+
+.wb-theme-editorial .wb-editorial-story-monogram:before,.wb-theme-editorial .wb-editorial-story-monogram:after{display:none!important}
+.wb-theme-editorial .wb-editorial-timeline-row .wb-editorial-icon{display:none!important}
+.wb-theme-editorial .wb-editorial-timeline-row{gap:0}
