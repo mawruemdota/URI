@@ -71,7 +71,7 @@ function notes(section){
 }
 function sectionEditor(e,section){
  const isCeremony=section==='ceremony';
- return '<div class="wb-venue-editor"><div class="wb-venue-editor-title"><strong>'+(isCeremony?'Ceremony':'Reception')+'</strong><small>'+(isCeremony?'Main wedding details':'Separate venue and schedule (optional)')+'</small></div>'
+ return '<div class="wb-venue-editor" data-wedding-section="'+section+'"><div class="wb-venue-editor-title"><strong>'+(isCeremony?'Ceremony':'Reception')+'</strong><small>'+(isCeremony?'Main wedding details':'Separate venue and schedule (optional)')+'</small></div>'
   +'<div class="wb-fieldgrid">'+input(section,'date','Date','date')+input(section,'time','Start time','time')
   +input(section,'venue','Venue')+input(section,'address','Address')+'</div>'
   +input(section,'mapUrl','Directions / map URL','url','https://maps.google.com/...')
