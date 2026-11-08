@@ -47,6 +47,16 @@
 - [ ] Complete manual Safari/iOS and Chrome/Android UI checks on physical devices
 - [ ] Revisit cloud publishing authentication, image storage, and guest RSVP security
 
+## Photo Manager 2.0 implementation (2026-11-08)
+- [x] Non-destructive crop editor with pan, zoom, aspect selection and Apply/Cancel
+- [x] Preserve framing data, image identity and order across both wedding templates
+- [x] Drag gallery images by handle, with accessible left/right controls on mobile
+- [x] Replace photos from the editor preview and from the crop workspace
+- [x] Updated responsive Photos tab, improved upload compression and photo removal confirmation
+- [x] Add Node smoke tests and extend Chromium browser QA screenshots
+- [ ] Verify GitHub Actions Chromium run results and inspect images for visual regressions
+- [ ] Manually test touch panning and image selection on iOS Safari and Android Chrome
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
