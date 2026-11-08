@@ -26,7 +26,8 @@ const scenario=function(){
   r.nameError=app.innerHTML.includes('Enter the first partner');
   wizardSet('name1','Maria');wizardSet('name2','Juan');
   startWizard();r.resumes=wizard.name1==='Maria'&&wizard.name2==='Juan'&&step===1;
-  nextWizard();r.details=step===2;
+  startWizard('classic');r.templateSelectionKeepsDetails=wizard.name1==='Maria'&&wizard.name2==='Juan'&&wizard.template==='classic'&&step===0;
+  nextWizard();nextWizard();r.details=step===2;
   wizardSet('date','2000-01-01');wizardSet('venue','Garden');nextWizard();
   r.pastDate=step===2&&app.innerHTML.includes('cannot be in the past');
   wizardSet('date','2035-12-10');wizardSet('time','16:00');nextWizard();
