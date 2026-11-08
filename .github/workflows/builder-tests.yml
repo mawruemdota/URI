@@ -26,6 +26,8 @@ jobs:
         run: node tests/photo-manager-smoke.cjs
       - name: Verify wedding details and dashboard management
         run: node tests/details-dashboard-smoke.cjs
+      - name: Verify readiness, direct edits and local RSVP 2.0
+        run: node tests/experience-smoke.cjs
 
   browser-qa:
     runs-on: ubuntu-latest
