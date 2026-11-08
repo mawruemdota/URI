@@ -63,7 +63,7 @@ function renderTimelineTeaser(e){
 function input(section,key,label,type='text',placeholder=''){
  const a=section==='reception'?ensure(current()).reception:ensure(current()).ceremony;
  const val=section==='ceremony'&&['date','time','venue','address'].includes(key)?current()[key]||'':a[key]||'';
- return '<label class="wb-field"><span>'+label+'</span><input type="'+type+'" value="'+T(val)+'" placeholder="'+T(placeholder)+'" oninput="uriWeddingDetailSet(\''+section+'\',\''+key+'\',this.value)"></label>';
+ return '<label class="wb-field" data-uri-field="'+section+'-'+key+'"><span>'+label+'</span><input type="'+type+'" value="'+T(val)+'" placeholder="'+T(placeholder)+'" oninput="uriWeddingDetailSet(\''+section+'\',\''+key+'\',this.value)"></label>';
 }
 function notes(section){
  const val=ensure(current())[section].instructions||'';
@@ -80,7 +80,7 @@ function sectionEditor(e,section){
 }
 function scheduleRow(item,i,total){
  const opts=[['ceremony','Ceremony'],['reception','Reception'],['custom','Other location']];
- return '<article class="wb-schedule-editor-row"><div class="wb-schedule-editor-head"><strong>Activity '+(i+1)+'</strong><div>'
+ return '<article class="wb-schedule-editor-row" data-uri-schedule-index="'+i+'"><div class="wb-schedule-editor-head"><strong>Activity '+(i+1)+'</strong><div>'
  +'<button type="button" aria-label="Move activity '+(i+1)+' up" '+(i===0?'disabled':'')+' onclick="uriWeddingTimelineMove('+i+',-1)">↑</button>'
  +'<button type="button" aria-label="Move activity '+(i+1)+' down" '+(i===total-1?'disabled':'')+' onclick="uriWeddingTimelineMove('+i+',1)">↓</button>'
  +'<button type="button" aria-label="Remove activity '+(i+1)+'" onclick="uriWeddingTimelineRemove('+i+')">Remove</button></div></div>'
