@@ -28,7 +28,7 @@ window.uriBuilderPhotosPanel=function(e){
    +'<div id="wbPhotoNotice" class="wb-photo-notice" role="status" aria-live="polite"></div>'
    +'<div class="wb-photo-section"><div class="wb-photo-section-heading"><div><strong>Cover photograph</strong></div></div>'
    +'<div class="wb-photo-hero"><button type="button" class="wb-photo-hero-thumb" onclick="uriPhotoOpen(\'hero\',0)" aria-label="Adjust cover photograph">'+U.picture(hero,'wb-photo-card-image','Add your couple photo')+'</button>'
-   +'<div class="wb-photo-hero-actions"><p>'+(e.heroPhoto?'Adjust how the couple appears in portrait and landscape layouts.':'Start by choosing a favorite photograph of the couple.')+'</p>'
+   +'<div class="wb-photo-hero-actions"><p>'+(e.heroPhoto?'':'')+'</p>'
    +(e.heroPhoto?'<button class="btn small" type="button" onclick="uriPhotoOpen(\'hero\',0)">Edit crop</button>':'')
    +'<label class="wb-photo-replace wb-photo-choose"><span>'+(e.heroPhoto?'Replace cover':'Upload cover')+'</span><input type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload or replace cover photograph" onchange="uriBPhotoUpload(event,\'hero\')"></label>'
    +(e.heroPhoto?'<button type="button" class="wb-photo-remove-link" onclick="uriBHeroRemove()">Remove cover</button>':'')+'</div></div></div>'
