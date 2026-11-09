@@ -18,6 +18,16 @@ Three wedding styles:
 
 All three styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
 
+## Custom Builder, Visual Editing 2.0 and Template Studio
+
+URI now supports six **custom section types** in addition to its nine built-in wedding sections: Text, Image, Video (YouTube/Vimeo), FAQ, Location and Button. Custom sections use the same data model, visibility, ordering, theme colors, and publication snapshot as existing features. Each template supplies its own responsive appearance.
+
+The preview has owner-only controls for **Edit, Move Up, Move Down, Hide**, and **Duplicate** for independent custom sections. Clicking available noninteractive space opens editing. Sections can be restored without losing content; deletion requires confirmation.
+
+The **Template Studio** under Design builds reusable custom design recipes from one of the three built-in structures. Paste MiroMiro-extracted design token JSON or CSS colors, optionally attach a source URL, then create or export a new style recipe. Recipes remain locally saved to this device and in event snapshots, not automatically synchronized across accounts. URI does not fetch or clone an arbitrary site from its frontend.
+
+See [CUSTOM_BUILDER_GUIDE.md](CUSTOM_BUILDER_GUIDE.md) for the supported section fields, design token syntax, and limitations. Automated checks are in `tests/custom-builder-smoke.cjs` and the Chromium browser suite.
+
 ## Dynamic sections and template-aware layouts
 
 URI currently offers **nine wedding sections**: Hero, Our Story, Photo Gallery, Countdown, Event Details, Event Timeline, Dress Code, Gift Registry, and RSVP. The default invitation enables all except Dress Code and Gift Registry. Empty galleries and timelines do not reserve space.
