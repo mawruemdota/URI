@@ -169,6 +169,7 @@ const image=async (page,name)=>{
     await reception.locator('.wb-field').nth(3).locator('input').fill('Cavite, Philippines');
     await reception.locator('.wb-field').nth(4).locator('input').fill('https://maps.google.com/?q=garden');
     await reception.locator('textarea').fill('Please use Gate B.');
+    await page.locator('.wb-timeline-fold summary').click();
     await page.getByRole('button',{name:/Add activity/}).click();
     const activity=page.locator('.wb-schedule-editor-row').last();
     await activity.locator('input[placeholder="e.g. Reception"]').fill('First dance');
