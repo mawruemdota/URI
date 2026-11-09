@@ -96,9 +96,20 @@ window.uriGuestsUpdate=ev=>{ev.preventDefault();const fd=new FormData(ev.target)
 window.uriGuestsRemove=id=>{if(!confirm('Remove this guest and their local test response?'))return;if(persist(e=>{e.guests=e.guests.filter(x=>x.id!==id)})){editing='';success('Guest removed.')}};
 window.uriHouseholdAdd=ev=>{ev.preventDefault();const fd=new FormData(ev.target),name=String(fd.get('household')||'').trim().slice(0,100);if(!name)return;const e=getEvent();if(e.households.some(h=>h.name.toLowerCase()===name.toLowerCase())){notice='That household already exists.';eventPage();return}
  if(persist(e=>e.households.push({id:token('h'),name,seatLimit:number(fd.get('seats'),50)})))success('Household created.')};
-window.uriHouseholdSeats=(id,value)=>{if(persist(e=>{const h=e.households.find(x=>x.id===id);if(h)h.seatLimit=number(value,50)}))success('Household seat limit updated.')};
+window.uriHouseholdSeats=(id,value)=>{
+ const e=getEvent(),h=e?.households.find(x=>x.id===id);if(!h)return;
+ const limit=number(value,50);
+ const occupied=e.guests.filter(g=>g.householdId===id&&g.status==='attending').reduce((n,g)=>n+1+number(g.plusOnesConfirmed,g.plusOnesAllowed),0);
+ if(limit&&limit<occupied){notice='This household already has '+occupied+' confirmed seats. Choose a higher limit.';eventPage();return}
+ if(persist(x=>{const h=x.households.find(y=>y.id===id);if(h)h.seatLimit=limit}))success('Household seat limit updated.');
+};
 window.uriHouseholdRemove=id=>{const e=getEvent();if(e.guests.some(g=>g.householdId===id)){notice='Move the guests to another household before removing this one.';eventPage();return}if(persist(e=>{e.households=e.households.filter(h=>h.id!==id)}))success('Household removed.')};
-window.uriGuestsCapacity=value=>{if(persist(e=>{e.rsvpSettings.capacity=number(value,10000)}))success('Guest capacity saved.')};
+window.uriGuestsCapacity=value=>{
+ const e=getEvent();if(!e)return;
+ const limit=number(value,10000),confirmed=usage(e).confirmed;
+ if(limit&&limit<confirmed){notice='There are already '+confirmed+' confirmed seats. Choose a higher capacity.';eventPage();return}
+ if(persist(x=>{x.rsvpSettings.capacity=limit}))success('Guest capacity saved.');
+};
 window.uriGuestsAddQuestion=ev=>{ev.preventDefault();const fd=new FormData(ev.target),label=String(fd.get('label')||'').trim().slice(0,120),type=fd.get('type')==='choice'?'choice':'text';const options=String(fd.get('options')||'').split('|').map(x=>x.trim()).filter(Boolean).slice(0,12);const e=getEvent();if(!label||e.rsvpSettings.questions.length>=12){notice='A maximum of 12 questions is supported.';eventPage();return}if(type==='choice'&&options.length<2){notice='Provide at least two choices separated by |.';eventPage();return}
  if(persist(e=>e.rsvpSettings.questions.push({id:token('q'),label,type,options,required:fd.has('required')})))success('Question added.')};
 window.uriGuestsRemoveQuestion=i=>{if(persist(e=>{e.rsvpSettings.questions.splice(i,1)}))success('Question removed.')};
@@ -185,7 +196,8 @@ window.uriGuestsImport=async ev=>{
   const cols=rows.shift().map(x=>x.trim().toLowerCase());
   const nameIndex=cols.indexOf('name');if(nameIndex<0)throw Error('CSV must contain a Name column');
   const col=(row,key)=>row[cols.indexOf(key)]||'';
-  const list=rows.slice(0,500).map(row=>({
+  if(rows.length>500)throw Error('Import 500 guests or fewer at a time.');
+  const list=rows.map(row=>({
    name:String(row[nameIndex]||'').trim().slice(0,120),
    email:String(col(row,'email')).trim().slice(0,160),
    household:String(col(row,'household')).trim().slice(0,100),
@@ -193,15 +205,25 @@ window.uriGuestsImport=async ev=>{
    plus:number(col(row,'plus ones allowed')||0,5)
   })).filter(x=>x.name);
   if(!list.length)throw Error('No valid guest names found');
-  const e=getEvent();if(e.guests.length+list.length>500)throw Error('Local prototype supports up to 500 guests');
+  const e=getEvent();if(!e)return;
+  const key=(name,email,house)=>[name,email,house].map(v=>String(v||'').trim().toLowerCase()).join('|');
+  const seen=new Set(e.guests.map(g=>key(g.name,g.email,e.households.find(h=>h.id===g.householdId)?.name)));
+  const fresh=[],duplicates=[];
+  for(const guest of list){
+   const k=key(guest.name,guest.email,guest.household);
+   if(seen.has(k))duplicates.push(guest.name);
+   else{seen.add(k);fresh.push(guest)}
+  }
+  if(!fresh.length)throw Error('All guests are already in this event.');
+  if(e.guests.length+fresh.length>500)throw Error('Local prototype supports up to 500 guests');
   if(!persist(event=>{
-   for(const item of list){
+   for(const item of fresh){
     let h=event.households.find(x=>x.name.toLowerCase()===item.household.toLowerCase());
     if(item.household&&!h){h={id:token('h'),name:item.household,seatLimit:0};event.households.push(h)}
     event.guests.push({id:token('g'),name:item.name,email:item.email,householdId:h?.id||'',category:item.category,plusOnesAllowed:item.plus,plusOnesConfirmed:0,status:'pending',answers:{}});
    }
   }))return;
-  success(list.length+' guests imported for local planning.');
+  success(fresh.length+' guests imported'+(duplicates.length?'; '+duplicates.length+' duplicate(s) skipped':'')+'.');
  }catch(err){notice=err.message;eventPage()}finally{ev.target.value=''}
 };
 function analytics(e){
