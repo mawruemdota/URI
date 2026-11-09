@@ -68,15 +68,19 @@ jobs:
           key: playwright-chromium-1.56.1-${{ runner.os }}-ubuntu24
       - name: Install Chromium test driver
         run: |
-          npm install --no-save --no-package-lock playwright@1.56.1
+          npm install --no-save --no-package-lock playwright@1.56.1 phaser@3.90.0
           npx playwright install --with-deps chromium
       - name: Exercise the real wedding builder in Chromium
         run: node tests/browser-wedding.cjs
+      - name: Exercise Adventure Invitation with Phaser Arcade Physics
+        run: node tests/browser-adventure.cjs
       - name: Preserve screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: uri-wedding-browser-screenshots
-          path: artifacts/wedding-browser/
+          path: |
+            artifacts/wedding-browser/
+            artifacts/adventure-browser/
           if-no-files-found: ignore
           retention-days: 14
