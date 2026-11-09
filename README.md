@@ -10,13 +10,28 @@ To run it locally, serve the repository root with a static web server, e.g. `pyt
 
 ## Wedding template collection
 
-Three wedding styles:
+Four wedding styles:
 
 - **Romantic Botanical** — warm ivory, botanical decoration, portrait/photo column, elegant Cormorant Garamond typography.
 - **Minimalist Editorial** — black-and-white editorial columns, couple's monogram, handwriting-inspired Allura heading style, structured boxes.
 - **Nightfall** — dark cinematic portrait, oversized condensed names, atmospheric gradients, and coral-red accents. Adapted from a MiroMiro review of the Dota 2 Abaddon page without reusing Valve art, logos, copy or fonts.
+- **Adventure Invitation** — an original light 2D platformer with a controllable pixel-art explorer, themed worlds, and interactive information checkpoints. Phaser is lazy-loaded only when visitors play; standard invitation content remains accessible as HTML.
 
-All three styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
+All four styles use the **same underlying event data and the same nine built-in features**. Switching templates does not delete the entered content. Adventure also supports custom sections as additional checkpoints.
+
+## Adventure Invitation 1.0 (November 2026)
+
+Adventure Invitation is a fourth selectable design in the wedding wizard and editor. It is an **original 2D platformer** rather than a copy of a Nintendo game. It contains no Mario characters, Nintendo assets or copyrighted game music.
+
+**Gameplay:** An accessible continuous side-scrolling level with keyboard arrows / WASD, Space/Up to jump, E to interact, on-screen movement buttons or a mobile virtual joystick, optional collectible memories, and accessible checkpoint signs. Visitors walk through the enabled URI invitation sections, with a World Map for jumping directly to any section. There are **no enemies, lives or game-over screens**. On game-engine errors, reduced device capability or guests preferring not to play, **View all invitation information without playing** provides native HTML access to every section, including venue, directions and RSVP instructions. Interactive information panels use regular HTML so text is selectable, readable and accessible to assistive technologies.
+
+**Game Template Manager:** In **Edit Invitation → Design → Game Template Manager**, choose one of three original world palettes (Meadow Journey, Sunset Village or Starlight Kingdom), one of three original character looks (Explorer, Celebration Guest or Dreamer), mobile movement (buttons or joystick), movement speed and collectibles. Editing feature visibility/order in the regular **Features** tab changes the in-world checkpoints; custom sections become checkpoints too. The world uses the shared content and existing Animation, Music and Background Manager data. The owner editor starts in static preview mode until **Play adventure** is selected.
+
+**RSVP:** When the wedding is cloud-published and the owner chooses **Copy online RSVP link**, Adventure creates a personalized game URL (`#public/<slug>?rsvp=<token>`) instead of sending guests directly to the RSVP form. A bearer token stays in the URL fragment (not in HTTP requests). The RSVP checkpoint then provides **RSVP now**, linking to URI's existing token-protected response form. A generic public game URL without a guest token does not expose any guest-specific action or information. Never share personal links publicly.
+
+**Technology:** Phaser **3.90.0** (MIT-licensed) is pinned in a lazy-loaded CDN URL and used only for gameplay; URI's HTML/CSS site continues to run on GitHub Pages. The game falls back to static details if the Phaser CDN is unavailable. All graphics are original procedural pixel art; no external sprites or audio files are shipped. Game worlds, character settings and feature checkpoints persist in local/cloud drafts and publication payloads.
+
+**Tests:** `tests/adventure-smoke.cjs` verifies rendering, safety, world settings, checkpoint ordering, and shared data. `tests/browser-adventure.cjs` uses a real Phaser installation in CI to test movement, checkpoint overlays, keyboard controls, full-page preview and mobile viewport screenshots. Real iOS Safari/Android Chrome testing, game performance on older devices, and production end-to-end guest RSVPs still require manual acceptance.
 
 ## Cross-device drafts and secure guest RSVP (2026-11-09)
 
