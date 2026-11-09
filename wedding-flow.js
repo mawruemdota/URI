@@ -124,7 +124,7 @@ window.uriFlowMode=function(mode){
 };
 if(window.addEventListener)window.addEventListener('resize',()=>{if(window.uriFlowFit)window.uriFlowFit()});
 const oldRender=render;
-render=function(){window.__uriLastRenderedHash=location.hash;let r=location.hash.slice(1)||'home';if(r==='preview-wizard'){previewFrom='draft';fullPreview(wizard,'draft');return}if(r.startsWith('preview/')){let id=r.slice(8),e=state.events.find(e=>e.id===id);if(!e){route('dashboard');return}previewFrom='event';previewEvent=id;fullPreview(e,'event');return}return oldRender()};
+render=function(){window.__uriLastRenderedHash=location.hash;let r=location.hash.slice(1)||'home';if(r==='preview-wizard'){previewFrom='draft';fullPreview(wizard,'draft');return}if(r.startsWith('preview/')){let id=r.slice(8),e=state.events.find(e=>e.id===id);if(!e){route('dashboard');return}if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==window.URICloudDrafts?.getUser?.()?.id){route('cloud');return}previewFrom='event';previewEvent=id;fullPreview(e,'event');return}return oldRender()};
 const currentRoute=location.hash.slice(1);
 if(currentRoute==='create'||currentRoute==='preview-wizard'){
   let prior=readDraft()||migrateLegacy();
