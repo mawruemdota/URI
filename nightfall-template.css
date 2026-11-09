@@ -1,0 +1,422 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&display=swap');
+
+/* Nightfall — original wedding template built from the visual language
+   measured on the Dota 2 hero/Abaddon page with MiroMiro.
+   NO game assets, logos, fonts, text or source-page CSS are used. */
+.uri-builder-site.wb-theme-nightfall {
+  --wb-hairline:color-mix(in srgb,var(--wb-ink) 20%,transparent);
+  --wb-wash:color-mix(in srgb,var(--wb-ink) 4%,var(--wb-bg));
+  background:var(--wb-bg);
+  color:var(--wb-ink);
+  font-family:var(--wb-body);
+}
+.wb-theme-nightfall .wb-flow {
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  background:var(--wb-bg);
+}
+.wb-theme-nightfall .wb-flow>.wb-unit {
+  grid-column:span 6;
+  background:var(--wb-bg);
+  border-bottom:1px solid var(--wb-hairline);
+  border-right:1px solid var(--wb-hairline);
+  padding:clamp(32px,5.8cqw,85px);
+}
+.wb-theme-nightfall .wb-flow>.wb-hero,
+.wb-theme-nightfall .wb-flow>.wb-story,
+.wb-theme-nightfall .wb-flow>.wb-gallery,
+.wb-theme-nightfall .wb-flow>.wb-countdown,
+.wb-theme-nightfall .wb-flow>.wb-rsvp {
+  grid-column:1/-1;
+}
+.wb-theme-nightfall .wb-flow>.wb-hero {padding:0;border:0}
+.wb-theme-nightfall .wb-flow>.wb-unit h2 {
+  font-family:var(--wb-heading);
+  font-weight:700;
+  font-size:clamp(43px,6cqw,78px);
+  line-height:.98;
+  text-transform:uppercase;
+  letter-spacing:.018em;
+  margin:0 0 25px;
+}
+.wb-theme-nightfall .wb-flow>.wb-unit h3{
+  font-family:var(--wb-heading);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+.wb-theme-nightfall .wb-flow>.wb-unit .wb-kicker{
+  font-size:11px;
+  font-family:var(--wb-body);
+  letter-spacing:.2em;
+  font-weight:600;
+  margin-bottom:14px;
+  color:var(--wb-accent);
+  opacity:1;
+}
+.wb-theme-nightfall .wb-unit a {color:var(--wb-ink)}
+.wb-theme-nightfall .wb-unit a:focus-visible,
+.wb-theme-nightfall .wb-unit button:focus-visible {
+  outline:3px solid var(--wb-accent);outline-offset:3px;
+}
+
+/* Full-bleed media and the bold left-anchored typographic hero */
+.wb-theme-nightfall .wb-nightfall-hero {
+  isolation:isolate;position:relative;display:block;
+  min-height:720px;
+  background:radial-gradient(ellipse at 75% 15%,#34414a 0%,transparent 45%),
+             radial-gradient(ellipse at 85% 90%,#29333d 0%,transparent 60%),
+             #0f0f0f;
+  color:var(--wb-ink);
+  overflow:hidden;
+}
+.wb-theme-nightfall .wb-nightfall-media{
+  position:absolute;inset:0 0 0 25%;z-index:0;overflow:hidden;
+}
+.wb-theme-nightfall .wb-nightfall-media .wb-nightfall-portrait {
+  position:absolute;inset:0;min-height:0;height:100%;width:100%;
+  background:radial-gradient(ellipse at 64% 25%,#394754,#171c22 68%,#0c0f13);
+}
+.wb-theme-nightfall .wb-nightfall-portrait img{
+  display:block;object-fit:cover;opacity:.96;
+}
+.wb-theme-nightfall .wb-nightfall-media .wb-photo-empty{
+  color:#d5d8da;background:transparent;
+  font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+}
+.wb-theme-nightfall .wb-nightfall-shadow{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg,#0d0f11 0%,rgba(13,15,17,.97) 16%,rgba(13,15,17,.74) 40%,rgba(13,15,17,.16) 75%),
+    linear-gradient(0deg,#0c0f11 0%,transparent 26%,transparent 74%,rgba(12,15,17,.58) 100%);
+}
+.wb-theme-nightfall .wb-nightfall-side{
+  position:absolute;z-index:2;top:47%;left:23px;
+  transform:rotate(-90deg) translateX(-50%);transform-origin:left center;
+  color:color-mix(in srgb,var(--wb-ink) 43%,transparent);
+  font-family:var(--wb-body);font-size:10px;font-weight:700;
+  letter-spacing:.26em;white-space:nowrap;
+}
+.wb-theme-nightfall .wb-nightfall-main{
+  position:relative;z-index:3;
+  display:flex;flex-direction:column;align-items:flex-start;
+  width:min(70%,750px);min-height:720px;
+  padding:clamp(145px,16cqw,245px) 15px 115px clamp(65px,8cqw,116px);
+  justify-content:center;
+}
+.wb-theme-nightfall .wb-nightfall-tag{
+  display:block;font:600 clamp(10px,1.25cqw,15px) var(--wb-body);
+  letter-spacing:.25em;color:var(--wb-ink);opacity:.8;
+  margin-bottom:26px;
+}
+.wb-theme-nightfall .wb-nightfall-names{
+  font:700 clamp(67px,10cqw,132px)/.85 var(--wb-heading);
+  text-transform:uppercase;letter-spacing:.005em;
+  text-wrap:balance;overflow-wrap:anywhere;color:var(--wb-ink);
+  max-width:100%;margin:0;
+}
+.wb-theme-nightfall .wb-nightfall-names span{display:block}
+.wb-theme-nightfall .wb-nightfall-names em{
+  display:block;font:600 clamp(21px,3cqw,42px)/1 var(--wb-heading);
+  letter-spacing:.12em;font-style:normal;
+  color:var(--wb-accent);margin:11px 0 12px;
+}
+.wb-theme-nightfall .wb-nightfall-line{
+  width:105px;height:4px;background:var(--wb-accent);
+  margin:clamp(22px,3cqw,44px) 0 23px;
+}
+.wb-theme-nightfall .wb-nightfall-meta{
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  max-width:100%;
+  font:500 clamp(12px,1.45cqw,17px)/1.6 var(--wb-body);
+  color:color-mix(in srgb,var(--wb-ink) 86%,transparent);
+}
+.wb-theme-nightfall .wb-nightfall-meta span{overflow-wrap:anywhere}
+.wb-theme-nightfall .wb-nightfall-bottom{
+  position:absolute;z-index:3;bottom:35px;left:clamp(65px,8cqw,116px);
+  right:40px;display:flex;align-items:center;gap:19px;
+  font:700 10px var(--wb-body);letter-spacing:.2em;
+  color:color-mix(in srgb,var(--wb-ink) 65%,transparent);
+}
+.wb-theme-nightfall .wb-nightfall-bottom-line{
+  height:1px;flex:1;background:color-mix(in srgb,var(--wb-ink) 25%,transparent);
+}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-centered .wb-nightfall-media{
+  inset:0;
+}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-centered .wb-nightfall-shadow{
+  background:linear-gradient(0deg,rgba(10,13,16,.84) 0%,rgba(10,13,16,.38) 80%),
+    linear-gradient(90deg,rgba(10,13,16,.36),transparent 75%);
+}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-centered .wb-nightfall-main{
+  align-items:center;text-align:center;margin:auto;width:min(88%,850px);padding:130px 20px 110px;
+}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-centered .wb-nightfall-meta{align-items:center}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-centered .wb-nightfall-bottom{left:40px}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-split .wb-nightfall-media{inset:0 0 0 46%}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-split .wb-nightfall-shadow{
+  background:linear-gradient(90deg,#0d1012 0%,#0d1012 38%,rgba(13,16,18,.15) 85%);
+}
+.wb-theme-nightfall .wb-nightfall-hero.wb-hero-split .wb-nightfall-main{width:min(62%,700px)}
+
+/* The entire second scene feels deliberate rather than a default card. */
+.wb-theme-nightfall .wb-nightfall-story{
+  display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+  gap:clamp(20px,5cqw,80px);
+  align-items:center;min-height:360px;
+  background:linear-gradient(120deg,var(--wb-bg),var(--wb-wash))!important;
+}
+.wb-theme-nightfall .wb-nightfall-story-heading>span{
+  display:block;font:700 11px var(--wb-body);letter-spacing:.22em;
+  color:var(--wb-accent);margin-bottom:19px;
+}
+.wb-theme-nightfall .wb-nightfall-story .wb-nightfall-story-heading h2{
+  margin:0;font:700 clamp(44px,5.2cqw,72px)/.94 var(--wb-heading);
+  letter-spacing:.015em;overflow-wrap:anywhere;text-transform:uppercase;
+}
+.wb-theme-nightfall .wb-nightfall-story-heading em{
+  color:var(--wb-accent);font-style:normal;font-size:.6em;
+}
+.wb-theme-nightfall .wb-nightfall-story-body{
+  padding-left:clamp(20px,4cqw,55px);
+  border-left:4px solid var(--wb-accent);min-width:0;
+}
+.wb-theme-nightfall .wb-nightfall-story p{
+  font-family:var(--wb-body)!important;
+  font-style:normal!important;
+  font-size:clamp(16px,2cqw,24px)!important;
+  line-height:1.7!important;
+  font-weight:400;max-width:740px;text-align:left;
+}
+.wb-theme-nightfall .wb-nightfall-story.wb-story-quote{
+  display:grid;text-align:left;
+}
+.wb-theme-nightfall .wb-nightfall-story.wb-story-letter{
+  display:flex;flex-direction:column;align-items:flex-start;gap:26px;
+}
+.wb-theme-nightfall .wb-nightfall-story.wb-story-letter .wb-nightfall-story-body{max-width:740px}
+.wb-theme-nightfall .wb-nightfall-story.wb-story-columns{
+  grid-template-columns:1fr 1fr;
+}
+
+/* Dark section surfaces, consistent typography and coral-red landmarks. */
+.wb-theme-nightfall .wb-gallery{background:var(--wb-wash)!important}
+.wb-theme-nightfall .wb-gallery h2,.wb-theme-nightfall .wb-details h2,
+.wb-theme-nightfall .wb-timeline h2,.wb-theme-nightfall .wb-dress h2,
+.wb-theme-nightfall .wb-gifts h2,.wb-theme-nightfall .wb-rsvp h2{
+  font:700 clamp(44px,5.4cqw,74px)/.95 var(--wb-heading);
+  letter-spacing:.01em;text-transform:uppercase;
+}
+.wb-theme-nightfall .wb-gallery-image{
+  background:#242932;
+}
+.wb-theme-nightfall .wb-slide figcaption{
+  color:color-mix(in srgb,var(--wb-ink) 70%,transparent);
+  padding-top:12px;font-size:11px;font-weight:500;letter-spacing:.05em;
+}
+.wb-theme-nightfall .wb-gallery-controls button {
+  border-radius:3px;border-color:var(--wb-hairline);color:var(--wb-ink);
+}
+.wb-theme-nightfall .wb-gallery-controls button:hover {
+  background:var(--wb-accent);color:var(--wb-bg);
+}
+.wb-theme-nightfall .wb-countdown {
+  background:color-mix(in srgb,var(--wb-ink) 5%,var(--wb-bg))!important;
+}
+.wb-theme-nightfall .wb-counts{max-width:920px;margin:32px auto 0;gap:10px}
+.wb-theme-nightfall .wb-counts>div{
+  padding:24px 10px!important;
+  background:color-mix(in srgb,var(--wb-ink) 7%,var(--wb-bg))!important;
+  border:1px solid var(--wb-hairline)!important;
+  border-top:3px solid var(--wb-accent)!important;
+  border-radius:0;
+}
+.wb-theme-nightfall .wb-counts strong{
+  font:700 clamp(38px,5.8cqw,80px)/1 var(--wb-heading)!important;
+  color:var(--wb-ink);
+}
+.wb-theme-nightfall .wb-counts small{
+  font:600 clamp(9px,1cqw,12px) var(--wb-body);
+  letter-spacing:.16em;text-transform:uppercase;opacity:.72;
+  margin-top:8px;display:block;
+}
+.wb-theme-nightfall .wb-venue-card,
+.wb-theme-nightfall .wb-details-cards .wb-details-grid>div{
+  background:color-mix(in srgb,var(--wb-ink) 5%,var(--wb-bg));
+  border:1px solid var(--wb-hairline);border-radius:2px;
+}
+.wb-theme-nightfall .wb-venue-head{
+  border-color:var(--wb-hairline);
+}
+.wb-theme-nightfall .wb-venue-card h3{
+  font-family:var(--wb-heading);
+  font-weight:700;
+  font-size:clamp(24px,3cqw,38px);
+  line-height:1.05;
+}
+.wb-theme-nightfall .wb-venue-when strong{
+  font:600 18px var(--wb-body);letter-spacing:.02em;
+}
+.wb-theme-nightfall .wb-map-link{
+  color:var(--wb-accent)!important;
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.wb-theme-nightfall .wb-venue-head .wb-kicker{color:var(--wb-accent)}
+.wb-theme-nightfall .wb-schedule-item{
+  border-color:var(--wb-hairline)!important;
+}
+.wb-theme-nightfall .wb-schedule-time strong{
+  font-family:var(--wb-heading)!important;font-size:26px!important;
+  line-height:1.1!important;
+}
+.wb-theme-nightfall .wb-schedule-copy b{
+  font:600 25px/1.1 var(--wb-heading)!important;
+  text-transform:uppercase;
+}
+.wb-theme-nightfall .wb-schedule-copy small,.wb-theme-nightfall .wb-schedule-copy p{
+  color:color-mix(in srgb,var(--wb-ink) 78%,transparent);
+}
+.wb-theme-nightfall .wb-dress,.wb-theme-nightfall .wb-gifts{
+  background:var(--wb-wash)!important;
+}
+.wb-theme-nightfall .wb-swatches span{border-radius:2px;border:1px solid var(--wb-hairline)}
+.wb-theme-nightfall .wb-rsvp{
+  background:linear-gradient(120deg,color-mix(in srgb,var(--wb-accent) 9%,var(--wb-bg)),var(--wb-bg))!important;
+  text-align:center;
+  border-top:3px solid var(--wb-accent);
+  outline:0;
+}
+.wb-theme-nightfall .wb-rsvp p{max-width:660px;margin:0 auto;font-size:17px}
+.wb-theme-nightfall .wb-rsvp small{max-width:600px;margin:18px auto 0}
+.wb-theme-nightfall .wb-footer{
+  background:var(--wb-bg);color:var(--wb-ink);opacity:.6;
+  border-top:1px solid var(--wb-hairline);
+}
+
+/* Cinematic miniature is also used in the homepage, wizard and dashboard. */
+.wb-mini-nightfall{
+  display:block!important;position:relative;overflow:hidden;
+  isolation:isolate;width:100%;height:100%;
+  min-height:0;background:#0c0f12;color:#fff;border:0!important;
+}
+.wb-mini-nightfall-photo{
+  position:absolute;inset:0 0 0 20%;overflow:hidden;
+  background:radial-gradient(ellipse at 70% 30%,#3a4652,#171b20 55%,#0b0d10 100%);
+}
+.wb-mini-nightfall-photo img{width:100%;height:100%;object-fit:cover}
+.wb-mini-nightfall-shade{
+  position:absolute;inset:0;background:
+  linear-gradient(90deg,#0c0f12 0%,rgba(12,15,18,.9) 33%,rgba(12,15,18,.13) 82%),
+  linear-gradient(0deg,rgba(12,15,18,.8),transparent 40%);
+}
+.wb-mini-nightfall-content{
+  position:relative;z-index:2;display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:center;
+  height:100%;width:70%;padding:clamp(10px,3.3%,34px);
+  gap:8px;min-width:0;color:#f5f5f5;
+}
+.wb-mini-nightfall-content>span{
+  font:700 clamp(7px,.9cqw,11px) 'Montserrat',sans-serif;
+  letter-spacing:.16em;color:#dedede;
+}
+.wb-mini-nightfall-content>strong{
+  display:flex;flex-direction:column;align-items:flex-start;
+  font:700 clamp(26px,5.8cqw,58px)/.86 'Barlow Condensed','Arial Narrow',sans-serif;
+  letter-spacing:.012em;text-transform:uppercase;overflow-wrap:anywhere;
+}
+.wb-mini-nightfall-content>strong em{
+  color:#ff6046;font:600 .46em/.9 'Barlow Condensed',sans-serif;
+  font-style:normal;margin:4px 0;
+}
+.wb-mini-nightfall-content>i{
+  display:block;width:44px;height:2px;background:#ff6046;margin:5px 0;
+}
+.wb-mini-nightfall-content>small{
+  font:600 clamp(8px,1cqw,13px) 'Montserrat',sans-serif;
+  color:#f1f1f1;letter-spacing:.02em;
+}
+.uri-ref-thumb .wb-mini-nightfall-content{
+  width:75%;padding:12px;gap:5px;
+}
+.uri-ref-thumb .wb-mini-nightfall-content>strong{
+  font-size:clamp(23px,5cqw,38px);
+}
+.uri-ref-thumb .wb-mini-nightfall-content>strong em{margin:2px 0}
+.uri-ref-thumb .wb-mini-nightfall-content>span{font-size:7px}
+.uri-ref-thumb .wb-mini-nightfall-content>small{font-size:8px}
+.uri-ref-thumb .wb-mini-nightfall-content>i{width:27px;margin:1px 0}
+
+/* Three balanced, legible template choices. */
+#templates .templates{
+  max-width:1210px;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;
+}
+#templates .template-preview{height:240px}
+.wf-designs{grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr))}
+.wb-template-choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+.uri-dash-cover .wb-mini-nightfall-content>strong{font-size:38px}
+.uri-dash-cover .wb-mini-nightfall-content>span{font-size:8px}
+.uri-dash-cover .wb-mini-nightfall-content>small{font-size:10px}
+@media(max-width:1050px) {
+  #templates .templates{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:730px){
+  #templates .templates{grid-template-columns:1fr;max-width:520px}
+  #templates .template-preview{height:225px}
+}
+@container (max-width:740px){
+  .uri-builder-site.wb-theme-nightfall .wb-flow>.wb-unit{grid-column:1/-1}
+  .wb-theme-nightfall .wb-nightfall-hero{min-height:700px}
+  .wb-theme-nightfall .wb-nightfall-main{
+    min-height:700px;width:90%;
+    padding:190px 26px 105px 60px;
+  }
+  .wb-theme-nightfall .wb-nightfall-names{font-size:clamp(65px,11.5cqw,108px)}
+  .wb-theme-nightfall .wb-nightfall-shadow{
+    background:linear-gradient(90deg,rgba(10,12,14,.96),rgba(10,12,14,.65) 55%,rgba(10,12,14,.13)),
+               linear-gradient(0deg,#0c0e10,transparent 32%);
+  }
+  .wb-theme-nightfall .wb-nightfall-hero.wb-hero-split .wb-nightfall-main{width:90%}
+  .wb-theme-nightfall .wb-nightfall-side{left:16px}
+  .wb-theme-nightfall .wb-nightfall-bottom{left:60px}
+  .wb-theme-nightfall .wb-nightfall-story{grid-template-columns:1fr;min-height:0}
+  .wb-theme-nightfall .wb-nightfall-story .wb-nightfall-story-body{padding-left:20px}
+}
+@container (max-width:480px){
+  .wb-theme-nightfall .wb-flow>.wb-unit{padding:34px 24px}
+  .wb-theme-nightfall .wb-nightfall-hero{min-height:650px}
+  .wb-theme-nightfall .wb-nightfall-media{inset:0}
+  .wb-theme-nightfall .wb-nightfall-shadow{
+    background:linear-gradient(0deg,#0b0d10 0%,rgba(11,13,16,.94) 22%,rgba(11,13,16,.25) 90%),
+               linear-gradient(90deg,rgba(11,13,16,.68),transparent 70%);
+  }
+  .wb-theme-nightfall .wb-nightfall-main{
+    min-height:650px;width:100%;
+    justify-content:flex-end;
+    padding:165px 24px 93px 24px;
+  }
+  .wb-theme-nightfall .wb-nightfall-names{
+    font-size:clamp(54px,14.5cqw,74px);line-height:.91;
+  }
+  .wb-theme-nightfall .wb-nightfall-tag{font-size:11px;letter-spacing:.19em;margin-bottom:16px}
+  .wb-theme-nightfall .wb-nightfall-names em{font-size:25px;margin:7px 0}
+  .wb-theme-nightfall .wb-nightfall-side{display:none}
+  .wb-theme-nightfall .wb-nightfall-bottom{left:24px;right:24px;bottom:24px}
+  .wb-theme-nightfall .wb-nightfall-line{margin:23px 0 16px}
+  .wb-theme-nightfall .wb-nightfall-meta{font-size:12px}
+  .wb-theme-nightfall .wb-nightfall-story{
+    padding:38px 24px;gap:22px;
+  }
+  .wb-theme-nightfall .wb-nightfall-story h2{font-size:clamp(42px,11cqw,58px)}
+  .wb-theme-nightfall .wb-gallery-grid .wb-gallery-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wb-theme-nightfall .wb-counts{gap:5px}
+  .wb-theme-nightfall .wb-counts>div{padding:13px 4px!important}
+  .wb-theme-nightfall .wb-counts strong{font-size:clamp(25px,8cqw,43px)!important}
+  .wb-theme-nightfall .wb-counts small{font-size:8px}
+  .wb-theme-nightfall .wb-flow>.wb-unit h2{font-size:clamp(42px,11cqw,58px)}
+  .wb-theme-nightfall .wb-nightfall-hero.wb-hero-centered .wb-nightfall-main{padding:160px 22px 92px}
+  .wb-theme-nightfall .wb-nightfall-hero.wb-hero-split .wb-nightfall-media{inset:0}
+  .wb-theme-nightfall .wb-nightfall-hero.wb-hero-split .wb-nightfall-shadow{background:linear-gradient(0deg,#0b0d10,rgba(11,13,16,.32) 85%)}
+  .wb-theme-nightfall .wb-nightfall-hero.wb-hero-split .wb-nightfall-main{width:100%}
+}
+@media(prefers-reduced-motion:reduce) {
+  .wb-theme-nightfall * {scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
