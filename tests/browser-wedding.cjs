@@ -112,7 +112,7 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     assert.notEqual(photoData[0].x,50);
     await page.evaluate(()=>{
       window.__uriDragEvents=[];
-      for(const type of ['dragstart','dragenter','dragover','drop','dragend']){
+      for(const type of ['pointerdown','pointermove','pointerup','dragstart','dragenter','dragover','drop','dragend']){
         document.addEventListener(type,ev=>window.__uriDragEvents.push(type+':'+(ev.target?.className||'')),true);
       }
     });
