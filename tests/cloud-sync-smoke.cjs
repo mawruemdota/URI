@@ -57,7 +57,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
  // Force authentication and initial cloud upload.
  await window.uriCloudActivate();
  const e=state.events[0];
- assert.equal(e._uriCloudRevision,1,'Cloud created a versioned draft');
+ assert.equal(db.drafts.size,0,'Existing local-only drafts require explicit import');
+ await window.uriCloudSyncNow();
+ assert.equal(e._uriCloudRevision,1,'Cloud created a versioned draft after explicit import');
+ assert.equal(e._uriCloudOwnerId,account.id,'Draft is bound to the signed-in owner');
  assert.match(e.guests[0].onlineToken,/^[a-f0-9]{64}$/,'High entropy token generated');
  assert.equal(db.guestRows.get('guest-1').token_hash,crypto.createHash('sha256').update(e.guests[0].onlineToken).digest('hex'));
  assert.equal(db.drafts.get(e.id).payload.guests[0].onlineToken,e.guests[0].onlineToken,'Owner-only draft preserves bearer link');
@@ -74,6 +77,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
  assert.equal(state.events.length,1);
  assert.equal(state.events[0].guests[0].status,'attending');
  assert.equal(state.events[0].guests[0].onlineToken,e.guests[0].onlineToken);
+ // Account switching must never silently copy another user's private draft.
+ db.user={id:'another-account',email:'other@example.test'};
+ await window.uriCloudActivate();
+ const beforeSwitch=db.drafts.get(e.id).revision;
+ await window.uriCloudSyncNow();
+ assert.equal(db.drafts.get(e.id).revision,beforeSwitch,'A different account cannot overwrite or import this draft');
+ db.user=account;
+ await window.uriCloudActivate();
  // A guest without an owner account may open a token-protected, limited RSVP view.
  ctx.location.hash='#rsvp/'+e.guests[0].onlineToken;ctx.render();
  for(let i=0;i<5;i++)await Promise.resolve();
