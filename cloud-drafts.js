@@ -166,7 +166,7 @@ async function activate(){
    await flush();
   }else stamp('Local drafts only. Sign in to synchronize across devices.');
  }catch(err){stamp('Cloud account check failed: '+(err.message||'Unknown error'))}
- if(location.hash==='#cloud')render();
+ if(['#cloud','#dashboard','#event'].includes(location.hash))render();
 }
 function accountPanel(){
  const logged=!!user;
