@@ -28,13 +28,13 @@ const color=(v,def)=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:def;
 const clamped=v=>Math.min(100,Math.max(0,Number(v)||0));
 function imgurl(v){return typeof v==='string'&&(/^(https:\/\/[^<>"']+)$/.test(v)||/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v))?v:''}
 U.photo=(p,i=0)=>typeof p==='string'?{id:'legacy-'+i,src:p,alt:'Wedding photo',x:50,y:50,zoom:1,crop:'landscape'}:{id:String(p?.id||'photo-'+i),src:String(p?.src||''),alt:String(p?.alt||''),x:clamped(p?.x??50),y:clamped(p?.y??50),zoom:Math.min(3,Math.max(1,Number(p?.zoom)||1)),crop:['landscape','square','portrait'].includes(p?.crop)?p.crop:'landscape'};
-U.baseTemplate=(e,id=e.template)=>U.presets[id]?id:(Array.isArray(e.templateRecipes)?e.templateRecipes.find(x=>x&&x.id===id&&U.presets[x.base])?.base:null)||'classic';
-U.templateExists=(e,id)=>!!U.presets[id]||!!(Array.isArray(e.templateRecipes)&&e.templateRecipes.some(x=>x&&x.id===id&&U.presets[x.base]));
+U.baseTemplate=(e,id=e.template)=>Object.hasOwn(U.presets,id)?id:(Array.isArray(e.templateRecipes)?e.templateRecipes.find(x=>x&&x.id===id&&Object.hasOwn(U.presets,x.base))?.base:null)||'classic';
+U.templateExists=(e,id)=>Object.hasOwn(U.presets,id)||!!(Array.isArray(e.templateRecipes)&&e.templateRecipes.some(x=>x&&x.id===id&&Object.hasOwn(U.presets,x.base)));
 U.customItem=(e,id)=>Array.isArray(e.customSections)?e.customSections.find(x=>x&&x.id===id):null;
 U.model=e=>{
  e.featureConfig=e.featureConfig&&typeof e.featureConfig==='object'&&!Array.isArray(e.featureConfig)?e.featureConfig:{};
  e.customSections=Array.isArray(e.customSections)?e.customSections.filter(x=>x&&typeof x==='object'&&/^cs-[a-z0-9-]{3,35}$/i.test(String(x.id||''))).slice(0,16):[];
- e.templateRecipes=Array.isArray(e.templateRecipes)?e.templateRecipes.filter(x=>x&&typeof x==='object'&&/^tpl-[a-z0-9-]{3,35}$/i.test(String(x.id||''))&&U.presets[x.base]).slice(0,16):[];
+ e.templateRecipes=Array.isArray(e.templateRecipes)?e.templateRecipes.filter(x=>x&&typeof x==='object'&&/^tpl-[a-z0-9-]{3,35}$/i.test(String(x.id||''))&&Object.hasOwn(U.presets,x.base)).slice(0,16):[];
  const ids=[...U.ids,...e.customSections.map(x=>x.id)];
  e.featureOrder=Array.isArray(e.featureOrder)?[...new Set(e.featureOrder.filter(x=>ids.includes(x))),...ids.filter(x=>!e.featureOrder.includes(x))]:ids.slice();
  e.layoutByTemplate=e.layoutByTemplate&&typeof e.layoutByTemplate==='object'?e.layoutByTemplate:{};
