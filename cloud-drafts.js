@@ -6,7 +6,7 @@
 const U=window.URIBuilder;
 const stateKey='uri-prototype-v1';
 if(!U)return;
-let user=null,dirty=new Set(),timer=0,working=false,flushPromise=null,loading=false,conflicts=new Set(),message='',initialized=false;
+let user=null,accountActivatedAt=0,dirty=new Set(),timer=0,working=false,flushPromise=null,loading=false,conflicts=new Set(),message='',initialized=false;
 const editEpoch=new Map();
 const out=v=>esc(v==null?'':String(v));
 const client=()=>window.URICloud?.client?.()||null;
@@ -93,6 +93,12 @@ function queueSave(){
  const e=current();if(!e?.id||e.type!=='Wedding')return;
  if(!user){if(e._uriCloudOwnerId){e._uriCloudPending=true;store()}return}
  if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id){stamp('Draft belongs to another account; sync blocked.');return}
+ if(!e._uriCloudOwnerId){
+  if(!Number(e.created)||Number(e.created)<accountActivatedAt){
+   stamp('Saved locally. Use Cloud to explicitly import this existing invitation.');return;
+  }
+  e._uriCloudOwnerId=user.id;
+ }
  e._uriCloudPending=true;store();dirty.add(e.id);
  editEpoch.set(e.id,(editEpoch.get(e.id)||0)+1);
  stamp('Saved locally · Syncing to cloud…');
@@ -163,7 +169,9 @@ async function deleteDraft(e){
 async function signedIn(){
  const c=client();if(!c)return null;
  const {data,error}=await c.auth.getUser();
+ const previousId=user?.id;
  user=error?null:data?.user||null;
+ if(user?.id&&user.id!==previousId)accountActivatedAt=Date.now();
  return user;
 }
 async function activate(){
