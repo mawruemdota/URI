@@ -16,7 +16,7 @@ const window={addEventListener(){},scrollTo(){}};
 const sandbox={window,document,location,localStorage,sessionStorage,navigator:{},alert(){},confirm(){return true},prompt(){},console,Date,URL,crypto:require('node:crypto').webcrypto,setTimeout,clearTimeout,root,storage};
 vm.createContext(sandbox);
 vm.runInContext(inline[1],sandbox,{filename:'index.html'});
-for(const path of ['wedding.js','builder-core.js','builder-editor.js','builder-photos.js','cloud-config.js','cloud.js','wedding-flow.js'])vm.runInContext(fs.readFileSync(path,'utf8'),sandbox,{filename:path});
+for(const path of ['wedding.js','builder-core.js','wedding-details.js','readiness.js','builder-editor.js','builder-photos.js','inline-edit.js','cloud-config.js','cloud.js','wedding-flow.js','dashboard.js','guests-rsvp.js'])vm.runInContext(fs.readFileSync(path,'utf8'),sandbox,{filename:path});
 const scenario=function(){
   const r={};
   startWizard('garden');
