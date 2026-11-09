@@ -18,7 +18,7 @@ const features=[
 ];
 const FEATURE_IDS=features.map(x=>x[0]);
 const FEATURE_DEFAULTS={hero:true,story:true,gallery:true,countdown:true,details:true,timeline:true,dress:false,gifts:false,rsvp:true};
-function cfg(e){if(!e.featureConfig)e.featureConfig={};if(!Array.isArray(e.photos))e.photos=[];if(!Array.isArray(e.featureOrder)){e.featureOrder=FEATURE_IDS.slice()}else{e.featureOrder=[...new Set(e.featureOrder.filter(id=>FEATURE_IDS.includes(id))),...FEATURE_IDS.filter(id=>!e.featureOrder.includes(id))]}return e.featureConfig}
+function cfg(e){if(!e.featureConfig)e.featureConfig={};if(!Array.isArray(e.photos))e.photos=[];if(!Array.isArray(e.featureOrder)){e.featureOrder=FEATURE_IDS.slice()}else{e.featureOrder=[...new Set(e.featureOrder.filter(id=>FEATURE_IDS.includes(id)||(Array.isArray(e.customSections)&&e.customSections.some(x=>x&&x.id===id)))),...FEATURE_IDS.filter(id=>!e.featureOrder.includes(id))]}return e.featureConfig}
 function on(e,id){let c=cfg(e);return typeof c[id]==='boolean'?c[id]:FEATURE_DEFAULTS[id]===true}
 function ordered(e){cfg(e);return e.featureOrder.filter(id=>on(e,id))}
 function initials(e){return ((e.name1||'Y').trim()[0]||'Y').toUpperCase()+'  '+((e.name2||'Y').trim()[0]||'Y').toUpperCase()}
