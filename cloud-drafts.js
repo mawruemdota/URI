@@ -6,7 +6,8 @@
 const U=window.URIBuilder;
 const stateKey='uri-prototype-v1';
 if(!U)return;
-let user=null,dirty=new Set(),timer=0,working=false,loading=false,conflicts=new Set(),message='',initialized=false;
+let user=null,dirty=new Set(),timer=0,working=false,flushPromise=null,loading=false,conflicts=new Set(),message='',initialized=false;
+const editEpoch=new Map();
 const out=v=>esc(v==null?'':String(v));
 const client=()=>window.URICloud?.client?.()||null;
 const local=()=>Array.isArray(state.events)?state.events:[];
@@ -53,6 +54,7 @@ async function saveEvent(e,c){
  if(!user||!e||e.type!=='Wedding')return;
  if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id)throw Error('This draft belongs to a different cloud account.');
  ensureGuestTokens(e);
+ const epoch=editEpoch.get(e.id)||0;
  const revision=Number(e._uriCloudRevision)||0;
  const payload=JSON.parse(JSON.stringify(e));
  delete payload._uriCloudRevision;delete payload._uriCloudSyncedAt;delete payload._uriCloudOwnerId;
@@ -62,15 +64,20 @@ async function saveEvent(e,c){
  if(error){if(/conflict/i.test(error.message))conflicts.add(e.id);throw error}
  e._uriCloudRevision=Number(data);
  e._uriCloudOwnerId=user.id;
- e._uriCloudPending=false;
  e._uriCloudSyncedAt=new Date().toISOString();
  await syncGuests(c,e);
- dirty.delete(e.id);conflicts.delete(e.id);store();
+ if((editEpoch.get(e.id)||0)===epoch){dirty.delete(e.id);e._uriCloudPending=false}
+ else e._uriCloudPending=true;
+ conflicts.delete(e.id);store();
 }
 async function flush(){
- if(working||!user||!dirty.size)return;
+ if(working){if(flushPromise)await flushPromise;
+  if([...dirty].some(id=>!conflicts.has(id)))return flush();return;
+ }
+ if(!user||!dirty.size)return;
  const c=client();if(!c)return;
  working=true;
+ let release;flushPromise=new Promise(resolve=>{release=resolve});
  try{
   for(const id of [...dirty]){
    const e=local().find(x=>x.id===id);
@@ -80,13 +87,14 @@ async function flush(){
    try{await saveEvent(e,c)}catch(err){stamp('Cloud sync failed: '+(err.message||'Please retry.'));continue}
   }
   if(!dirty.size)stamp('Saved on this device and in your cloud account.');
- }finally{working=false}
+ }finally{working=false;release();flushPromise=null}
 }
 function queueSave(){
  const e=current();if(!e?.id||e.type!=='Wedding')return;
  if(!user){if(e._uriCloudOwnerId){e._uriCloudPending=true;store()}return}
  if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id){stamp('Draft belongs to another account; sync blocked.');return}
  e._uriCloudPending=true;store();dirty.add(e.id);
+ editEpoch.set(e.id,(editEpoch.get(e.id)||0)+1);
  stamp('Saved locally · Syncing to cloud…');
  if(timer)clearTimeout(timer);
  timer=setTimeout(flush,1200);
