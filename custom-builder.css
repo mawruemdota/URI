@@ -163,3 +163,15 @@
 @media(prefers-reduced-motion:reduce){
   #wbLivePreview .wb-visual-toolbar{transition:none}
 }
+
+/* Custom recipe previews inherit their own colors rather than preset colors. */
+.wb-cover-mini.wb-mini-nightfall{background:var(--wb-bg,#0c0f12)}
+.wb-cover-mini.wb-mini-nightfall .wb-mini-nightfall-content>strong em{color:var(--wb-accent,#ff6046)}
+.wb-cover-mini.wb-mini-nightfall .wb-mini-nightfall-content>i{background:var(--wb-accent,#ff6046)}
+.wb-cover-mini.wb-mini-nightfall .wb-mini-nightfall-content{color:var(--wb-ink,#fff)}
+.wb-cover-mini.wb-cover-editorial .wb-mini-main{background:var(--wb-bg,#fff);color:var(--wb-ink,#222)}
+.wb-cover-mini.wb-mini-romance .wb-cover-copy{background:var(--wb-bg,#f6f0e8);color:var(--wb-ink,#49483d)}
+.uri-custom-hidden{border-top:1px solid #dfe9df;margin-top:14px;padding-top:12px;display:grid;gap:8px}
+.uri-custom-hidden>strong{font-size:12px;color:#34533f}
+.uri-custom-hidden>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.uri-custom-hidden>div>span{font-size:11px;flex:1;min-width:130px}
