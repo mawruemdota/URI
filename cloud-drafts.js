@@ -51,15 +51,17 @@ async function syncGuests(c,e){
 
 async function saveEvent(e,c){
  if(!user||!e||e.type!=='Wedding')return;
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id)throw Error('This draft belongs to a different cloud account.');
  ensureGuestTokens(e);
  const revision=Number(e._uriCloudRevision)||0;
  const payload=JSON.parse(JSON.stringify(e));
- delete payload._uriCloudRevision;delete payload._uriCloudSyncedAt;
+ delete payload._uriCloudRevision;delete payload._uriCloudSyncedAt;delete payload._uriCloudOwnerId;
  // Guard against oversized local data URL uploads; the server has the same limit.
  if(JSON.stringify(payload).length>7900000)throw Error('This invitation exceeds cloud draft size. Reduce the number or size of photos.');
  const {data,error}=await c.rpc('uri_save_draft',{p_event_id:e.id,p_payload:payload,p_revision:revision});
  if(error){if(/conflict/i.test(error.message))conflicts.add(e.id);throw error}
  e._uriCloudRevision=Number(data);
+ e._uriCloudOwnerId=user.id;
  e._uriCloudSyncedAt=new Date().toISOString();
  await syncGuests(c,e);
  dirty.delete(e.id);conflicts.delete(e.id);store();
@@ -72,6 +74,7 @@ async function flush(){
   for(const id of [...dirty]){
    const e=local().find(x=>x.id===id);
    if(!e){dirty.delete(id);continue}
+   if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id){dirty.delete(id);stamp('A local draft belongs to another account and was not uploaded.');continue}
    if(conflicts.has(id))continue;
    try{await saveEvent(e,c)}catch(err){stamp('Cloud sync failed: '+(err.message||'Please retry.'));continue}
   }
@@ -81,6 +84,7 @@ async function flush(){
 function queueSave(){
  if(!user)return;
  const e=current();if(!e?.id||e.type!=='Wedding')return;
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id){stamp('Draft belongs to another account; sync blocked.');return}
  dirty.add(e.id);
  stamp('Saved locally · Syncing to cloud…');
  if(timer)clearTimeout(timer);
@@ -113,11 +117,12 @@ async function pull(force=false){
    if(!incoming||incoming.id!==row.local_event_id||incoming.type!=='Wedding')continue;
    const i=local().findIndex(e=>e.id===row.local_event_id);
    const old=i>=0?local()[i]:null;
+   if(old&&old._uriCloudOwnerId&&old._uriCloudOwnerId!==user.id){skipped++;continue}
    if(old&&!force&&(dirty.has(old.id)||
       ((!old._uriCloudRevision||Number(old._uriCloudRevision)===0)&&i>=0&&
        !old._uriCloudSyncedAt)||Number(old._uriCloudRevision)>Number(row.revision))){skipped++;continue}
    if(old&&Number(old._uriCloudRevision)===Number(row.revision)&&!force)continue;
-   const next={...incoming,_uriCloudRevision:Number(row.revision),_uriCloudSyncedAt:row.updated_at};
+   const next={...incoming,_uriCloudRevision:Number(row.revision),_uriCloudOwnerId:user.id,_uriCloudSyncedAt:row.updated_at};
    if(i>=0)state.events[i]=next;else state.events.push(next);
    await cloudGuestRefresh(next);
    dirty.delete(next.id);conflicts.delete(next.id);count++;
@@ -139,7 +144,7 @@ async function signedIn(){
 async function activate(){
  try{
   await signedIn();
-  if(user){await pull(false);for(const e of local())if(e.type==='Wedding'&&!e._uriCloudRevision)dirty.add(e.id);
+  if(user){await pull(false);for(const e of local())if(e.type==='Wedding'&&e._uriCloudOwnerId===user.id&&dirty.has(e.id))dirty.add(e.id);
    await flush();
   }else stamp('Local drafts only. Sign in to synchronize across devices.');
  }catch(err){stamp('Cloud account check failed: '+(err.message||'Unknown error'))}
@@ -163,7 +168,7 @@ window.uriCloudAccountSignIn=async()=>{
  const email=document.getElementById('uriCloudAccountEmail')?.value?.trim();
  if(!email)return stamp('Enter a valid email address.');
  const c=client();if(!c)return stamp('Supabase connection unavailable.');
- const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname+'#cloud'}});
+ const {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
  stamp(error?error.message:'Check your email for the sign-in link.');
 };
 window.uriCloudRestore=async()=>{
@@ -173,7 +178,7 @@ window.uriCloudRestore=async()=>{
 window.uriCloudSyncNow=async()=>{
  if(!user)await signedIn();
  if(!user)return stamp('Sign in to sync.');
- for(const e of local())if(e.type==='Wedding')dirty.add(e.id);
+ for(const e of local())if(e.type==='Wedding'&&(!e._uriCloudOwnerId||e._uriCloudOwnerId===user.id))dirty.add(e.id);
  await flush();
 };
 window.uriCloudActivate=activate;
@@ -186,6 +191,7 @@ window.URICloudDrafts={queueSave,pull,flushCurrent:async()=>{
  if(!user)await signedIn();
  if(!user)throw Error('Sign in to publish your invitation.');
  const e=current();if(!e)return;
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id)throw Error('This event belongs to a different cloud account.');
  dirty.add(e.id);await flush();
  if(dirty.has(e.id))throw Error('Cloud sync did not complete. Resolve the draft conflict before publishing.');
 },getUser:()=>user,isSynced:e=>!!user&&!!e?!!e._uriCloudRevision:false,cloudGuestRefresh,refreshAccount:activate,hashToken:sha256,randomToken};
