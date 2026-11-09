@@ -119,7 +119,7 @@ const image=async (page,name)=>{
     assert.equal(await page.locator('#wbLivePreview [data-feature="gallery"]').count(),0);
     await page.locator('.wb-tabs button').filter({hasText:'Features'}).click();
     // Toggling a section should recompose the current template, not leave an empty grid cell.
-    await page.locator('.wb-feature-item[data-feature-id="details"] input[type="checkbox"]').uncheck();
+    await page.locator('.wb-feature-item[data-feature-id="details"] input[type="checkbox"]').click();
     await page.locator('.wb-available-item[data-feature-id="details"]').waitFor();
     assert.equal(await page.locator('#wbLivePreview [data-feature="details"]').count(),0);
     assert.equal(await page.locator('#wbLivePreview [data-feature="timeline"]').getAttribute('data-layout-width'),'wide');
@@ -134,8 +134,8 @@ const image=async (page,name)=>{
     assert.ok(moved.indexOf('gallery')<moved.indexOf('story'));
     await image(page,'07-features.png');
     // Editorial has side-panel content only for sections actually enabled.
-    await page.locator('.wb-feature-item[data-feature-id="details"] input[type="checkbox"]').uncheck();
-    await page.locator('.wb-feature-item[data-feature-id="timeline"] input[type="checkbox"]').uncheck();
+    await page.locator('.wb-feature-item[data-feature-id="details"] input[type="checkbox"]').click();
+    await page.locator('.wb-feature-item[data-feature-id="timeline"] input[type="checkbox"]').click();
     await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
     await page.locator('.wb-template-pick').nth(1).click();
     await page.locator('#wbLivePreview .wb-editorial-sides-none').waitFor();
