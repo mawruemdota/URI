@@ -1,0 +1,92 @@
+/* URI Theme Backdrops & Music Manager — loaded after all template styles. */
+.uri-background-manager{margin:20px 0;padding:18px;border:1px solid #dce5dc;border-radius:14px;background:#fbfcfa}
+.uri-background-manager h4{font:650 16px 'DM Sans',sans-serif;margin:0 0 6px;color:#254534}
+.uri-background-manager>p{font-size:12px;margin:0 0 13px;color:#68786c}
+.uri-bg-modes{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}
+.uri-bg-modes label{display:inline-flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+.uri-bg-modes input{accent-color:var(--green)}
+.uri-bg-controls{display:grid;gap:13px;border-top:1px solid #d9e5dc;padding-top:15px}
+.uri-bg-image-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.uri-bg-upload,.uri-music-audio-upload{display:inline-flex;position:relative;border:1px dashed #7c9f88;border-radius:8px;padding:10px 15px;min-height:42px;align-items:center;justify-content:center;background:#f7fbf8;color:#315743;font-size:12px;font-weight:650;cursor:pointer}
+.uri-bg-upload input,.uri-music-audio-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.uri-bg-upload:focus-within,.uri-music-audio-upload:focus-within{outline:3px solid #398154;outline-offset:2px}
+.uri-bg-field{display:flex;flex-direction:column;gap:8px;min-width:0;font-size:12px;color:#42574b}
+.uri-bg-field>span{display:flex;justify-content:space-between;gap:8px}
+.uri-bg-field input:not([type=range]),.uri-bg-field select{width:100%;min-height:42px;border:1px solid #c6d5c8;background:#fff;border-radius:8px;padding:9px;font-size:12px}
+.uri-bg-field input[type=range],.uri-music-field input[type=range]{width:100%;accent-color:#176b55}
+.uri-bg-sliders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.uri-bg-current{display:flex;align-items:center;gap:12px;font-size:11px;color:#66796b}
+.uri-bg-current img{width:95px;height:65px;object-fit:cover;border-radius:8px;border:1px solid #cbd8ce}
+.uri-bg-status{min-height:0;color:#426e52;font-size:12px}
+.uri-background-manager>small{display:block;margin-top:9px;font-size:11px;color:#718277}
+.uri-bg-empty,.uri-bg-hint{font-size:12px;color:#607568!important}
+@media(max-width:600px){.uri-bg-sliders{grid-template-columns:1fr}.uri-background-manager{padding:13px}}
+
+/* A single background runs behind all template sections. Text stays on theme-colored
+   translucent surfaces; cover photos and gallery photographs remain separate. */
+.uri-builder-site[data-uri-background="image"]{position:relative;isolation:isolate;background:var(--wb-bg)!important}
+.uri-builder-site[data-uri-background="image"] .uri-theme-backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.uri-theme-backdrop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:var(--uri-image-opacity,.85);filter:blur(var(--uri-bg-blur,0px))}
+.uri-theme-backdrop .uri-theme-shade{position:absolute;inset:0;display:block;background:var(--uri-shade-color,var(--wb-bg));opacity:var(--uri-shade-opacity,.35)}
+.uri-builder-site[data-uri-background="image"]>.wb-flow,
+.uri-builder-site[data-uri-background="image"]>.wb-footer,
+.uri-builder-site[data-uri-background="image"]>.uri-music-player{position:relative;z-index:1}
+.uri-builder-site[data-uri-background="image"] .wb-flow{background:transparent!important}
+.uri-builder-site[data-uri-background="image"] .wb-flow>.wb-unit:not(.wb-hero){
+ background:color-mix(in srgb,var(--wb-bg) var(--uri-bg-surface-opacity,76%),transparent)!important;
+}
+.uri-builder-site[data-uri-background="image"] .wb-flow>.wb-hero{background:transparent!important}
+.uri-builder-site[data-uri-background="image"] .wb-botanical-cover .wb-hero-copy,
+.uri-builder-site[data-uri-background="image"] .wb-editorial-side,
+.uri-builder-site[data-uri-background="image"] .wb-editorial-cover,
+.uri-builder-site[data-uri-background="image"] .wb-editorial-story-center,
+.uri-builder-site[data-uri-background="image"] .wb-footer,
+.uri-builder-site[data-uri-background="image"] .wb-flow>.wb-custom{
+ background:color-mix(in srgb,var(--wb-bg) var(--uri-bg-surface-opacity,76%),transparent)!important;
+}
+.uri-builder-site[data-uri-background="image"].wb-theme-nightfall .wb-nightfall-story{
+ background:color-mix(in srgb,var(--wb-bg) var(--uri-bg-surface-opacity,76%),transparent)!important;
+}
+
+/* Music settings are owner-only; player appears in guest invitations and previews. */
+.uri-music-manager{display:grid;gap:14px;padding:8px 0}
+.uri-music-manager-head h3{margin:0 0 4px;font-size:25px}
+.uri-music-manager-head p{font-size:12px;line-height:1.5;margin:0;color:#627367}
+.uri-music-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:35px;border-bottom:1px solid #e5eae5;font-size:13px;cursor:pointer}
+.uri-music-switch input{width:18px;height:18px;accent-color:var(--green)}
+.uri-music-controls{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.uri-music-field{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:600;min-width:0}
+.uri-music-field input:not([type=range]),.uri-music-field select{width:100%;min-height:40px;border:1px solid #ccdace;border-radius:8px;padding:9px;background:#fff;font-size:12px}
+.uri-music-track-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+.uri-music-track-head strong{font-size:14px}
+.uri-music-track-list{display:grid;gap:12px}
+.uri-music-track{padding:14px;display:grid;gap:11px;border:1px solid #dae5da;border-radius:12px;background:#fbfcfb}
+.uri-music-track-title{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.uri-music-track-title strong{font-size:12px}
+.uri-music-track-title>div{display:flex;gap:4px;flex-wrap:wrap}
+.uri-music-track-title button{font:600 11px 'DM Sans',sans-serif;border:1px solid #d1ded1;border-radius:7px;padding:7px 9px;background:#fff;cursor:pointer}
+.uri-music-track-title button:disabled{opacity:.4;cursor:default}
+.uri-music-empty{font-size:13px;color:#68796e}
+.uri-music-warning{border-top:1px solid #e2e9e2;padding-top:13px;font-size:12px;color:#677968;line-height:1.6}
+#uriMusicStatus{font-size:12px;color:#315d45}
+@media(max-width:620px){.uri-music-controls{grid-template-columns:1fr}}
+.uri-builder-site>.uri-music-player{position:sticky!important;bottom:10px;z-index:40!important;margin:14px auto;max-width:min(620px,calc(100% - 20px));padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;border-radius:12px;background:color-mix(in srgb,var(--wb-bg) 96%,#fff);color:var(--wb-ink);border:1px solid color-mix(in srgb,var(--wb-ink) 18%,transparent);box-shadow:0 6px 23px #0003;font-family:var(--wb-body)}
+.uri-music-info{display:flex;flex-direction:column;gap:2px;min-width:105px;max-width:200px;overflow:hidden}
+.uri-music-info>span{font:600 9px 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:.65}
+.uri-music-info strong{font:600 13px 'DM Sans',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uri-music-buttons{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.uri-music-buttons button{font:650 11px 'DM Sans',sans-serif;border:1px solid color-mix(in srgb,var(--wb-ink) 26%,transparent);background:transparent;color:inherit;border-radius:7px;min-height:35px;padding:5px 10px;cursor:pointer}
+.uri-music-buttons .uri-music-play{background:var(--wb-accent);color:var(--wb-bg);border-color:var(--wb-accent);min-width:53px}
+.uri-music-buttons button:disabled{opacity:.4}
+.uri-music-volume{display:flex;align-items:center;gap:5px;font-size:10px;white-space:nowrap}
+.uri-music-volume input{width:70px;accent-color:var(--wb-accent)}
+.uri-music-message{font:400 11px 'DM Sans',sans-serif;width:100%;text-align:center}
+.uri-music-message:empty{display:none}
+@media(max-width:480px){
+ .uri-builder-site>.uri-music-player{justify-content:center;gap:8px;padding:10px}
+ .uri-music-info{flex:1 1 100%;max-width:100%;align-items:center}
+ .uri-music-volume input{width:60px}
+}
+@media(prefers-reduced-motion:reduce){
+ .uri-builder-site .uri-music-buttons button{transition:none!important}
+}
