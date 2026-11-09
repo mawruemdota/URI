@@ -45,7 +45,7 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview [data-adventure-world="sunset"]').waitFor();
   await page.locator('.uri-adventure-setting select').nth(1).selectOption('dreamer');
   await page.locator('.uri-adventure-setting select').nth(2).selectOption('joystick');
-  await page.locator('#wbLivePreview .uri-adventure-joystick').waitFor();
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-joystick').count(),1,'Mobile joystick option is rendered in the editor preview');
   const settings=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].adventure);
   assert.equal(settings.world,'sunset');
   assert.equal(settings.character,'dreamer');
