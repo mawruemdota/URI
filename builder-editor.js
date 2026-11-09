@@ -17,7 +17,7 @@ function rerender(opts={}){
     }
     if(opts.focusId){
       const row=document.querySelector('[data-feature-id="'+opts.focusId+'"]');
-      const control=row&&typeof row.querySelector==='function'?row.querySelector(opts.checkbox?'input[type="checkbox"]':'[data-move-dir="'+opts.delta+'"]'):null;
+      const control=row&&typeof row.querySelector==='function'?row.querySelector(opts.checkbox?'input[type="checkbox"],[data-feature-add]':'[data-move-dir="'+opts.delta+'"]'):null;
       if(control&&control.focus)control.focus({preventScroll:true});
     }
     if(window.scrollTo)window.scrollTo(0,y);
@@ -101,12 +101,13 @@ window.uriBToggle=(id,value)=>{
 };
 window.uriBMove=(id,delta)=>{
  const e=event();if(!e)return;
- const i=e.featureOrder.indexOf(id),j=i+delta;
- if(i<0||j<0||j>=e.featureOrder.length)return;
+ const visible=e.featureOrder.filter(key=>U.enabled(e,key));
+ const position=visible.indexOf(id),neighbor=visible[position+delta];
+ if(position<0||!neighbor)return;
+ const i=e.featureOrder.indexOf(id),j=e.featureOrder.indexOf(neighbor);
  const old=e.featureOrder.slice();
- if(commitEdit(()=>{[e.featureOrder[i],e.featureOrder[j]]=[e.featureOrder[j],e.featureOrder[i]]},()=>{e.featureOrder=old}))
-   rerender({focusId:id,delta});
- else rerender({focusId:id,delta});
+ commitEdit(()=>{[e.featureOrder[i],e.featureOrder[j]]=[e.featureOrder[j],e.featureOrder[i]]},()=>{e.featureOrder=old});
+ rerender({focusId:id,delta});
 };
 window.uriBDragStart=(ev,id)=>{
  dragging=id;if(ev.dataTransfer){ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain',id)}
@@ -165,7 +166,36 @@ function content(e){
  +config(e,'gifts','Gift message','Your presence is our greatest gift.')
  +'<label class="wb-field" data-uri-field="registryUrl"><span>Registry link (optional)</span><input type="url" placeholder="https://..." value="'+T(e.featureConfig.registryUrl||'')+'" oninput="uriBConfig(\'registryUrl\',this.value)"></label></details>';
 }
-function features(e){return '<h3>Sections</h3><p>Show, hide or reorder sections.</p><div class="wb-feature-list">'+e.featureOrder.map((id,i)=>{let f=U.features.find(x=>x.id===id);return '<div class="wb-feature-item" data-feature-id="'+id+'" draggable="true" ondragstart="uriBDragStart(event,\''+id+'\')" ondragover="event.preventDefault()" ondrop="uriBDrop(event,\''+id+'\')"><div class="wb-feature-top"><span class="wb-drag" title="Drag to reorder">⠿</span><label class="wb-feature-check"><input type="checkbox" '+(U.enabled(e,id)?'checked':'')+' onchange="uriBToggle(\''+id+'\',this.checked)"><span><strong>'+f.name+'</strong><small>'+(['Primary introduction','Couple message',e.photos.length?'Wedding photos':'Add photos in Photos tab to show this section','Time remaining','Date and venue','Wedding schedule','Attire guidance','Gift information','Attendance information'][U.ids.indexOf(id)])+'</small></span></label><div class="wb-movers"><button type="button" aria-label="Move '+f.name+' up" '+(i===0?'disabled':'')+' onclick="uriBMove(\''+id+'\',-1)">Up</button><button type="button" aria-label="Move '+f.name+' down" '+(i===e.featureOrder.length-1?'disabled':'')+' onclick="uriBMove(\''+id+'\',1)">Down</button></div></div><label class="wb-field wb-variant"><span>Section layout</span><select onchange="uriBVariant(\''+id+'\',this.value)">'+f.variants.map(([key,name])=>'<option value="'+key+'" '+(U.variant(e,id)===key?'selected':'')+'>'+name+'</option>').join('')+'</select></label></div>'}).join('')+'</div>'}
+function features(e){
+ const active=e.featureOrder.filter(id=>U.enabled(e,id));
+ const available=e.featureOrder.filter(id=>!U.enabled(e,id));
+ const actual=U.compose(e),layoutById=Object.fromEntries(actual.map(x=>[x.id,x]));
+ const notes={hero:'Cover photograph and names',story:'Your message',gallery:e.photos.length?'Wedding photographs':'Add photos in Photos to show this section',
+  countdown:'Time until the ceremony',details:'Ceremony and reception information',
+  timeline:'Order of activities',dress:'Attire and colors',gifts:'Gift information',rsvp:'Attendance information'};
+ const rows=active.map((id,i)=>{
+  const f=U.features.find(x=>x.id===id);
+  const layout=layoutById[id];
+  const info=layout?(layout.width==='half'?'Paired with the next section':'Full-width in this design'):'Appears when content is added';
+  return '<div class="wb-feature-item" data-feature-id="'+id+'" draggable="true" ondragstart="uriBDragStart(event,\''+id+'\')" ondragover="event.preventDefault()" ondrop="uriBDrop(event,\''+id+'\')">'
+   +'<div class="wb-feature-top"><span class="wb-drag" title="Drag to reorder">⠿</span>'
+   +'<label class="wb-feature-check"><input type="checkbox" checked aria-label="Show '+T(f.name)+'" onchange="uriBToggle(\''+id+'\',this.checked)">'
+   +'<span><strong>'+T(f.name)+'</strong><small>'+T(notes[id])+'</small></span></label>'
+   +'<div class="wb-movers"><button type="button" data-move-dir="-1" aria-label="Move '+T(f.name)+' up" '+(i===0?'disabled':'')+' onclick="uriBMove(\''+id+'\',-1)">Up</button>'
+   +'<button type="button" data-move-dir="1" aria-label="Move '+T(f.name)+' down" '+(i===active.length-1?'disabled':'')+' onclick="uriBMove(\''+id+'\',1)">Down</button></div></div>'
+   +'<div class="wb-feature-options"><label class="wb-field wb-variant"><span>Appearance</span><select onchange="uriBVariant(\''+id+'\',this.value)">'
+   +f.variants.map(([key,name])=>'<option value="'+key+'" '+(U.variant(e,id)===key?'selected':'')+'>'+T(name)+'</option>').join('')
+   +'</select></label><small class="wb-feature-layout-note">'+info+'</small></div></div>';
+ }).join('');
+ const add=available.length?'<div class="wb-available-group"><h4>Add a section</h4><div class="wb-available-list">'
+  +available.map(id=>{
+   const f=U.features.find(x=>x.id===id);
+   return '<div class="wb-available-item" data-feature-id="'+id+'"><div><strong>'+T(f.name)+'</strong><small>'+T(notes[id])+'</small></div>'
+    +'<button type="button" class="btn small" data-feature-add onclick="uriBToggle(\''+id+'\',true)">Add</button></div>';
+  }).join('')+'</div></div>':'';
+ return '<h3>Sections</h3><div class="wb-feature-overview">'+actual.length+' shown in this design'+(active.length!==actual.length?' · '+(active.length-actual.length)+' awaiting content':'')+'</div>'
+  +'<div class="wb-feature-list">'+(rows||'<p class="wb-feature-empty">No sections selected. Add one below.</p>')+'</div>'+add;
+}
 function design(e){let d=U.design(e),options=(key,name,choices)=>'<label class="wb-field"><span>'+name+'</span><select onchange="uriBDesign(\''+key+'\',this.value)">'+choices.map(([id,label])=>'<option value="'+id+'" '+(d[key]===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>';return '<h3>Design</h3><div class="wb-template-choices">'+TEMPLATES.map(t=>'<button type="button" aria-pressed="'+(e.template===t.id)+'" class="wb-template-pick '+(e.template===t.id?'selected':'')+'" onclick="uriBTemplate(\''+t.id+'\')">'+(window.URIBuilder?'<div class="template-preview uri-ref-thumb">'+window.URIBuilder.cover({...e,template:t.id})+'</div>':templateThumb(t))+'<strong>'+t.name+'</strong><small class="wb-template-caption">'+(t.id===e.template?'Current template':'Switch without losing content')+'</small></button>').join('')+'</div><div class="wb-colors">'+[['bg','Background'],['ink','Text'],['accent','Accent']].map(([key,label])=>'<label><input type="color" value="'+d[key]+'" oninput="uriBDesign(\''+key+'\',this.value)"><span>'+label+'</span></label>').join('')+'</div>'+options('heading','Heading font',[['barlow','Barlow Condensed'],['cormorant','Cormorant Garamond'],['allura','Allura Script'],['playfair','Playfair Display'],['montserrat','Montserrat'],['dm','DM Sans']])+options('body','Body font',[['montserrat','Montserrat'],['dm','DM Sans'],['cormorant','Cormorant Garamond'],['playfair','Playfair Display'],['barlow','Barlow Condensed']])+options('spacing','Section spacing',[['compact','Compact'],['balanced','Balanced'],['airy','Airy']])+'<button type="button" class="btn small" onclick="uriBResetDesign()">Reset template style</button>'}
 function photos(e){return window.uriBuilderPhotosPanel?window.uriBuilderPhotosPanel(e):'<p>The photo manager is loading.</p>'}
 function publishing(e){return '<h3>Publishing</h3>'+(window.URICloud?window.URICloud.panel(e):'<div class="banner notice">Cloud publishing is not configured. This event is saved in your browser.</div>')+'<div class="banner notice">Guest lists are not included in public invitations. Cross-device RSVP collection requires a separately secured guest system.</div>'}
