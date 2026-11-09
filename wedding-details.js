@@ -4,6 +4,8 @@
 const U=window.URIBuilder, T=v=>esc(v==null?'':String(v));
 const textDate=d=>d?fmt(d):'Date to be announced';
 const safeUrl=url=>typeof url==='string'&&/^https:\/\/[^\s<>"']+$/i.test(url.trim())?url.trim():'';
+let timelineOpen=false;
+window.uriWeddingTimelineOpen=value=>{timelineOpen=!!value};
 const rid=()=> 'schedule-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
 function ensure(e){
  if(!e.weddingDetails||typeof e.weddingDetails!=='object')e.weddingDetails={};
@@ -98,9 +100,9 @@ function editor(e){
   +sectionEditor(e,'ceremony')
   +'<label class="wb-reception-toggle"><input type="checkbox" '+(r.enabled?'checked':'')+' onchange="uriWeddingReception(this.checked)"><span><strong>Include a separate reception</strong><small>Turn this on if your reception has its own venue or schedule.</small></span></label>'
   +(r.enabled?sectionEditor(e,'reception'):'')
-  +'<div class="wb-details-editor-head wb-schedule-editor-title"><h3>Timeline</h3></div>'
+  +'<details class="wb-timeline-fold" '+(timelineOpen?'open':'')+' ontoggle="uriWeddingTimelineOpen(this.open)"><summary>Timeline <small>'+getTimeline(e).length+' activities</small></summary>'
   +'<div class="wb-schedule-editor-list">'+getTimeline(e).map((item,i)=>scheduleRow(item,i,e.timelineItems.length)).join('')+'</div>'
-  +'<button type="button" class="btn wb-add-schedule" onclick="uriWeddingTimelineAdd()">+ Add activity</button>'
+  +'<button type="button" class="btn wb-add-schedule" onclick="uriWeddingTimelineAdd()">Add activity</button></details>'
   +'</div>';
 }
 function persistChange(fn,refresh=true){
@@ -125,11 +127,11 @@ window.uriWeddingTimelineSet=(i,key,value)=>{
  if(key==='location'&&!['ceremony','reception','custom'].includes(value))return;
  persistChange(e=>{if(!e.timelineItems[i])return;e.timelineItems[i][key]=String(value).slice(0,key==='note'?400:120)});
 };
-window.uriWeddingTimelineAdd=()=>{
+window.uriWeddingTimelineAdd=()=>{timelineOpen=true;
  if(persistChange(e=>{if(e.timelineItems.length<30)e.timelineItems.push({id:rid(),time:'',title:'New activity',date:'',location:'ceremony',note:''})},false))eventPage();
 };
-window.uriWeddingTimelineRemove=i=>{if(persistChange(e=>{if(e.timelineItems[i])e.timelineItems.splice(i,1)},false))eventPage()};
-window.uriWeddingTimelineMove=(i,dir)=>{if(persistChange(e=>{let j=i+dir;if(i>=0&&j>=0&&j<e.timelineItems.length){const [item]=e.timelineItems.splice(i,1);e.timelineItems.splice(j,0,item)}},false))eventPage()};
+window.uriWeddingTimelineRemove=i=>{timelineOpen=true;if(persistChange(e=>{if(e.timelineItems[i])e.timelineItems.splice(i,1)},false))eventPage()};
+window.uriWeddingTimelineMove=(i,dir)=>{timelineOpen=true;if(persistChange(e=>{let j=i+dir;if(i>=0&&j>=0&&j<e.timelineItems.length){const [item]=e.timelineItems.splice(i,1);e.timelineItems.splice(j,0,item)}},false))eventPage()};
 window.URIWeddingDetails={ensure,places,getTimeline,renderDetails,renderTimeline,renderTimelineTeaser,editor,safeUrl};
 U.ensureDetails=ensure;
 })();
