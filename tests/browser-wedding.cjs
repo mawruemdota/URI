@@ -16,7 +16,11 @@ const server=http.createServer((req,res)=>{
 });
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aCH8AAAAASUVORK5CYII=','base64');
 const clickNext=async page=>page.locator('.wf-actions .btn.primary').click();
-const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullPage:true});
+const image=async (page,name)=>{
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.waitForTimeout(60);
+  await page.screenshot({path:path.join(shots,name),fullPage:true,animations:'disabled'});
+};
 (async()=>{
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const url='http://127.0.0.1:'+server.address().port+'/URI/';
