@@ -5,7 +5,7 @@
 (function(){
 'use strict';
 const U=window.URIBuilder,T=v=>esc(v==null?'':String(v)),KEY='uri-template-recipes-v1';
-const bases=[['classic','Romantic Botanical'],['garden','Minimalist Editorial'],['nightfall','Nightfall']];
+const bases=[['classic','Romantic Botanical'],['garden','Minimalist Editorial'],['nightfall','Nightfall'],['adventure','Adventure Invitation']];
 const palette=['bg','ink','accent'];
 const hex=v=>/^#[0-9a-fA-F]{6}$/.test(String(v||''))?String(v).toLowerCase():'';
 const goodUrl=v=>{try{const u=new URL(String(v||''));return u.protocol==='https:'&&!u.username&&!u.password?u.toString():''}catch(_){return ''}};
