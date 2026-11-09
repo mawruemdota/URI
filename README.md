@@ -10,12 +10,21 @@ To run it locally, serve the repository root with a static web server, e.g. `pyt
 
 ## Wedding template collection
 
-Two wedding styles inspired by the owner's supplied visual references:
+Three wedding styles:
 
 - **Romantic Botanical** — warm ivory, botanical decoration, portrait/photo column, elegant Cormorant Garamond typography.
 - **Minimalist Editorial** — black-and-white editorial columns, couple's monogram, handwriting-inspired Allura heading style, structured boxes.
+- **Nightfall** — dark cinematic portrait, oversized condensed names, atmospheric gradients, and coral-red accents. Adapted from a MiroMiro review of the Dota 2 Abaddon page without reusing Valve art, logos, copy or fonts.
 
-Both styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
+All three styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
+
+## Nightfall — MiroMiro design reference
+
+A third wedding theme, **Nightfall**, is available in the wedding setup and in the editor's Design tab. Its palette, typography hierarchy, and cinematic split-photo layout were studied from [Dota 2's Abaddon hero page](https://www.dota2.com/hero/abaddon) using MiroMiro. The resulting layout and CSS are original to URI and use only wedding-owner photographs; no game images, logos, or proprietary fonts are included.
+
+Nightfall uses `Barlow Condensed` and `Montserrat`, a black-and-charcoal palette with `#ff6046` accent, and three hero layouts (split, centered, immersive). It supports the same nine editable sections as other templates; changing styles preserves photos, wedding details, feature order, and customizations. See [NIGHTFALL_DESIGN_REFERENCE.md](NIGHTFALL_DESIGN_REFERENCE.md).
+
+Automated regression checks are in `tests/nightfall-template-smoke.cjs`, the 63-case `tests/template-matrix.cjs`, and the Chromium wedding journey. Physical-device visual verification is still needed.
 
 ## Reference-inspired wedding refinement
 
@@ -29,7 +38,7 @@ Both styles use the **same underlying event data and the same nine features**. S
 
 A source-based design review identified a narrow builder workspace and a desktop-preview fidelity issue: the preview could unintentionally reflow to the mobile layout. The creator workspace has been widened, editing controls and mobile form fields standardized, and fixed-width scaled previews implemented in both the editor and full-page views. Wedding hero and story layout variants now have explicit styling, and feature reordering preserves scroll and keyboard focus.
 
-The wedding landing page now presents two balanced template cards. Photo placeholders, editorial details, botanical typography, gallery controls, and preview toolbars have been refined through `ui-polish.css`. A new `tests/ui-polish-smoke.cjs` suite checks preview sizing and core styling.
+The wedding landing page presents three template cards. Photo placeholders, editorial details, botanical typography, gallery controls, and preview toolbars have been refined through `ui-polish.css`. A new `tests/ui-polish-smoke.cjs` suite checks preview sizing and core styling.
 
 **Verification limitation:** Live GitHub Pages and browser screenshots were unavailable to this session. JavaScript syntax, source-level structure, and simulated flows were checked; pixel-accurate visual QA on real devices is still outstanding.
 
@@ -81,7 +90,7 @@ Regression tests: `tests/experience-smoke.cjs` (readiness, preview navigation, l
 - Template selection now previews the actual couple names, event date, and cover photograph when available. Switching styles in the Design Manager shows the same wedding content in both choices.
 - The wizard's **Personal Touch** step can optionally accept a cover photograph. Images are validated, resized and compressed for local draft storage. Upload failures preserve the previous photograph; users may skip the photo and add one later.
 - An enabled photo gallery with no images is hidden from the invitation until a photo is uploaded. The feature stays enabled and reappears in its saved position once images are added.
-- Node-based coverage includes all **42 feature/layout combinations** across the two templates, empty-gallery handling, disabled sections, feature order, HTML escaping, optional photo upload, and draft recovery.
+- Node-based coverage includes all **63 feature/layout combinations** across the three templates, empty-gallery handling, disabled sections, feature order, HTML escaping, optional photo upload, and draft recovery.
 - `tests/browser-wedding.cjs` adds real Chromium automation for creating a wedding, uploading pictures, customizing designs, reordering features, editing gallery crops, checking mobile overflow, saving, reloading, and capturing screenshots. The GitHub Actions workflow installs Chromium and runs the browser checks; browser execution results need to be verified independently.
 
 **Verification limits:** A browser-connected UI was unavailable during this change. Source-level JavaScript and simulated interactions were checked, but the new GitHub Actions browser test results and pixel-level screenshots have not yet been inspected. The cloud publishing and guest RSVP flows remain separate work.
