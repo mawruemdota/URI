@@ -30,7 +30,7 @@ for(const template of templates){
     const planned=U.compose(e);
     const out=U.render(e);
     const actual=U.ids.filter(id=>e.featureConfig[id]);
-    assert.deepEqual(planned.map(x=>x.id),e.featureOrder.filter(id=>actual.includes(id)),template+' section order on mask '+mask);
+    assert.deepEqual(Array.from(planned,x=>x.id),Array.from(e.featureOrder.filter(id=>actual.includes(id))),template+' section order on mask '+mask);
     assert.equal((out.match(/data-layout-width=/g)||[]).length,planned.length,template+' missing dynamic width');
     assert.equal((out.match(/data-feature="/g)||[]).length,planned.length,template+' rendered unexpected feature');
     assert.match(out,/data-visible-features="\d+"/);
@@ -80,9 +80,9 @@ for(const template of templates){
   assert.equal(JSON.stringify({names:[e.name1,e.name2],photos:e.photos,details:e.weddingDetails,timeline:e.timelineItems}),before,'Switching templates must preserve data');
   const shifted=sample();shifted.template=template;
   shifted.featureOrder=['rsvp','dress','details','hero','gifts','timeline','countdown','gallery','story'];
-  shifted.featureConfig.dress=false;
+  shifted.featureConfig=Object.fromEntries(U.ids.map(id=>[id,id!=='dress']));
   const plan=U.compose(shifted);
-  assert.deepEqual(plan.map(x=>x.id),shifted.featureOrder.filter(id=>id!=='dress'),'Custom order must remain stable');
+  assert.deepEqual(Array.from(plan,x=>x.id),Array.from(shifted.featureOrder.filter(id=>id!=='dress')),'Custom order must remain stable');
 }
 const css=fs.readFileSync('dynamic-sections.css','utf8');
 assert.match(css,/@container \(max-width:575px\)/);
