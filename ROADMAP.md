@@ -104,6 +104,16 @@
 - [x] Extend the feature/layout matrix to 63 cases and add Nightfall-specific and Chromium checks
 - [ ] Conduct a hands-on iPhone/Android visual review of Nightfall
 
+## Adaptive wedding sections (November 2026)
+- [x] Compose visible sections into template-specific paired or full-width layouts
+- [x] Hide empty galleries/timelines without leaving blank layout slots
+- [x] Reflow Editorial hero and thumbnail when Details/Timeline are toggled
+- [x] Separate active sections from available sections in the wedding editor
+- [x] Preserve content and per-template variants when switching templates or re-adding a section
+- [x] Keep section ordering and pairing responsive in desktop and mobile previews
+- [x] Cover 1,536 visibility configurations in the section regression suite
+- [ ] Allow user-defined additional section types beyond the nine built-in features
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
