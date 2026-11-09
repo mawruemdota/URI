@@ -137,7 +137,9 @@ window.uriGuestsCopyTest=async id=>{
  }else prompt('Copy local test URL:',url);
 };
 function guestPage(input){
- const bits=String(input||'').split('.'),eventId=decodeURIComponent(bits[0]||''),guestId=decodeURIComponent(bits[1]||'');
+ const bits=String(input||'').split('.');
+ let eventId='',guestId='';
+ try{eventId=decodeURIComponent(bits[0]||'');guestId=decodeURIComponent(bits[1]||'')}catch(_){}
  const e=state.events.find(x=>x.id===eventId&&x.type==='Wedding'),g=e?.guests.find(x=>x.id===guestId);
  if(!e||!g){app.innerHTML='<div class="wrap center"><h2>Test invitation unavailable</h2><p>This local guest invitation is not available in this browser.</p></div>';return}
  ensure(e);
