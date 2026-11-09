@@ -118,12 +118,38 @@ const image=async (page,name)=>{
     // Unfilled gallery must be invisible, not a public-facing upload placeholder.
     assert.equal(await page.locator('#wbLivePreview [data-feature="gallery"]').count(),0);
     await page.locator('.wb-tabs button').filter({hasText:'Features'}).click();
+    // Toggling a section should recompose the current template, not leave an empty grid cell.
+    await page.locator('.wb-feature-item[data-feature-id="details"] input[type="checkbox"]').uncheck();
+    await page.locator('.wb-available-item[data-feature-id="details"]').waitFor();
+    assert.equal(await page.locator('#wbLivePreview [data-feature="details"]').count(),0);
+    assert.equal(await page.locator('#wbLivePreview [data-feature="timeline"]').getAttribute('data-layout-width'),'wide');
+    await page.locator('.wb-available-item[data-feature-id="details"] button[data-feature-add]').click();
+    await page.locator('.wb-feature-item[data-feature-id="details"]').waitFor();
+    assert.equal(await page.locator('#wbLivePreview [data-feature="details"]').getAttribute('data-layout-width'),'half');
+    assert.equal(await page.locator('#wbLivePreview [data-feature="timeline"]').getAttribute('data-layout-width'),'half');
     const section=page.locator('.wb-feature-item[data-feature-id="gallery"]');
     assert.match(await section.innerText(),/Add photos in Photos tab/);
     await section.getByRole('button',{name:'Move Photo Gallery up'}).click();
     const moved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].featureOrder);
     assert.ok(moved.indexOf('gallery')<moved.indexOf('story'));
     await image(page,'07-features.png');
+    // Editorial has side-panel content only for sections actually enabled.
+    await page.locator('.wb-feature-item[data-feature-id="details"] input[type="checkbox"]').uncheck();
+    await page.locator('.wb-feature-item[data-feature-id="timeline"] input[type="checkbox"]').uncheck();
+    await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
+    await page.locator('.wb-template-pick').nth(1).click();
+    await page.locator('#wbLivePreview .wb-editorial-sides-none').waitFor();
+    assert.equal(await page.locator('#wbLivePreview .wb-editorial-side').count(),0);
+    assert.equal(await page.locator('.wb-template-pick.selected .wb-mini-sides-none').count(),1);
+    await image(page,'07a-editorial-no-side-sections.png');
+    await page.locator('.wb-tabs button').filter({hasText:'Features'}).click();
+    await page.locator('.wb-available-item[data-feature-id="details"] button[data-feature-add]').click();
+    await page.locator('.wb-available-item[data-feature-id="timeline"] button[data-feature-add]').click();
+    await page.locator('#wbLivePreview .wb-editorial-sides-both').waitFor();
+    assert.equal(await page.locator('#wbLivePreview .wb-editorial-side').count(),2);
+    await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
+    await page.locator('.wb-template-pick').first().click();
+    await page.locator('#wbLivePreview .wb-theme-botanical').waitFor();
     await page.locator('.wb-tabs button').filter({hasText:'Photos'}).click();
     await page.locator('.wb-photo-add input[type="file"]').setInputFiles([{name:'gallery-one.png',mimeType:'image/png',buffer:PNG},{name:'gallery-two.png',mimeType:'image/png',buffer:PNG}]);
     await page.locator('.wb-photo-cards .wb-photo-card').nth(1).waitFor({timeout:10000});
