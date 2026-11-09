@@ -128,7 +128,7 @@ const image=async (page,name)=>{
     assert.equal(await page.locator('#wbLivePreview [data-feature="details"]').getAttribute('data-layout-width'),'half');
     assert.equal(await page.locator('#wbLivePreview [data-feature="timeline"]').getAttribute('data-layout-width'),'half');
     const section=page.locator('.wb-feature-item[data-feature-id="gallery"]');
-    assert.match(await section.innerText(),/Add photos in Photos tab/);
+    assert.match(await section.innerText(),/Add photos in Photos/);
     await section.getByRole('button',{name:'Move Photo Gallery up'}).click();
     const moved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].featureOrder);
     assert.ok(moved.indexOf('gallery')<moved.indexOf('story'));
