@@ -1,7 +1,14 @@
 name: URI Builder Checks
 on:
   push:
+    paths-ignore:
+      - '**/*.md'
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+concurrency:
+  group: uri-qa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   smoke-test:
     runs-on: ubuntu-24.04
@@ -41,6 +48,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-1.56.1-${{ runner.os }}-ubuntu24
       - name: Install Chromium test driver
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
