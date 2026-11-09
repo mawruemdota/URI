@@ -68,6 +68,156 @@
 .uri-adventure-map-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:17px 0}
 .uri-adventure-map-list button{display:flex;align-items:center;gap:12px;text-align:left;padding:11px;border:1px solid #ccdacc;border-radius:10px;background:#f7fbf5;font:700 13px 'DM Sans',sans-serif;color:#355744;cursor:pointer}
 .uri-adventure-map-list button span{font-weight:900;color:#a3834b}
+
+/* A checkpoint is an explorable interior IN THE PLAYFIELD, not a dialog.
+   The full in-game screen changes from the overworld to a themed location,
+   with its own scrollable content, keyboard focus and return-to-world control. */
+.uri-adventure-stage.uri-adventure-inside{
+ aspect-ratio:auto;height:clamp(480px,72dvh,710px);min-height:480px;
+ background:#dddbc4;overflow:hidden
+}
+.uri-adventure-stage.uri-adventure-inside>canvas{visibility:hidden!important}
+.uri-adventure-interior[hidden],
+.uri-adventure-room-nav[hidden]{display:none!important}
+.uri-adventure-interior{
+ position:absolute;inset:0;z-index:5;display:grid;
+ grid-template-rows:auto minmax(0,1fr) auto;
+ overflow:hidden;color:#354638;background:#e3e0c5;
+ font-family:'DM Sans',sans-serif;
+ --uri-interior-wall:#ece0c0;--uri-interior-trim:#8f7756;
+ --uri-interior-floor:#8b694c;--uri-interior-paper:#fffdf2
+}
+.uri-adventure-interior-scenery{
+ position:absolute;inset:0;pointer-events:none;overflow:hidden;
+ background:
+  repeating-linear-gradient(0deg,transparent 0 63px,#705f4530 64px 65px),
+  repeating-linear-gradient(90deg,transparent 0 125px,#705f4526 126px 128px),
+  linear-gradient(180deg,var(--uri-interior-wall) 0 81%,var(--uri-interior-floor) 81% 100%);
+}
+.uri-adventure-interior-scenery:after{
+ content:"";position:absolute;inset:auto 0 0;height:19%;
+ background:repeating-linear-gradient(90deg,#ffffff10 0 3px,transparent 4px 60px),
+ linear-gradient(180deg,#ffffff18,transparent 40%);
+ border-top:8px solid var(--uri-interior-trim)
+}
+.uri-adventure-interior-window{
+ position:absolute;width:110px;height:128px;top:75px;right:7%;
+ border:9px solid var(--uri-interior-trim);border-radius:45% 45% 6px 6px;
+ background:linear-gradient(165deg,#b8e6e9 0%,#a6cfaa 67%,#6ba674 68%);
+ box-shadow:inset 0 0 0 5px #fffb,0 7px 0 #6c6543
+}
+.uri-adventure-interior-window:before,.uri-adventure-interior-window:after{
+ content:"";position:absolute;background:var(--uri-interior-trim)
+}
+.uri-adventure-interior-window:before{width:8px;height:100%;top:0;left:calc(50% - 4px)}
+.uri-adventure-interior-window:after{height:8px;width:100%;top:calc(58% - 4px);left:0}
+.uri-adventure-interior-banner{
+ position:absolute;top:91px;left:6%;width:67px;height:105px;
+ background:linear-gradient(100deg,#c1a16c,#e9d09e);
+ clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%);
+ box-shadow:0 8px 8px #0002
+}
+.uri-adventure-room-head,.uri-adventure-room-body,.uri-adventure-room-nav{position:relative;z-index:1}
+.uri-adventure-room-head{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;
+ grid-template-areas:"eyebrow exit" "title exit";align-items:center;
+ gap:5px 12px;padding:13px clamp(12px,3vw,27px);
+ background:linear-gradient(0deg,#f2e4c0ed,#fff2cde9);
+ border-bottom:5px solid #806e53
+}
+.uri-adventure-room-eyebrow{grid-area:eyebrow;font:800 10px 'DM Sans',sans-serif;letter-spacing:.19em;color:#6e694b}
+.uri-adventure-room-title{
+ grid-area:title;margin:0;font:800 clamp(17px,2.2vw,26px) 'DM Sans',sans-serif;
+ color:#3d5447;letter-spacing:-.015em;outline-offset:3px
+}
+.uri-adventure-room-head button{
+ grid-area:exit;border:2px solid #6b785d;border-radius:8px;background:#fcf5da;
+ padding:10px 14px;min-height:43px;color:#3a5843;font:700 12px 'DM Sans',sans-serif;cursor:pointer
+}
+.uri-adventure-room-body{
+ min-height:0;overflow-y:auto;overflow-x:hidden;
+ padding:clamp(12px,2.5vw,24px);
+ overscroll-behavior:contain;scrollbar-gutter:stable;
+ display:block
+}
+.uri-adventure-room-content{
+ margin:auto;max-width:720px;min-width:0;
+ padding:clamp(12px,3vw,24px);
+ border:5px solid #9a8157;border-bottom-width:9px;border-radius:8px;
+ background:var(--uri-interior-paper);
+ box-shadow:0 8px 0 #614c2b2e,0 18px 30px #36291228;
+ overflow-wrap:anywhere;
+}
+.uri-adventure-room-content>h2{font:800 clamp(17px,2vw,24px) 'DM Sans',sans-serif;margin:0 0 14px;color:#445a42}
+.uri-adventure-room-content .wb-unit{
+ position:relative!important;min-width:0!important;min-height:0!important;
+ max-width:100%!important;display:block!important;margin:0!important;
+ padding:12px!important;background:transparent!important;color:#344d41!important;
+ border:0!important;border-radius:6px!important;box-shadow:none!important;
+ grid-column:auto!important;grid-row:auto!important
+}
+.uri-adventure-room-content .wb-unit *, .uri-adventure-room-content .wb-unit img{
+ max-width:100%;overflow-wrap:anywhere
+}
+.uri-adventure-room-content .wb-unit img{
+ max-height:340px;object-fit:contain;height:auto
+}
+.uri-adventure-room-content .wb-hero{min-height:230px!important}
+.uri-adventure-room-content a{color:#1f6a53;text-decoration:underline}
+.uri-adventure-room-content button{cursor:pointer}
+.uri-adventure-room-nav{
+ display:flex;align-items:center;justify-content:space-between;gap:7px;
+ padding:10px clamp(12px,3vw,26px);background:#e5d8aeed;
+ border-top:4px solid #927c5a
+}
+.uri-adventure-room-nav button{
+ padding:9px 14px;min-height:40px;background:#fff8e4;border:2px solid #a08a65;
+ color:#415c46;border-radius:8px;font:700 12px 'DM Sans',sans-serif;cursor:pointer
+}
+.uri-adventure-room-nav button:disabled{opacity:.35;cursor:default}
+.uri-adventure-room-nav button[data-adventure-action="room-map"]{background:#436f58;color:#fff;border-color:#315a48}
+.uri-adventure-map-sheet{
+ max-width:640px;margin:auto;padding:17px 19px;border:5px solid #9a8157;
+ border-radius:8px;background:#fff9e7;box-shadow:0 8px 0 #694b2d38
+}
+.uri-adventure-map-sheet p{font:500 13px/1.6 'DM Sans',sans-serif;color:#586c59}
+.uri-adventure-stage[data-interior-type="story"] .uri-adventure-interior{
+ --uri-interior-wall:#e2dbca;--uri-interior-trim:#806a58;--uri-interior-floor:#87654c
+}
+.uri-adventure-stage[data-interior-type="gallery"] .uri-adventure-interior{
+ --uri-interior-wall:#d9e3da;--uri-interior-trim:#74928a;--uri-interior-floor:#7c7168
+}
+.uri-adventure-stage[data-interior-type="details"] .uri-adventure-interior,
+.uri-adventure-stage[data-interior-type="timeline"] .uri-adventure-interior{
+ --uri-interior-wall:#dbe9d9;--uri-interior-trim:#648979;--uri-interior-floor:#6d6450
+}
+.uri-adventure-stage[data-interior-type="rsvp"] .uri-adventure-interior{
+ --uri-interior-wall:#f4dfda;--uri-interior-trim:#b88b8c;--uri-interior-floor:#986a67
+}
+.uri-adventure-stage[data-interior-type="map"] .uri-adventure-interior{
+ --uri-interior-wall:#e4decb;--uri-interior-trim:#a18b62;--uri-interior-floor:#82694d
+}
+.uri-adventure-inline-rsvp{border-top:3px dashed #d4b97f;margin-top:18px;padding-top:12px}
+.uri-adventure-inline-rsvp .uri-online-rsvp{min-height:0;max-width:100%;width:100%;padding:0!important}
+.uri-adventure-inline-rsvp .uri-rsvp-paper{box-shadow:none!important;margin:0!important;
+ border:0!important;padding:8px!important;background:transparent!important}
+.uri-adventure-inline-rsvp .uri-rsvp-paper h1{font-size:clamp(21px,4vw,34px)}
+.uri-adventure-inline-rsvp .uri-rsvp-paper p{font-size:13px}
+.uri-adventure-inline-rsvp .uri-rsvp-paper .btn{max-width:100%}
+@media(max-width:700px){
+ .uri-adventure-stage.uri-adventure-inside{
+  height:clamp(460px,72dvh,760px);min-height:460px
+ }
+ .uri-adventure-room-head{grid-template-columns:minmax(0,1fr) auto;padding:10px 10px}
+ .uri-adventure-room-head button{padding:8px 9px;font-size:11px}
+ .uri-adventure-room-body{padding:9px}
+ .uri-adventure-room-content{padding:10px;border-width:3px;border-bottom-width:6px}
+ .uri-adventure-room-nav{padding:8px;gap:5px}
+ .uri-adventure-room-nav button{padding:7px;min-height:43px;font-size:10px}
+ .uri-adventure-interior-window{width:65px;height:85px;top:95px}
+ .uri-adventure-interior-banner{display:none}
+}
+
 .uri-adventure-manager{margin:20px 0;border:1px solid #b7d2c1;background:#f4f8f1;color:#2b4f3a;border-radius:14px;padding:18px}
 .uri-adventure-manager h3{margin:0 0 7px;font:700 18px 'DM Sans',sans-serif}
 .uri-adventure-manager>p{font-size:12px;color:#576e5f;line-height:1.6}
