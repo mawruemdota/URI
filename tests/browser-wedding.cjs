@@ -133,6 +133,37 @@ const image=async (page,name)=>{
     const moved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].featureOrder);
     assert.ok(moved.indexOf('gallery')<moved.indexOf('story'));
     await image(page,'07-features.png');
+    // Create a custom FAQ section, edit it, duplicate it, hide it, and restore it.
+    await page.locator('.uri-custom-types button').filter({hasText:'FAQ'}).click();
+    const customId=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].customSections.at(-1).id);
+    const editorCard=page.locator('[data-custom-editor="'+customId+'"]');
+    await editorCard.locator('summary').click();
+    await editorCard.locator('.uri-custom-faq-row input').first().fill('Is parking available?');
+    await editorCard.locator('.uri-custom-faq-row textarea').fill('Yes, Gate B.');
+    assert.match(await page.locator('#wbLivePreview [data-feature="'+customId+'"]').innerText(),/parking available/i);
+    await page.locator('#wbLivePreview [data-feature="'+customId+'"]').hover();
+    await page.locator('#wbLivePreview [data-feature="'+customId+'"] .wb-visual-toolbar [data-visual-action="duplicate"]').click();
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].customSections.length),2);
+    await page.locator('#wbLivePreview [data-feature="'+customId+'"]').hover();
+    await page.locator('#wbLivePreview [data-feature="'+customId+'"] .wb-visual-toolbar [data-visual-action="hide"]').click();
+    assert.equal(await page.locator('#wbLivePreview [data-feature="'+customId+'"]').count(),0);
+    await page.locator('.uri-custom-hidden button').filter({hasText:'Show'}).first().click();
+    assert.equal(await page.locator('#wbLivePreview [data-feature="'+customId+'"]').count(),1);
+    await image(page,'07b-custom-sections.png');
+    // A copied MiroMiro token palette becomes an editable, reusable design recipe.
+    await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
+    await page.locator('.uri-template-studio summary').click();
+    await page.locator('.uri-template-studio [name="name"]').fill('Midnight Atelier');
+    await page.locator('.uri-template-studio [name="base"]').selectOption('nightfall');
+    await page.locator('.uri-template-studio [name="tokens"]').fill('{"background":"#151515","text":"#eeeeee","accent":"#c45e4a"}');
+    await page.locator('.uri-template-studio form button[type="submit"]').click();
+    await page.locator('#wbLivePreview .wb-theme-nightfall').waitFor();
+    const recipeEvent=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
+    assert.match(recipeEvent.template,/^tpl-/);
+    assert.equal(recipeEvent.templateRecipes[0].style.accent,'#c45e4a');
+    assert.equal(recipeEvent.customSections.length,2);
+    await image(page,'07c-template-studio.png');
+    await page.locator('.wb-tabs button').filter({hasText:'Features'}).click();
     // Editorial has side-panel content only for sections actually enabled.
     await page.locator('.wb-feature-item[data-feature-id="details"] input[type="checkbox"]').click();
     await page.locator('.wb-feature-item[data-feature-id="timeline"] input[type="checkbox"]').click();
