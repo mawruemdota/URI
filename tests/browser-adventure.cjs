@@ -141,6 +141,16 @@ const server=http.createServer((req,res)=>{
   await page.locator('.wf-full-content .uri-adventure-room-body [data-adventure-station="story"]').click();
   await page.locator('.wf-full-content .uri-adventure-stage[data-interior-type="story"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('.wf-full-content .uri-adventure-room-body').innerText(),/Our own adventure/);
+  const legible=await page.evaluate(()=>{
+    const room=document.querySelector('.wf-full-content .uri-adventure-room-body');
+    const paragraph=room?.querySelector('.wb-botanical-story p');
+    const decoration=room?.querySelector('.wb-botanical-art');
+    if(!room||!paragraph)return false;
+    const a=paragraph.getBoundingClientRect(),b=room.getBoundingClientRect();
+    return (!decoration||getComputedStyle(decoration).display==='none')&&
+      a.height>0&&a.top>=b.top&&a.top<b.bottom;
+  });
+  assert.ok(legible,'Mobile story text must appear immediately within the game room, without oversized decorations');
   await page.screenshot({path:path.join(screens,'02b-in-game-story-mobile.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Back to editor/}).click();
   await page.setViewportSize({width:390,height:844});
