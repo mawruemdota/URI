@@ -11,7 +11,7 @@ const e={
 const state={events:[e],current:e.id},saved={},alerts=[];
 const mockForm=class {constructor(form){this.data=form.values}get(key){return this.data[key]??''}};
 const document={querySelector(){return null},querySelectorAll(){return []},getElementById(){return null},body:{appendChild(){}},createElement(){return {click(){},remove(){}}}};
-const context={window:{addEventListener(){}},esc,fmt:x=>x,render(){},KEY:'uri-test',state,
+const context={window:{addEventListener(){}},document,esc,fmt:x=>x,render(){},KEY:'uri-test',state,
  localStorage:{setItem(k,v){saved[k]=v},getItem:k=>saved[k]??null,removeItem:k=>delete saved[k]},
  current:()=>state.events.find(x=>x.id===state.current),eventPage(){},confirm:()=>true,
  alert:x=>alerts.push(x),Date,URL,FormData:mockForm,setTimeout:fn=>fn(),console};
