@@ -83,7 +83,9 @@ window.uriCloudGuestCopy=async id=>{
  try{
   await window.URICloudDrafts.flushCurrent();
   if(!/^[a-f0-9]{64}$/.test(g.onlineToken||''))throw Error('The secure guest link is not ready. Sync again.');
-  const url=location.origin+location.pathname+'#rsvp/'+g.onlineToken;
+  const game=window.URIBuilder?.baseTemplate?.(e)==='adventure';
+  const route=game?'#public/'+encodeURIComponent(e.cloudSlug)+'?rsvp='+g.onlineToken:'#rsvp/'+g.onlineToken;
+  const url=location.origin+location.pathname+route;
   if(navigator.clipboard&&window.isSecureContext){
    try{await navigator.clipboard.writeText(url);alert('Personal online RSVP link copied. Share only with this guest.');return}catch(_){}
   }
