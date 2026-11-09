@@ -86,7 +86,7 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     await page.locator('.wb-tabs button').filter({hasText:'Features'}).click();
     const section=page.locator('.wb-feature-item[data-feature-id="gallery"]');
     assert.match(await section.innerText(),/Add photos in Photos tab/);
-    await section.locator('button[data-move-dir="-1"]').click();
+    await section.getByRole('button',{name:'Move Photo Gallery up'}).click();
     const moved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].featureOrder);
     assert.ok(moved.indexOf('gallery')<moved.indexOf('story'));
     await image(page,'07-features.png');
