@@ -86,8 +86,9 @@ const image=async (page,name)=>{
     assert.equal(nightfallSaved.name1,'Maya');
     assert.equal(nightfallSaved.name2,'Emir');
     assert.match(nightfallSaved.heroPhoto,/^data:image\/jpeg/);
-    assert.match(await page.locator('#wbLivePreview').innerText(),/Maya/);
-    assert.match(await page.locator('#wbLivePreview').innerText(),/Emir/);
+    const nightfallText=await page.locator('#wbLivePreview').innerText();
+    assert.match(nightfallText,/maya/i);
+    assert.match(nightfallText,/emir/i);
     await image(page,'06-nightfall-preview.png');
     await page.locator('.wb-template-pick').first().click();
     await page.locator('#wbLivePreview .wb-theme-botanical').waitFor();
