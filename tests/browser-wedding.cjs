@@ -91,6 +91,14 @@ const image=async (page,name)=>{
     assert.match(nightfallText,/emir/i);
     assert.equal(await page.locator('.wb-editor-controls label.wb-field').filter({hasText:'Heading font'}).locator('select').inputValue(),'barlow');
     await image(page,'06-nightfall-preview.png');
+    await page.getByRole('button',{name:/Full-page preview/}).click();
+    await page.locator('.wf-full-content .wb-theme-nightfall').waitFor();
+    await image(page,'06a-nightfall-full-website.png');
+    await page.getByRole('button',{name:'Mobile'}).click();
+    await page.waitForFunction(()=>document.getElementById('wfFullContent')?.style.width==='390px');
+    await image(page,'06aa-nightfall-full-mobile.png');
+    await page.getByRole('button',{name:/Back to editor/}).click();
+    await page.locator('.wb-template-choices').waitFor();
     await page.setViewportSize({width:390,height:844});
     await page.locator('.wb-preview-toolbar button').filter({hasText:'Mobile'}).click();
     await page.waitForFunction(()=>document.getElementById('wbLivePreview')?.style.width==='390px');
