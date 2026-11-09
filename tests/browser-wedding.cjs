@@ -37,7 +37,7 @@ const image=async (page,name)=>{
     await page.locator('#templates .template').first().click();
     assert.match(await page.locator('body').innerText(),/Choose your wedding design/);
     await image(page,'01-select-template.png');
-    assert.equal(await page.locator('.wf-design').count(),3,'All three wedding designs should be available');
+    assert.equal(await page.locator('.wf-design').count(),4,'All four wedding designs should be available');
     await page.locator('.wf-design').nth(1).click();
     await clickNext(page);
     await page.locator('#wf-name1').fill('Maya');
