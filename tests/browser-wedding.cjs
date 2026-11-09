@@ -356,6 +356,16 @@ const image=async (page,name)=>{
     await page.locator('.sidebar button').filter({hasText:'Analytics'}).click();
     assert.match(await page.locator('.uri-rsvp-analytics').innerText(),/2 of unlimited seats confirmed/);
     await image(page,'17-rsvp-analytics.png');
+    // Cloud account sign-in is reachable on a fresh mobile browser with no event selected.
+    await page.goto(url+'#cloud',{waitUntil:'domcontentloaded'});
+    await page.locator('.uri-cloud-workspace').waitFor();
+    await page.locator('#uriCloudAccountEmail').waitFor();
+    await image(page,'18-cloud-account-mobile.png');
+    // Invalid bearer tokens never reveal a private guest record or client exception.
+    await page.goto(url+'#rsvp/invalid',{waitUntil:'domcontentloaded'});
+    await page.getByRole('heading',{name:'Invitation unavailable'}).waitFor();
+    assert.equal(await page.locator('input[name="response"]').count(),0);
+    await image(page,'19-invalid-online-rsvp.png');
     assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
     console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
   }finally{await browser.close()}
