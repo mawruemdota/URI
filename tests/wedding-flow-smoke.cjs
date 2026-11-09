@@ -22,6 +22,9 @@ const scenario=function(){
   startWizard('garden');
   r.selected=wizard.type==='Wedding'&&wizard.template==='garden';
   r.fiveSteps=app.innerHTML.includes('Step 1 of 5');
+  startWizard('nightfall');
+  r.nightfallDirectSelection=wizard.template==='nightfall'&&step===0;
+  startWizard('garden');
   nextWizard();nextWizard();
   r.nameError=app.innerHTML.includes('Enter the first partner');
   wizardSet('name1','Maria');wizardSet('name2','Juan');
