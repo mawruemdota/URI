@@ -110,9 +110,16 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     assert.equal(photoData[0].zoom,1.5);
     assert.equal(photoData[0].crop,'portrait');
     assert.notEqual(photoData[0].x,50);
+    await page.evaluate(()=>{
+      window.__uriDragEvents=[];
+      for(const type of ['dragstart','dragenter','dragover','drop','dragend']){
+        document.addEventListener(type,ev=>window.__uriDragEvents.push(type+':'+(ev.target?.className||'')),true);
+      }
+    });
     await page.locator('.wb-photo-grip').first().dragTo(page.locator('.wb-photo-tile').last());
     photoData=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].photos);
-    assert.equal(photoData[0].alt,'gallery-two');
+    if(photoData[0].alt!=='gallery-two')console.log('Gallery drag diagnostics:',await page.evaluate(()=>window.__uriDragEvents));
+    assert.equal(photoData[0].alt,'gallery-two','Gallery drag-and-drop failed to reorder');
     await page.locator('.wb-photo-cards .wb-photo-card').first().locator('button[aria-label="Move photo right"]').click();
     photoData=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].photos);
     assert.equal(photoData[0].alt,'gallery-one');
