@@ -55,7 +55,7 @@ function renderDashboard(){
  +'<div class="uri-dash-grid">'+items.map(card).join('')+'</div>'
  +'<div id="uriDashNoResults" class="uri-dash-no-results" hidden><h3>No matching invitations</h3><button type="button" class="btn" onclick="uriDashReset()">Clear filters</button></div>'
  :'<div class="uri-dash-empty"><h2>No events yet</h2><button type="button" class="btn primary" onclick="startWizard()">Create a wedding website</button></div>')
- +'<div class="uri-dash-footnote">This dashboard is saved on this device. Publishing status is not checked live.</div></div>';
+ +'<div class="uri-dash-footnote">Invitations save locally. Sign in under Cloud to synchronize them. Publishing status is not checked live.</div></div>';
  if(es.length)filterItems();
 }
 dashboard=renderDashboard;
@@ -64,7 +64,7 @@ window.uriDashFilter=value=>{if(!['all','draft','published'].includes(value))ret
 window.uriDashSort=value=>{if(!['edited','date'].includes(value))return;activeSort=value;renderDashboard()};
 window.uriDashReset=()=>{query='';activeFilter='all';activeSort='edited';renderDashboard()};
 function saveSafely(){try{save();return true}catch(err){alert('Browser storage is full. No changes were saved.');return false}}
-window.uriDashAction=function(action,id){
+window.uriDashAction=async function(action,id){
  const e=events().find(x=>String(x.id)===String(id));if(!e)return;
  if(action==='edit'||action==='preview'||action==='manage'||action==='review'){
   const previous=state.current;state.current=e.id;
@@ -81,6 +81,8 @@ window.uriDashAction=function(action,id){
   clone.id='e'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
   clone.created=Date.now();clone.updatedAt=clone.created;
   clone.status='draft';clone.cloudPublished=false;delete clone.cloudSlug;
+  delete clone._uriCloudRevision;delete clone._uriCloudSyncedAt;
+  delete clone._uriCloudOwnerId;delete clone._uriCloudPending;
   clone.title=(title(e)||'Wedding')+' (Copy)';
   clone.guests=[];clone.households=[];delete clone.rsvpAnswers;
   state.events.push(clone);
@@ -89,7 +91,13 @@ window.uriDashAction=function(action,id){
  }
  if(action==='delete'){
   if(published(e)){alert('Unpublish this wedding in the Publish tab before deleting its local draft. This avoids leaving an unmanaged public website.');return}
-  if(!confirm('Permanently delete "'+title(e)+'" from this browser? This cannot be undone.'))return;
+  if(!confirm('Permanently delete "'+title(e)+'" from this browser and your cloud account (if synchronized)? This cannot be undone.'))return;
+  if(e._uriCloudRevision){
+   try{
+    if(!window.URICloudDrafts?.deleteDraft)throw Error('Cloud deletion is not available.');
+    await window.URICloudDrafts.deleteDraft(e);
+   }catch(err){alert('Unable to delete cloud invitation: '+(err.message||'Please try again.'));return}
+  }
   const i=state.events.indexOf(e),before=state.current;
   state.events.splice(i,1);
   if(state.current===e.id)state.current=state.events[0]?.id||null;
