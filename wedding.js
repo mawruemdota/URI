@@ -4,7 +4,8 @@ const oldInv=inv;
 TEMPLATES.splice(0,TEMPLATES.length,
  {id:'classic',name:'Romantic Botanical',desc:'Ivory · floral · photo-led split layout',bg:'#f6f0e8',ink:'#49483d'},
  {id:'garden',name:'Minimalist Editorial',desc:'White · handwritten · structured columns',bg:'#fff',ink:'#272727'},
- {id:'nightfall',name:'Nightfall',desc:'Cinematic · dark · bold typography',bg:'#0f0f0f',ink:'#ffffff'});
+ {id:'nightfall',name:'Nightfall',desc:'Cinematic · dark · bold typography',bg:'#0f0f0f',ink:'#ffffff'},
+ {id:'adventure',name:'Adventure Invitation',desc:'Playable · pixel world · discover the celebration',bg:'#f0f7ed',ink:'#304d3b'});
 const features=[
  ['hero','Welcome / Hero','Main wedding photograph and introduction'],
  ['story','Our Story','Personal message about the couple'],
