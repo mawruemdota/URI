@@ -74,12 +74,43 @@ const server=http.createServer((req,res)=>{
       keyboard:s.input.keyboard?.enabled,keys:Object.fromEntries(Object.entries(s.keys||{}).map(([k,v])=>[k,!!v?.isDown]))};
   }));
   assert.ok(posAfter>posBefore+40,'Keyboard input moves the Phaser player: '+posBefore+' => '+posAfter);
+  // The map and every checkpoint must be INSIDE the Phaser viewport, with no dialog.
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-site dialog').count(),0,
+    'Checkpoint experience must not use popups or modal dialogs');
   await page.locator('#wbLivePreview [data-adventure-action="map"]').click();
-  await page.locator('#wbLivePreview .uri-adventure-map').waitFor({state:'visible'});
-  await page.locator('#wbLivePreview [data-adventure-station="details"]').click();
-  await page.locator('#wbLivePreview .uri-adventure-dialog').waitFor({state:'visible'});
-  assert.match(await page.locator('#wbLivePreview .uri-adventure-dialog').innerText(),/Garden Pavilion/);
-  await page.locator('#wbLivePreview .uri-adventure-dialog [data-adventure-action="close"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside[data-interior-type="map"] .uri-adventure-map-list').waitFor({state:'visible'});
+  await page.locator('#wbLivePreview .uri-adventure-room-body [data-adventure-station="details"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-room-body').innerText(),/Garden Pavilion/);
+  assert.equal(await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused()),true,
+    'The overworld pauses while exploring an in-game location');
+  await page.screenshot({path:path.join(screens,'01b-in-game-venue.png'),fullPage:true,animations:'disabled'});
+  // Checkpoint navigation stays inside the stage; even personalized RSVP is inline.
+  const token='a'.repeat(64);
+  await page.evaluate(t=>{
+    const root=document.querySelector('#wbLivePreview .uri-adventure-site'),link=root.querySelector('.uri-adventure-rsvp-link');
+    link.href='#rsvp/'+t;link.hidden=false;
+    window.URICloud={client:()=>({rpc:async(name,args)=>{
+      if(name==='uri_rsvp_lookup')return {data:{name:'Guest Explorer',eventName:'Maya & Emir',date:'2032-09-18',
+        venue:'Garden Pavilion',status:'pending',plusOnesAllowed:1,plusOnesConfirmed:0,
+        answers:{},questions:[]},error:null};
+      if(name==='uri_rsvp_respond')return {data:{plusOnesConfirmed:args.p_plus_ones},error:null};
+      return {data:null,error:{message:'Unknown RPC'}};
+    }})};
+  },token);
+  await page.locator('#wbLivePreview [data-adventure-action="room-map"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-room-body [data-adventure-station="rsvp"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-inline-rsvp form').waitFor({state:'visible'});
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-inline-rsvp').innerText(),/Guest Explorer/);
+  await page.locator('#wbLivePreview .uri-adventure-inline-rsvp input[value="attending"]').check();
+  await page.locator('#wbLivePreview .uri-adventure-inline-rsvp button[type="submit"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-inline-rsvp .uri-online-status').getByText(/Your RSVP was saved/).waitFor();
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-site dialog').count(),0);
+  await page.locator('#wbLivePreview [data-adventure-action="room-exit"]').click();
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-interior').evaluate(el=>el.hidden),true,
+    'Back to world closes the in-game room, without navigating away');
+  assert.equal(await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused()),false,
+    'The overworld resumes when leaving an area');
   await page.locator('#wbLivePreview [data-adventure-action="details"]').click();
   assert.ok(await page.locator('#wbLivePreview .uri-adventure-directory').evaluate(el=>el.open));
   await page.screenshot({path:path.join(screens,'01-adventure-desktop.png'),fullPage:true,animations:'disabled'});
@@ -90,6 +121,12 @@ const server=http.createServer((req,res)=>{
   await page.waitForFunction(()=>document.getElementById('wfFullContent')?.style.width==='390px');
   await page.locator('.wf-full-content .uri-adventure-joystick').waitFor({state:'visible'});
   await page.screenshot({path:path.join(screens,'02-adventure-mobile.png'),fullPage:true,animations:'disabled'});
+  await page.locator('.wf-full-content [data-adventure-action="map"]').click();
+  await page.locator('.wf-full-content .uri-adventure-stage.uri-adventure-inside .uri-adventure-map-list').waitFor({state:'visible'});
+  await page.locator('.wf-full-content .uri-adventure-room-body [data-adventure-station="story"]').click();
+  await page.locator('.wf-full-content .uri-adventure-stage[data-interior-type="story"] .uri-adventure-room-body').waitFor({state:'visible'});
+  assert.match(await page.locator('.wf-full-content .uri-adventure-room-body').innerText(),/Our own adventure/);
+  await page.screenshot({path:path.join(screens,'02b-in-game-story-mobile.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Back to editor/}).click();
   await page.setViewportSize({width:390,height:844});
   await page.locator('.wb-editor').waitFor();
@@ -97,6 +134,6 @@ const server=http.createServer((req,res)=>{
   assert.ok(overflow<=4,'Mobile site overflows by '+overflow+' pixels');
   await page.screenshot({path:path.join(screens,'03-adventure-mobile-editor.png'),fullPage:true,animations:'disabled'});
   assert.deepEqual(errors,[],'Browser exceptions: '+errors.join('; '));
-  console.log('Adventure Phaser QA passed: controls, player movement, checkpoint details, world manager, keyboard, full and mobile previews.');
+  console.log('Adventure Phaser QA passed: movement, in-game rooms without dialogs, mobile story, venue, inline RSVP submission, and world resuming.');
  }finally{await browser.close();server.close()}
 })().catch(err=>{console.error(err);process.exitCode=1;server.close()});
