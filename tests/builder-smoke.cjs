@@ -34,6 +34,7 @@ const scenario=function(){
  const photosOk=root.innerHTML.includes('wb-photo-manager');
  window.uriBPanel('publish');
  const cloudOk=root.innerHTML.includes('Cloud setup required')||root.innerHTML.includes('Supabase library could not be loaded');
+ sample.photos=[{id:'sample-gallery',src:'https://example.test/gallery.jpg',alt:'Gallery test photo',crop:'landscape'}];
  sample.layoutByTemplate.classic={gallery:'grid'};
  const variantOk=U.render(sample).includes('wb-gallery-grid');
  sample.template='garden';
