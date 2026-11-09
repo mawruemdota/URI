@@ -176,7 +176,7 @@ function features(e){
  const rows=active.map((id,i)=>{
   const f=U.features.find(x=>x.id===id);
   const layout=layoutById[id];
-  const info=layout?(layout.width==='half'?'Paired with the next section':'Full-width in this design'):'Appears when content is added';
+  const info=layout?(layout.width==='half'?(layout.pair==='first'?'Paired with next section':'Paired with previous section'):'Full width in this design'):'Appears when content is added';
   return '<div class="wb-feature-item" data-feature-id="'+id+'" draggable="true" ondragstart="uriBDragStart(event,\''+id+'\')" ondragover="event.preventDefault()" ondrop="uriBDrop(event,\''+id+'\')">'
    +'<div class="wb-feature-top"><span class="wb-drag" title="Drag to reorder">⠿</span>'
    +'<label class="wb-feature-check"><input type="checkbox" checked aria-label="Show '+T(f.name)+'" onchange="uriBToggle(\''+id+'\',this.checked)">'
