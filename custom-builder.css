@@ -179,3 +179,18 @@
 .uri-custom-hidden>strong{font-size:12px;color:#34533f}
 .uri-custom-hidden>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .uri-custom-hidden>div>span{font-size:11px;flex:1;min-width:130px}
+
+/* Keep each partner's owner-only edit control anchored to its own name.
+   Without a positioned ancestor both absolute buttons overlap. */
+#wbLivePreview .wb-names > span,
+#wbLivePreview .wb-nightfall-names > span{position:relative}
+#wbLivePreview .wb-names > span > .wb-inline-edit,
+#wbLivePreview .wb-nightfall-names > span > .wb-inline-edit{
+  top:-25px;right:0;z-index:18;
+}
+@media(hover:none){
+  #wbLivePreview .wb-names > span > .wb-inline-edit,
+  #wbLivePreview .wb-nightfall-names > span > .wb-inline-edit{
+    top:-22px;
+  }
+}
