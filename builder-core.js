@@ -44,9 +44,9 @@ U.model=e=>{
  if(U.ensureDetails)U.ensureDetails(e);
  return e;
 };
-U.enabled=(e,id)=>{U.model(e);const item=U.customItem(e,id);if(item)return item.enabled!==false;return typeof e.featureConfig[id]==='boolean'?e.featureConfig[id]:enabledDefaults[id]===true};
-U.variant=(e,id)=>{U.model(e);const item=U.customItem(e,id);if(item)return item.layout==='wide'?'wide':'auto';let v=e.layoutByTemplate[e.template]?.[id],f=U.features.find(f=>f.id===id),base=U.baseTemplate(e);return f?.variants.some(a=>a[0]===v)?v:variants[base][id]};
-U.design=e=>{U.model(e);const base=U.baseTemplate(e),recipe=e.templateRecipes.find(x=>x.id===e.template),defaultStyle=U.presets[base],d={...defaultStyle,...(recipe?.style||{})},c=e.designByTemplate[e.template]||{};return {bg:color(c.bg,d.bg),ink:color(c.ink,d.ink),accent:color(c.accent,d.accent),heading:U.fonts[c.heading]?c.heading:U.fonts[d.heading]?d.heading:defaultStyle.heading,body:U.fonts[c.body]?c.body:U.fonts[d.body]?d.body:defaultStyle.body,spacing:['compact','balanced','airy'].includes(c.spacing)?c.spacing:['compact','balanced','airy'].includes(d.spacing)?d.spacing:defaultStyle.spacing}};
+U.enabled=(e,id)=>{if(!e.featureConfig||!Array.isArray(e.featureOrder))U.model(e);const item=U.customItem(e,id);if(item)return item.enabled!==false;return typeof e.featureConfig[id]==='boolean'?e.featureConfig[id]:enabledDefaults[id]===true};
+U.variant=(e,id)=>{if(!e.layoutByTemplate||!Array.isArray(e.featureOrder))U.model(e);const item=U.customItem(e,id);if(item)return item.layout==='wide'?'wide':'auto';let v=e.layoutByTemplate[e.template]?.[id],f=U.features.find(f=>f.id===id),base=U.baseTemplate(e);return f?.variants.some(a=>a[0]===v)?v:variants[base][id]};
+U.design=e=>{if(!e.designByTemplate||!Array.isArray(e.templateRecipes))U.model(e);const base=U.baseTemplate(e),recipe=e.templateRecipes.find(x=>x.id===e.template),defaultStyle=U.presets[base],d={...defaultStyle,...(recipe?.style||{})},c=e.designByTemplate[e.template]||{};return {bg:color(c.bg,d.bg),ink:color(c.ink,d.ink),accent:color(c.accent,d.accent),heading:U.fonts[c.heading]?c.heading:U.fonts[d.heading]?d.heading:defaultStyle.heading,body:U.fonts[c.body]?c.body:U.fonts[d.body]?d.body:defaultStyle.body,spacing:['compact','balanced','airy'].includes(c.spacing)?c.spacing:['compact','balanced','airy'].includes(d.spacing)?d.spacing:defaultStyle.spacing}};
 U.picture=(p,cls='',placeholder='Add a wedding photo')=>{p=U.photo(p||{});let url=imgurl(p.src);return '<div class="wb-photo '+cls+'">'+(url?'<img loading="lazy" draggable="false" src="'+T(url)+'" alt="'+T(p.alt)+'" style="object-position:'+p.x+'% '+p.y+'%;transform-origin:'+p.x+'% '+p.y+'%;transform:scale('+p.zoom+')">':'<div class="wb-photo-empty">'+T(placeholder)+'</div>')+'</div>'};
 const head=(t)=>'<span class="wb-kicker">'+T(t)+'</span>';
 
@@ -97,7 +97,7 @@ const views={hero,story,gallery,countdown,details,timeline,dress,gifts,rsvp};
 /* Compose actual renderable sections first: disabled/empty features leave no holes.
    Pairs only form between adjacent compatible sections in the user's order. */
 U.compose=e=>{
- U.model(e);
+ if(!Array.isArray(e.featureOrder)||!Array.isArray(e.customSections))U.model(e);
  const layout=U.templateLayout[U.baseTemplate(e)]||U.templateLayout.classic;
  const list=e.featureOrder.filter(id=>U.enabled(e,id)).map(id=>{
   const item=U.customItem(e,id);
