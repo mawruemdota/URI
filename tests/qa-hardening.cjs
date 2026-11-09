@@ -44,6 +44,12 @@ for(const file of ['wedding.js','builder-core.js','wedding-details.js','readines
  const good=restored.events[0];
  assert.deepEqual(Array.from(good.guests),[],'Malformed guest array should normalize to empty');
  assert.equal(good.id,'w-good');
+ assert.equal(vm.runInContext('fmt("malformed-date")',ctx),'Date to be announced');
+ assert.doesNotThrow(()=>win.URIGuests.guestPage('%invalid.g'));
+ assert.match(app.innerHTML,/Test invitation unavailable/);
+ good.date=123;
+ assert.doesNotThrow(()=>win.uriDashSort('date'),'Dashboard should not crash on legacy non-string dates');
+ good.date='2032-12-10';
  good.heroPhoto='https://example.test/couple.jpg';
  good.heroSettings={zoom:1.75,x:34,y:68};
  const U=win.URIBuilder;
