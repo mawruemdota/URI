@@ -18,6 +18,18 @@ Three wedding styles:
 
 All three styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
 
+## Background images and music (November 2026)
+
+**Background Manager:** Under **Edit Invitation → Design → Page background**, choose theme color or background image. Upload a JPEG/PNG/WebP photo (resized and compressed for local storage), or provide a direct HTTPS image URL. For images, set image opacity, shading strength, shade color (theme/dark/light/accent), section surface opacity, blur, and image position. A single backdrop is layered underneath the invitation, while readable themed surfaces and text remain above it. Background settings are saved per template, so switching designs does not overwrite the previous design's image or treatments.
+
+**Music Manager:** Under **Edit Invitation → Music**, enable/disable the public player, choose an autoplay *request*, select a loop mode (off/current track/whole playlist), set initial volume, and add, rename, remove or reorder up to 12 tracks. Tracks can use direct HTTPS audio file URLs or owner-uploaded MP3/M4A/OGG/WAV/WebM files (up to 15 MB) in Supabase. The guest player offers Play/Pause, Previous/Next and volume. Spotify, YouTube watch pages, and other non-audio links will not play as direct music files. External audio servers may restrict playback.
+
+**Publishing:** Local background images are converted to public media URLs during cloud publishing; audio uploaded by a signed-in owner already uses a separate public bucket (`uri-wedding-audio`). Media URLs and playlist metadata are included in public invitation snapshots, but private guest lists are not. **Republish** for changes to appear on the public invitation. A track uploaded to the public bucket remains directly accessible by URL even if an invitation is unpublished or the track is removed from the playlist; secure asset cleanup and private media are future features.
+
+**Browser autoplay restriction:** Enabling autoplay only requests playback. Safari, Chrome and other browsers may block audible audio before a user gesture; the player then displays a Play prompt. Autoplay is disabled by default and is suppressed within the editor preview. No copyrighted music files are shipped with URI; owners must have the rights to publicly use audio they upload.
+
+**QA:** `tests/theme-media-smoke.cjs` validates data safety, styling configuration, playlist settings, template switching, publication fields and local persistence. `tests/browser-wedding.cjs` exercises the background upload and music editor in real Chromium. Safari/iOS and Android device checks, production music streaming and cross-browser autoplay still need independent real-device verification.
+
 ## Animation Manager 1.0 (November 2026)
 
 The Wedding Builder's **Design** tab now includes an **Animation Manager** with four options: None, Elegant, Cinematic, and Playful. Users can set animation speed (0.5× to 1.5×) and independently toggle **page entrance**, **scroll reveals**, **photo movement**, **button interactions**, and **animated decorations**. A **Play animation** button in the editor preview deliberately replays the effects while keeping ordinary editing static and predictable.
