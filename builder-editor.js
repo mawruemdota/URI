@@ -127,7 +127,7 @@ window.uriBVariant=(id,value)=>{
  if(commitEdit(()=>{e.layoutByTemplate[template]||={};e.layoutByTemplate[template][id]=value},()=>{e.layoutByTemplate[template]=old}))U.refresh();
 };
 window.uriBTemplate=value=>{
- const e=event();if(!e||!['classic','garden'].includes(value))return;
+ const e=event();if(!e||!['classic','garden','nightfall'].includes(value))return;
  const old=e.template;
  if(commitEdit(()=>{e.template=value},()=>{e.template=old}))rerender();
  else rerender();
