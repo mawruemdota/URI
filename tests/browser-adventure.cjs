@@ -39,6 +39,8 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview .uri-adventure-site').waitFor();
   await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
   await page.locator('.uri-adventure-manager').waitFor();
+  assert.equal(await page.locator('.wb-template-pick').count(),4,'All four wedding templates must appear in the editor');
+  assert.equal(await page.locator('.wb-template-pick.selected').count(),1,'Adventure is the active design');
   assert.match(await page.locator('.uri-adventure-stations').innerText(),/Welcome/);
   assert.match(await page.locator('.uri-adventure-stations').innerText(),/RSVP/);
   await page.locator('.uri-adventure-setting select').first().selectOption('sunset');
@@ -86,6 +88,7 @@ const server=http.createServer((req,res)=>{
   await page.locator('.wf-full-content .uri-adventure-stage canvas').waitFor({timeout:25000});
   await page.getByRole('button',{name:'Mobile'}).click();
   await page.waitForFunction(()=>document.getElementById('wfFullContent')?.style.width==='390px');
+  await page.locator('.wf-full-content .uri-adventure-joystick').waitFor({state:'visible'});
   await page.screenshot({path:path.join(screens,'02-adventure-mobile.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Back to editor/}).click();
   await page.setViewportSize({width:390,height:844});
