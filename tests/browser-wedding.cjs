@@ -137,7 +137,7 @@ const image=async (page,name)=>{
     await page.locator('.uri-custom-types button').filter({hasText:'FAQ'}).click();
     const customId=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].customSections.at(-1).id);
     const editorCard=page.locator('[data-custom-editor="'+customId+'"]');
-    await editorCard.locator('summary').click();
+    await editorCard.evaluate(el=>{el.open=true});
     await editorCard.locator('.uri-custom-faq-row input').first().fill('Is parking available?');
     await editorCard.locator('.uri-custom-faq-row textarea').fill('Yes, Gate B.');
     assert.match(await page.locator('#wbLivePreview [data-feature="'+customId+'"]').innerText(),/parking available/i);
