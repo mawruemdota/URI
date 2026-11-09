@@ -57,9 +57,8 @@ function guestForm(e,guest){
   +'<div class="uri-guest-form-actions"><button type="submit" class="btn primary">'+(edit?'Save guest':'Add guest')+'</button>'+(edit?'<button type="button" class="btn" onclick="uriGuestsCancel()">Cancel</button>':'')+'</div></form>';
 }
 function guestRows(e){
- const q=search.toLowerCase().trim();
- const guests=e.guests.filter(g=>(filter==='all'||g.status===filter)&&(!q||(g.name+' '+(g.email||'')+' '+(household(e,g.householdId)?.name||'')+' '+(g.category||'')).toLowerCase().includes(q)));
- return guests.length?guests.map(g=>'<article class="uri-guest-row" data-guest-id="'+T(g.id)+'">'
+ const guests=e.guests;
+ return guests.length?guests.map(g=>'<article class="uri-guest-row" data-guest-id="'+T(g.id)+'" data-guest-status="'+T(g.status)+'" data-guest-search="'+T((g.name+' '+(g.email||'')+' '+(household(e,g.householdId)?.name||'')+' '+(g.category||'')).toLowerCase())+'">'
   +'<div class="uri-guest-main"><strong>'+T(g.name)+'</strong><small>'+T(household(e,g.householdId)?.name||'Individual')+' · '+T(g.category||'General')+(g.plusOnesAllowed?' · +'+number(g.plusOnesAllowed,5)+' allowed':'')+'</small></div>'
   +'<span class="uri-guest-status uri-guest-status-'+T(g.status)+'">'+T(g.status)+'</span>'
   +'<div class="uri-guest-row-actions"><button type="button" onclick="uriGuestsTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Test RSVP</button><button type="button" onclick="uriGuestsCopyTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Copy test URL</button><button type="button" onclick="uriGuestsEdit(this.closest(\'[data-guest-id]\').dataset.guestId)">Edit</button><button type="button" onclick="uriGuestsRemove(this.closest(\'[data-guest-id]\').dataset.guestId)">Remove</button></div></article>').join(''):'<div class="uri-guests-blank">No guests match. Add someone or clear the filters.</div>';
@@ -71,6 +70,7 @@ function panel(e){
  ensure(e);
  const u=usage(e);
  const edit=e.guests.find(g=>g.id===editing);
+ setTimeout(filterGuestRows,0);
  return '<div class="uri-guests"><div class="uri-guests-heading"><h2>Guests & RSVP</h2></div>'
   +'<div class="uri-guests-warning"><strong>Local testing only.</strong> Guest links are not secure, cannot work across different browsers, and must not be sent to real guests. Secure RSVP will require a backend.</div>'
   +(notice?'<p class="uri-guest-notice" role="status">'+T(notice)+'</p>':'')
@@ -81,7 +81,7 @@ function panel(e){
   +'<div class="uri-household-list">'+(e.households.length?e.households.map(h=>'<div class="uri-household-row" data-household-id="'+T(h.id)+'"><span><strong>'+T(h.name)+'</strong><small>'+e.guests.filter(g=>g.householdId===h.id).length+' guests</small></span><label>Seat limit<input type="number" min="0" max="50" aria-label="Seat limit for '+T(h.name)+'" value="'+number(h.seatLimit,50)+'" onchange="uriHouseholdSeats(this.closest(\'[data-household-id]\').dataset.householdId,this.value)"></label><button type="button" onclick="uriHouseholdRemove(this.closest(\'[data-household-id]\').dataset.householdId)">Remove</button></div>').join(''):'<small>No households added.</small>')+'</div></section></div>'
   +'<section class="uri-guest-panel"><div class="uri-guest-tools"><div><h3>Guest list</h3><small>'+u.people+' invited · '+u.reserved+' allocated seats · '+u.confirmed+' confirmed</small></div><div class="uri-guest-import"><button type="button" class="btn small" onclick="uriGuestsExport()">Export CSV</button><label class="uri-import-label">Import CSV<input type="file" accept=".csv,text/csv" onchange="uriGuestsImport(event)"></label></div></div>'
   +'<div class="uri-guest-toolbar"><label>Find guests<input type="search" placeholder="Search name, household, category" value="'+T(search)+'" oninput="uriGuestsSearch(this.value)"></label><label>Status<select onchange="uriGuestsFilter(this.value)">'+['all','pending','attending','declined'].map(x=>'<option value="'+x+'" '+(x===filter?'selected':'')+'>'+x+'</option>').join('')+'</select></label></div>'
-  +'<div class="uri-guest-rows">'+guestRows(e)+'</div></section>'
+  +'<div class="uri-guest-rows">'+guestRows(e)+'</div><div id="uriGuestNoMatches" class="uri-guests-blank" hidden>No guests match your search.</div></section>'
   +'<section class="uri-guest-panel"><h3>RSVP questions</h3>'
   +'<label class="uri-guest-capacity">Maximum confirmed seats<input type="number" min="0" max="10000" value="'+(u.capacity||'')+'" placeholder="No overall limit" onchange="uriGuestsCapacity(this.value)"></label>'
   +'<div class="uri-questions">'+questionRows(e)+'</div>'
@@ -102,8 +102,20 @@ window.uriGuestsCapacity=value=>{if(persist(e=>{e.rsvpSettings.capacity=number(v
 window.uriGuestsAddQuestion=ev=>{ev.preventDefault();const fd=new FormData(ev.target),label=String(fd.get('label')||'').trim().slice(0,120),type=fd.get('type')==='choice'?'choice':'text';const options=String(fd.get('options')||'').split('|').map(x=>x.trim()).filter(Boolean).slice(0,12);const e=getEvent();if(!label||e.rsvpSettings.questions.length>=12){notice='A maximum of 12 questions is supported.';eventPage();return}if(type==='choice'&&options.length<2){notice='Provide at least two choices separated by |.';eventPage();return}
  if(persist(e=>e.rsvpSettings.questions.push({id:token('q'),label,type,options,required:fd.has('required')})))success('Question added.')};
 window.uriGuestsRemoveQuestion=i=>{if(persist(e=>{e.rsvpSettings.questions.splice(i,1)}))success('Question removed.')};
-window.uriGuestsSearch=v=>{search=String(v||'').slice(0,100);eventPage()};
-window.uriGuestsFilter=v=>{filter=statusSet.includes(v)?v:'all';eventPage()};
+function filterGuestRows(){
+ const q=search.toLowerCase().trim();
+ const rows=document.querySelectorAll('.uri-guest-row');
+ let count=0;
+ rows.forEach(row=>{
+  const matches=(filter==='all'||row.dataset.guestStatus===filter)&&(!q||String(row.dataset.guestSearch||'').includes(q));
+  row.hidden=!matches;
+  if(matches)count++;
+ });
+ const empty=document.getElementById('uriGuestNoMatches');
+ if(empty)empty.hidden=count>0||!rows.length;
+}
+window.uriGuestsSearch=v=>{search=String(v||'').slice(0,100);filterGuestRows()};
+window.uriGuestsFilter=v=>{filter=statusSet.includes(v)?v:'all';filterGuestRows()};
 window.uriGuestsTest=id=>{const e=getEvent();if(!e?.guests.find(g=>g.id===id))return;location.hash='#invite/'+encodeURIComponent(e.id)+'.'+encodeURIComponent(id);render()};
 window.uriGuestsCopyTest=async id=>{
  const e=getEvent();if(!e?.guests.find(g=>g.id===id))return;
