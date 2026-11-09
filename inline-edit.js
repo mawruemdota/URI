@@ -91,7 +91,7 @@ window.uriBDecorateSections=()=>{
  if(!preview||typeof preview.querySelectorAll!=='function')return;
  const sections=[...preview.querySelectorAll('[data-feature]')];
  sections.forEach((section,index)=>decorateSection(section,index,sections));
- const names=preview.querySelector('[data-feature="hero"] .wb-names');
+ const names=preview.querySelector('[data-feature="hero"] .wb-names, [data-feature="hero"] .wb-nightfall-names');
  if(names){
    const parts=[...names.querySelectorAll(':scope > span')];
    if(parts.length>=2){
