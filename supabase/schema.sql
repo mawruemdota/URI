@@ -64,6 +64,25 @@ create policy "uri owner photo delete"
   on storage.objects for delete to authenticated
   using (bucket_id='uri-wedding-public' and (storage.foldername(name))[1]=(select auth.uid())::text);
 
+
+-- URI public invitation audio: published tracks can be streamed without logging in.
+-- This bucket is public even when the invitation itself is unpublished.
+-- Owners must only upload tracks they have the right to distribute.
+insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
+values ('uri-wedding-audio','uri-wedding-audio',true,15728640,
+  array['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'])
+on conflict (id) do nothing;
+
+drop policy if exists "uri owner audio upload" on storage.objects;
+create policy "uri owner audio upload"
+  on storage.objects for insert to authenticated
+  with check (bucket_id='uri-wedding-audio' and (storage.foldername(name))[1]=(select auth.uid())::text);
+
+drop policy if exists "uri owner audio delete" on storage.objects;
+create policy "uri owner audio delete"
+  on storage.objects for delete to authenticated
+  using (bucket_id='uri-wedding-audio' and (storage.foldername(name))[1]=(select auth.uid())::text);
+
 -- Manual acceptance tests before real users:
 -- 1. anon cannot see unpublished rows or write any row.
 -- 2. auth user A cannot update, delete, or read unpublished user B rows.
