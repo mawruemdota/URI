@@ -136,6 +136,22 @@ async function pull(force=false){
  }catch(err){stamp('Cloud restore failed: '+(err.message||'Network error.'));return 0}
  finally{loading=false}
 }
+async function deleteDraft(e){
+ if(!e||!e.id||!e._uriCloudRevision)return;
+ if(!user)await signedIn();
+ if(!user)throw Error('Sign in to remove a cloud-saved invitation.');
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id)throw Error('This invitation belongs to another account.');
+ const c=client();if(!c)throw Error('Cloud connection unavailable.');
+ const {data:publication,error:readError}=await c.from('uri_publications')
+  .select('published').eq('owner_id',user.id).eq('local_event_id',e.id).maybeSingle();
+ if(readError)throw readError;
+ if(publication?.published)throw Error('Unpublish this invitation before deleting its cloud draft.');
+ const {error}=await c.from('uri_drafts').delete()
+  .eq('owner_id',user.id).eq('local_event_id',e.id);
+ if(error)throw error;
+ dirty.delete(e.id);conflicts.delete(e.id);
+}
+
 async function signedIn(){
  const c=client();if(!c)return null;
  const {data,error}=await c.auth.getUser();
@@ -157,7 +173,7 @@ function accountPanel(){
  return '<div class="wrap uri-cloud-workspace"><h2>Cloud drafts</h2>'
   +'<p>Save invitations privately to your account, then open them on another device.</p>'
   +(logged?'<p>Signed in as <strong>'+out(user.email||'Account')+'</strong></p>'
-   +'<div class="actions"><button class="btn primary" onclick="uriCloudSyncNow()">Sync now</button>'
+   +'<div class="actions"><button class="btn primary" onclick="uriCloudSyncNow()">Save local drafts to cloud</button>'
    +'<button class="btn" onclick="uriCloudRestore()">Restore cloud copies</button>'
    +'<button class="btn" onclick="uriCloudSignOut();setTimeout(uriCloudActivate,400)">Sign out</button></div>'
    :'<label class="uri-cloud-login">Email address<input id="uriCloudAccountEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>'
@@ -189,7 +205,7 @@ window.uriCloudRefreshGuests=async()=>{
  try{await cloudGuestRefresh(e);stamp('Online RSVP responses refreshed.');eventPage()}
  catch(err){stamp('Unable to refresh guests: '+err.message)}
 };
-window.URICloudDrafts={queueSave,pull,flushCurrent:async()=>{
+window.URICloudDrafts={queueSave,pull,deleteDraft,flushCurrent:async()=>{
  if(!user)await signedIn();
  if(!user)throw Error('Sign in to publish your invitation.');
  const e=current();if(!e)return;
@@ -210,6 +226,11 @@ function init(){
  c.auth.onAuthStateChange(()=>setTimeout(activate,0));
  activate();
 }
+if(window.addEventListener)window.addEventListener('online',()=>{
+ if(!user)return;
+ for(const e of local())if(e._uriCloudOwnerId===user.id&&e._uriCloudPending)dirty.add(e.id);
+ if(dirty.size)flush();
+});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 if(location.hash==='#cloud')render();
 })();
