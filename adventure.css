@@ -2,7 +2,7 @@
    Gameplay is progressive enhancement: every enabled invitation section remains available. */
 .uri-adventure-site{--adventure-card:#fff9e9;--adventure-ink:#3b3d34;
  display:block;max-width:1100px;margin:auto;background:var(--wb-bg,#eaf3e7);color:var(--wb-ink,#2d513e);
- border-radius:18px;overflow:visible;isolation:isolate;font-family:var(--wb-body,'DM Sans',sans-serif)}
+ border-radius:18px;overflow:visible;isolation:isolate;font-family:var(--wb-body,'DM Sans',sans-serif);container-type:inline-size}
 .uri-adventure-site *{box-sizing:border-box}
 .uri-adventure-heading{text-align:center;padding:28px 20px 20px;background:var(--wb-bg);border-radius:18px 18px 0 0}
 .uri-adventure-eyebrow{font-size:11px;letter-spacing:.23em;font-weight:800;color:var(--wb-accent,#3f9d7d)}
@@ -110,8 +110,12 @@
  .uri-adventure-setting-grid,.uri-adventure-map-list{grid-template-columns:1fr}
  .uri-adventure-site dialog{padding:12px}
 }
-@media(hover:hover) and (pointer:fine) and (min-width:950px){
- .uri-adventure-controls{display:none}
+/* Container-aware: simulated 390px mobile previews must show touch controls
+   even if the host browser window is desktop-sized. */
+@media(hover:hover) and (pointer:fine){
+ @container (min-width:850px){
+  .uri-adventure-controls{display:none}
+ }
 }
 @media(prefers-reduced-motion:reduce){
  .uri-adventure-site *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
