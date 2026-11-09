@@ -13,9 +13,9 @@ U.features=[
 {id:'gifts',name:'Gift Registry',variants:[['note','Note'],['card','Card']]},
 {id:'rsvp',name:'RSVP',variants:[['simple','Simple'],['framed','Framed']]}];
 U.ids=U.features.map(f=>f.id);
-U.presets={classic:{bg:'#f6f0e8',ink:'#49483d',accent:'#967c72',heading:'cormorant',body:'cormorant',spacing:'airy'},garden:{bg:'#ffffff',ink:'#272727',accent:'#585248',heading:'allura',body:'montserrat',spacing:'balanced'}};
-U.fonts={cormorant:"'Cormorant Garamond',serif",allura:"'Allura',cursive",playfair:"'Playfair Display',serif",montserrat:"'Montserrat',sans-serif",dm:"'DM Sans',sans-serif"};
-const variants={classic:{hero:'split',story:'letter',gallery:'carousel',countdown:'classic',details:'columns',timeline:'vertical',dress:'palette',gifts:'note',rsvp:'framed'},garden:{hero:'split',story:'columns',gallery:'collage',countdown:'tiles',details:'cards',timeline:'horizontal',dress:'simple',gifts:'card',rsvp:'simple'}};
+U.presets={classic:{bg:'#f6f0e8',ink:'#49483d',accent:'#967c72',heading:'cormorant',body:'cormorant',spacing:'airy'},garden:{bg:'#ffffff',ink:'#272727',accent:'#585248',heading:'allura',body:'montserrat',spacing:'balanced'},nightfall:{bg:'#0f0f0f',ink:'#f3f3f3',accent:'#ff6046',heading:'barlow',body:'montserrat',spacing:'airy'}};
+U.fonts={cormorant:"'Cormorant Garamond',serif",allura:"'Allura',cursive",playfair:"'Playfair Display',serif",montserrat:"'Montserrat',sans-serif",dm:"'DM Sans',sans-serif",barlow:"'Barlow Condensed','Arial Narrow',sans-serif"};
+const variants={classic:{hero:'split',story:'letter',gallery:'carousel',countdown:'classic',details:'columns',timeline:'vertical',dress:'palette',gifts:'note',rsvp:'framed'},garden:{hero:'split',story:'columns',gallery:'collage',countdown:'tiles',details:'cards',timeline:'horizontal',dress:'simple',gifts:'card',rsvp:'simple'},nightfall:{hero:'immersive',story:'quote',gallery:'grid',countdown:'tiles',details:'cards',timeline:'vertical',dress:'simple',gifts:'card',rsvp:'framed'}};
 const enabledDefaults={hero:true,story:true,gallery:true,countdown:true,details:true,timeline:true,dress:false,gifts:false,rsvp:true};
 const T=v=>esc(v==null?'':String(v));
 const color=(v,def)=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:def;
