@@ -104,7 +104,7 @@ window.uriBuilderEditor=function(e){
   let index=BUILDER_STEPS.indexOf(panel),next=BUILDER_STEPS[index+1],previous=BUILDER_STEPS[index-1];
   let nextButton=next?'<button type="button" class="btn primary" onclick="uriBNext(1)">Next: '+LABELS[next]+' </button>':'<button type="button" class="btn primary" onclick="uriFlowOpenPreview(\'event\')">Preview full website </button>';
   return '<div class="wb-editor"><div class="wb-builder-heading"><div><h2>Edit invitation</h2></div><div class="wb-builder-status"><span class="chip">'+(e.cloudPublished?'Published snapshot':'Draft')+'</span><span class="wb-save-label" id="wbSaveState" role="status">Saved on this device</span><button type="button" class="btn small wb-preview-shortcut" onclick="uriFlowOpenPreview(\'event\')">Preview website </button></div></div>'
-    +'<div id="wbReadiness" class="wb-readiness-wrap">'+readinessMarkup(e)+'</div>'
+    +'<div id="wbReadiness" class="wb-readiness-wrap">'+(panel==='review'?'':readinessMarkup(e))+'</div>'
     +''
     +'<nav class="wb-tabs" aria-label="Wedding builder tabs">'+Object.entries(LABELS).map(([key,label],i)=>'<button type="button" class="'+(panel===key?'active':'')+'" aria-current="'+(panel===key?'page':'false')+'" onclick="uriBPanel(\''+key+'\')">'+label+'</button>').join('')+'</nav>'
     +'<div class="wb-editor-grid"><div class="wb-editor-controls">'+active+'<div class="wb-builder-footer"><span>Step '+(index+1)+' of '+BUILDER_STEPS.length+'</span><div class="wb-builder-footer-actions">'+(previous?'<button type="button" class="btn" onclick="uriBNext(-1)"> '+LABELS[previous]+'</button>':'')+nextButton+'</div></div></div>'
