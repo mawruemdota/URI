@@ -154,10 +154,10 @@ const image=async (page,name)=>{
     // A copied MiroMiro token palette becomes an editable, reusable design recipe.
     await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
     await page.locator('.uri-template-studio summary').click();
-    await page.locator('.uri-template-studio [name="name"]').fill('Midnight Atelier');
-    await page.locator('.uri-template-studio [name="base"]').selectOption('nightfall');
-    await page.locator('.uri-template-studio [name="tokens"]').fill('{"background":"#151515","text":"#eeeeee","accent":"#c45e4a"}');
-    await page.locator('.uri-template-studio form button[type="submit"]').click();
+    await page.locator('.uri-template-studio form:not(.uri-template-quick-save) [name="name"]').fill('Midnight Atelier');
+    await page.locator('.uri-template-studio form:not(.uri-template-quick-save) [name="base"]').selectOption('nightfall');
+    await page.locator('.uri-template-studio form:not(.uri-template-quick-save) [name="tokens"]').fill('{"background":"#151515","text":"#eeeeee","accent":"#c45e4a"}');
+    await page.locator('.uri-template-studio form:not(.uri-template-quick-save) button[type="submit"]').click();
     await page.locator('#wbLivePreview .wb-theme-nightfall').waitFor();
     const recipeEvent=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
     assert.match(recipeEvent.template,/^tpl-/);
