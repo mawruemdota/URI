@@ -31,6 +31,8 @@ jobs:
         run: node tests/dynamic-sections-smoke.cjs
       - name: Verify custom section creation and template recipes
         run: node tests/custom-builder-smoke.cjs
+      - name: Verify animation manager presets, persistence and reduced motion
+        run: node tests/animation-smoke.cjs
       - name: Verify Nightfall cinematic wedding template
         run: node tests/nightfall-template-smoke.cjs
       - name: Test optional wedding photo uploads and draft recovery
