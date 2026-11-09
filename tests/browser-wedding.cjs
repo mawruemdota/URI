@@ -92,6 +92,21 @@ const image=async (page,name)=>{
     assert.match(nightfallText,/emir/i);
     assert.equal(await page.locator('.wb-editor-controls label.wb-field').filter({hasText:'Heading font'}).locator('select').inputValue(),'barlow');
     await image(page,'06-nightfall-preview.png');
+    // Animation Manager: preset changes persist across templates and can be replayed.
+    await page.locator('.uri-animation-manager').waitFor();
+    await page.locator('[data-uri-animation-preset]').selectOption('cinematic');
+    await page.locator('.uri-animation-manager input[type="range"]').evaluate(el=>{
+      el.value='1.25';el.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    await page.locator('.uri-animation-manager input[type="checkbox"]').nth(4).check();
+    const animationsSaved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].animation);
+    assert.equal(animationsSaved.preset,'cinematic');
+    assert.equal(animationsSaved.speed,1.25);
+    assert.equal(animationsSaved.decorations,true);
+    await page.getByRole('button',{name:'Play invitation animations'}).click();
+    await page.locator('#wbLivePreview .uri-builder-site.uri-anim-active').waitFor();
+    await image(page,'06-animations-preview.png');
+
     await page.getByRole('button',{name:/Full-page preview/}).click();
     await page.locator('.wf-full-content .wb-theme-nightfall').waitFor();
     await image(page,'06a-nightfall-full-website.png');
