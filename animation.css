@@ -1,0 +1,93 @@
+/* URI Animation Manager 1.0 — CSS-first, no hidden content without JS.
+   All motion is opt-in per invitation and disabled by OS reduced-motion. */
+.uri-animation-manager{
+  margin-top:24px;padding:19px;border:1px solid #dce5dc;border-radius:14px;
+  background:#fafcf9;color:#294635;
+}
+.uri-animation-heading h4{margin:0;font:650 17px 'DM Sans',sans-serif}
+.uri-animation-heading p{margin:4px 0 16px;font-size:12px;color:#6c796e}
+.uri-animation-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.uri-anim-field{display:flex;flex-direction:column;gap:8px;min-width:0;font-size:12px;font-weight:600}
+.uri-anim-field select{width:100%;min-height:42px;padding:10px;border:1px solid #c9d7cc;border-radius:9px;background:#fff;color:#294635}
+.uri-anim-field input[type=range]{width:100%;accent-color:#176b55;margin:9px 0 0}
+.uri-anim-field small{font-size:11px;font-weight:400;color:#687b6c}
+.uri-animation-toggles{border:0;padding:0;margin:20px 0 15px;display:grid;grid-template-columns:1fr 1fr;gap:11px 20px;min-width:0}
+.uri-animation-toggles legend{font-size:12px;font-weight:700;padding:0;margin-bottom:9px}
+.uri-anim-switch{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;min-height:30px;cursor:pointer}
+.uri-anim-switch input{accent-color:#176b55;width:17px;height:17px;cursor:pointer}
+.uri-animation-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.uri-animation-actions>span,.uri-animation-accessibility{font-size:11px;line-height:1.5;color:#6c7d70;margin:0}
+.uri-animation-accessibility{padding-top:13px}
+@media(max-width:620px){
+  .uri-animation-manager{padding:14px}
+  .uri-animation-fields,.uri-animation-toggles{grid-template-columns:1fr}
+}
+
+/* Effects apply only after the runtime mounts an event site.
+   Disabled JavaScript, failed GSAP loading, or reduced-motion leave content visible. */
+.uri-builder-site.uri-anim-active .uri-anim-target[data-uri-reveal="pending"]{
+  opacity:0;transform:translate3d(0,18px,0)
+}
+.uri-builder-site.uri-anim-active .uri-anim-target[data-uri-reveal="shown"]{
+  opacity:1;transform:translate3d(0,0,0);
+  transition:opacity var(--uri-anim-duration,720ms) ease,
+             transform var(--uri-anim-duration,720ms) cubic-bezier(.22,1,.36,1)
+}
+.uri-builder-site.uri-anim-active[data-uri-preset="elegant"] .uri-anim-target[data-uri-reveal="pending"]{
+  transform:translate3d(0,13px,0)
+}
+.uri-builder-site.uri-anim-active[data-uri-preset="cinematic"] .uri-anim-target[data-uri-reveal="pending"]{
+  transform:translate3d(0,28px,0)
+}
+.uri-builder-site.uri-anim-active[data-uri-preset="playful"] .uri-anim-target[data-uri-reveal="pending"]{
+  transform:translate3d(0,30px,0) scale(.985)
+}
+.uri-builder-site.uri-anim-active[data-uri-preset="playful"] .uri-anim-target[data-uri-reveal="shown"]{
+  transition-timing-function:cubic-bezier(.18,1.35,.32,1)
+}
+/* Animate photo containers rather than images: user crop/zoom transforms stay intact. */
+@keyframes uriPhotoDrift{
+  0%,100%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(0,-3px,0) scale(1.018)}
+}
+.uri-builder-site.uri-anim-active[data-uri-photos="on"] .wb-hero-image{
+  animation:uriPhotoDrift calc(var(--uri-anim-duration,720ms) * 11) ease-in-out infinite
+}
+.uri-builder-site.uri-anim-active[data-uri-preset="cinematic"][data-uri-photos="on"] .wb-hero-image{
+  animation-duration:calc(var(--uri-anim-duration,720ms) * 17)
+}
+@keyframes uriFloralDrift{
+  0%,100%{transform:rotate(0deg) translateY(0)}
+  50%{transform:rotate(2deg) translateY(-5px)}
+}
+.uri-builder-site.uri-anim-active[data-uri-decorations="on"] .wb-botanical-art{
+  animation:uriFloralDrift calc(var(--uri-anim-duration,720ms) * 9) ease-in-out infinite;
+  transform-origin:bottom center
+}
+.uri-builder-site.uri-anim-active[data-uri-decorations="on"][data-uri-preset="cinematic"] .wb-nightfall-line{
+  animation:uriAccentPulse calc(var(--uri-anim-duration,720ms) * 5) ease-in-out infinite
+}
+@keyframes uriAccentPulse{0%,100%{opacity:.65}50%{opacity:1}}
+@media(hover:hover) and (pointer:fine){
+ .uri-builder-site.uri-anim-active[data-uri-hover="on"] .wb-custom-cta,
+ .uri-builder-site.uri-anim-active[data-uri-hover="on"] .wb-gallery-next,
+ .uri-builder-site.uri-anim-active[data-uri-hover="on"] .wb-gallery-prev{
+   transition:transform 220ms ease,opacity 220ms ease,background-color 220ms ease
+ }
+ .uri-builder-site.uri-anim-active[data-uri-hover="on"] .wb-custom-cta:hover,
+ .uri-builder-site.uri-anim-active[data-uri-hover="on"] .wb-gallery-next:hover,
+ .uri-builder-site.uri-anim-active[data-uri-hover="on"] .wb-gallery-prev:hover{
+   transform:translateY(-2px)
+ }
+}
+/* Animations are an enhancement, never a reason to prevent reading an invite. */
+@media(prefers-reduced-motion:reduce){
+ .uri-builder-site.uri-anim-active *,
+ .uri-builder-site.uri-anim-active *::before,
+ .uri-builder-site.uri-anim-active *::after{
+   animation:none!important;transition:none!important
+ }
+ .uri-builder-site.uri-anim-active .uri-anim-target{
+   opacity:1!important;transform:none!important
+ }
+}
