@@ -57,6 +57,13 @@ assert.equal(C.renderSection(e,C.defaults('image')),'','Unfinished image section
 assert.equal(C.renderSection(e,C.defaults('video')),'','Unfinished videos must remain hidden');
 assert.equal(C.renderSection(e,C.defaults('faq')),'','Unanswered FAQ blocks must remain hidden');
 assert.equal(C.safeLink('https://user:pass@example.com'),'');
+assert.equal(C.safeLink('javascript:alert(1)'),'','Script links are never accepted');
+assert.equal(C.safeLink('https://example.com/path'),'https://example.com/path');
+assert.equal(C.renderSection(e,{...C.defaults('image'),src:'javascript:alert(1)'}),'','Unsafe image URLs must remain hidden');
+assert.equal(C.renderSection(e,{...C.defaults('button'),url:'javascript:alert(1)'}),'','Unsafe buttons must remain hidden');
+assert.equal(C.renderSection(e,{...C.defaults('faq'),items:[{q:'Question only',a:''}]}),'','Partially completed FAQs must remain hidden');
+assert.match(C.renderSection(e,{...C.defaults('faq'),items:[{q:'Complete question',a:'Complete answer'},{q:'Incomplete',a:''}]}),/Complete answer/);
+assert.doesNotMatch(C.renderSection(e,{...C.defaults('faq'),items:[{q:'Complete question',a:'Complete answer'},{q:'Incomplete',a:''}]}),/Incomplete/);
 for(const template of ['classic','garden','nightfall']){
  e.template=template;
  const p=U.compose(e);
