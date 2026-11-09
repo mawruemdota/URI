@@ -28,10 +28,25 @@ const color=(v,def)=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:def;
 const clamped=v=>Math.min(100,Math.max(0,Number(v)||0));
 function imgurl(v){return typeof v==='string'&&(/^(https:\/\/[^<>"']+)$/.test(v)||/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v))?v:''}
 U.photo=(p,i=0)=>typeof p==='string'?{id:'legacy-'+i,src:p,alt:'Wedding photo',x:50,y:50,zoom:1,crop:'landscape'}:{id:String(p?.id||'photo-'+i),src:String(p?.src||''),alt:String(p?.alt||''),x:clamped(p?.x??50),y:clamped(p?.y??50),zoom:Math.min(3,Math.max(1,Number(p?.zoom)||1)),crop:['landscape','square','portrait'].includes(p?.crop)?p.crop:'landscape'};
-U.model=e=>{e.featureConfig||={};e.featureOrder=Array.isArray(e.featureOrder)?[...new Set(e.featureOrder.filter(x=>U.ids.includes(x))),...U.ids.filter(x=>!e.featureOrder.includes(x))]:U.ids.slice();e.layoutByTemplate||={};e.designByTemplate||={};e.photos=Array.isArray(e.photos)?e.photos.map(U.photo):[];e.heroSettings||={x:50,y:50,alt:'Wedding couple'};if(U.ensureDetails)U.ensureDetails(e);return e};
-U.enabled=(e,id)=>{U.model(e);return typeof e.featureConfig[id]==='boolean'?e.featureConfig[id]:enabledDefaults[id]===true};
-U.variant=(e,id)=>{U.model(e);let v=e.layoutByTemplate[e.template]?.[id],f=U.features.find(f=>f.id===id);return f?.variants.some(a=>a[0]===v)?v:(variants[e.template]||variants.classic)[id]};
-U.design=e=>{U.model(e);let d=U.presets[e.template]||U.presets.classic,c=e.designByTemplate[e.template]||{};return {bg:color(c.bg,d.bg),ink:color(c.ink,d.ink),accent:color(c.accent,d.accent),heading:U.fonts[c.heading]?c.heading:d.heading,body:U.fonts[c.body]?c.body:d.body,spacing:['compact','balanced','airy'].includes(c.spacing)?c.spacing:d.spacing}};
+U.baseTemplate=(e,id=e.template)=>U.presets[id]?id:(Array.isArray(e.templateRecipes)?e.templateRecipes.find(x=>x&&x.id===id&&U.presets[x.base])?.base:null)||'classic';
+U.templateExists=(e,id)=>!!U.presets[id]||!!(Array.isArray(e.templateRecipes)&&e.templateRecipes.some(x=>x&&x.id===id&&U.presets[x.base]));
+U.customItem=(e,id)=>Array.isArray(e.customSections)?e.customSections.find(x=>x&&x.id===id):null;
+U.model=e=>{
+ e.featureConfig=e.featureConfig&&typeof e.featureConfig==='object'&&!Array.isArray(e.featureConfig)?e.featureConfig:{};
+ e.customSections=Array.isArray(e.customSections)?e.customSections.filter(x=>x&&typeof x==='object'&&/^cs-[a-z0-9-]{3,35}$/i.test(String(x.id||''))).slice(0,16):[];
+ e.templateRecipes=Array.isArray(e.templateRecipes)?e.templateRecipes.filter(x=>x&&typeof x==='object'&&/^tpl-[a-z0-9-]{3,35}$/i.test(String(x.id||''))&&U.presets[x.base]).slice(0,16):[];
+ const ids=[...U.ids,...e.customSections.map(x=>x.id)];
+ e.featureOrder=Array.isArray(e.featureOrder)?[...new Set(e.featureOrder.filter(x=>ids.includes(x))),...ids.filter(x=>!e.featureOrder.includes(x))]:ids.slice();
+ e.layoutByTemplate=e.layoutByTemplate&&typeof e.layoutByTemplate==='object'?e.layoutByTemplate:{};
+ e.designByTemplate=e.designByTemplate&&typeof e.designByTemplate==='object'?e.designByTemplate:{};
+ e.photos=Array.isArray(e.photos)?e.photos.map(U.photo):[];
+ e.heroSettings||={x:50,y:50,alt:'Wedding couple'};
+ if(U.ensureDetails)U.ensureDetails(e);
+ return e;
+};
+U.enabled=(e,id)=>{U.model(e);const item=U.customItem(e,id);if(item)return item.enabled!==false;return typeof e.featureConfig[id]==='boolean'?e.featureConfig[id]:enabledDefaults[id]===true};
+U.variant=(e,id)=>{U.model(e);const item=U.customItem(e,id);if(item)return item.layout==='wide'?'wide':'auto';let v=e.layoutByTemplate[e.template]?.[id],f=U.features.find(f=>f.id===id),base=U.baseTemplate(e);return f?.variants.some(a=>a[0]===v)?v:variants[base][id]};
+U.design=e=>{U.model(e);const base=U.baseTemplate(e),recipe=e.templateRecipes.find(x=>x.id===e.template),defaultStyle=U.presets[base],d={...defaultStyle,...(recipe?.style||{})},c=e.designByTemplate[e.template]||{};return {bg:color(c.bg,d.bg),ink:color(c.ink,d.ink),accent:color(c.accent,d.accent),heading:U.fonts[c.heading]?c.heading:U.fonts[d.heading]?d.heading:defaultStyle.heading,body:U.fonts[c.body]?c.body:U.fonts[d.body]?d.body:defaultStyle.body,spacing:['compact','balanced','airy'].includes(c.spacing)?c.spacing:['compact','balanced','airy'].includes(d.spacing)?d.spacing:defaultStyle.spacing}};
 U.picture=(p,cls='',placeholder='Add a wedding photo')=>{p=U.photo(p||{});let url=imgurl(p.src);return '<div class="wb-photo '+cls+'">'+(url?'<img loading="lazy" draggable="false" src="'+T(url)+'" alt="'+T(p.alt)+'" style="object-position:'+p.x+'% '+p.y+'%;transform-origin:'+p.x+'% '+p.y+'%;transform:scale('+p.zoom+')">':'<div class="wb-photo-empty">'+T(placeholder)+'</div>')+'</div>'};
 const head=(t)=>'<span class="wb-kicker">'+T(t)+'</span>';
 
@@ -64,12 +79,12 @@ function nightfallStory(e,v,storyText){
   +'<div class="wb-nightfall-story-body"><p>'+storyText+'</p></div>'
   +'</section>';
 }
-function hero(e,v){let hp=U.photo({src:e.heroPhoto||'',...e.heroSettings});if(e.template==='nightfall')return nightfallHero(e,v,hp);if(e.template==='garden'){
+function hero(e,v){let hp=U.photo({src:e.heroPhoto||'',...e.heroSettings});if(U.baseTemplate(e)==='nightfall')return nightfallHero(e,v,hp);if(U.baseTemplate(e)==='garden'){
 const showDetails=U.enabled(e,'details'),showTimeline=U.enabled(e,'timeline')&&(!window.URIWeddingDetails||window.URIWeddingDetails.getTimeline(e).length>0);
 const sides=showDetails?(showTimeline?'both':'details'):(showTimeline?'timeline':'none');
 return '<section data-feature="hero" class="wb-unit wb-hero wb-hero-'+v+' wb-editorial-cover wb-editorial-sides-'+sides+'">'+(showDetails?'<aside class="wb-editorial-side wb-editorial-left">'+teaserDetails(e)+'</aside>':'')+'<div class="wb-editorial-middle"><div class="wb-editorial-landscape">'+U.picture(hp,'wb-hero-image','Add your wedding photograph')+'</div><div class="wb-editorial-main"><h1 class="wb-names">'+lovelyNames(e)+'</h1><span class="wb-editorial-fine-rule"></span><div class="wb-editorial-date">'+T(e.date?fmt(e.date):'Save the date')+'</div>'+(U.enabled(e,'details')?'':'<p>'+T(e.venue||'Venue to be announced')+'</p>')+'</div></div>'+(showTimeline?'<aside class="wb-editorial-side wb-editorial-right">'+teaserTimeline(e)+'</aside>':'')+'</section>'}
 return '<section data-feature="hero" class="wb-unit wb-hero wb-hero-'+v+' wb-botanical-cover">'+U.picture(hp,'wb-hero-image','Add your wedding portrait')+'<div class="wb-hero-copy"><span class="wb-botanical-art wb-botanical-art-top">'+botanicalSprig+'</span><span class="wb-botanical-art wb-botanical-art-side">'+botanicalSprig+'</span><h1 class="wb-names">'+lovelyNames(e)+'</h1><strong class="wb-botanical-date">'+T(e.date?fmt(e.date):'Save the date')+'</strong><p class="wb-botanical-venue">'+T(e.venue||'Venue to be announced')+'</p>'+(U.enabled(e,'gallery')&&e.photos.some(p=>imgurl(U.photo(p).src))?'<div class="wb-botanical-round-photo">'+U.picture(e.photos[0]||{src:'',alt:'Wedding photograph'},'wb-portrait-small','Add a photo')+'</div>':'')+'</div></section>'}
-function story(e,v){let storyText=T(e.message||'Together with our families, we joyfully invite you to celebrate with us.');if(e.template==='nightfall')return nightfallStory(e,v,storyText);if(e.template==='garden'){let photo=e.photos.length&&U.enabled(e,'gallery')?e.photos[0]:{src:e.heroPhoto||'',...e.heroSettings};return '<section data-feature="story" class="wb-unit wb-story wb-story-'+v+' wb-editorial-story"><div class="wb-editorial-story-photo">'+U.picture(photo,'wb-story-image','A moment together')+'</div><div class="wb-editorial-story-center"><div class="wb-editorial-story-monogram"><span>'+simpleMonogram(e)+'</span></div><p>'+storyText+'</p></div><div class="wb-editorial-story-names"><span class="wb-kicker">OUR STORY</span><strong>'+T(e.name1||'Your Name')+'<span>&amp;</span>'+T(e.name2||'Partner Name')+'</strong></div></section>'}
+function story(e,v){let storyText=T(e.message||'Together with our families, we joyfully invite you to celebrate with us.');if(U.baseTemplate(e)==='nightfall')return nightfallStory(e,v,storyText);if(U.baseTemplate(e)==='garden'){let photo=e.photos.length&&U.enabled(e,'gallery')?e.photos[0]:{src:e.heroPhoto||'',...e.heroSettings};return '<section data-feature="story" class="wb-unit wb-story wb-story-'+v+' wb-editorial-story"><div class="wb-editorial-story-photo">'+U.picture(photo,'wb-story-image','A moment together')+'</div><div class="wb-editorial-story-center"><div class="wb-editorial-story-monogram"><span>'+simpleMonogram(e)+'</span></div><p>'+storyText+'</p></div><div class="wb-editorial-story-names"><span class="wb-kicker">OUR STORY</span><strong>'+T(e.name1||'Your Name')+'<span>&amp;</span>'+T(e.name2||'Partner Name')+'</strong></div></section>'}
 return '<section data-feature="story" class="wb-unit wb-story wb-story-'+v+' wb-botanical-story"><span class="wb-botanical-art wb-botanical-art-story">'+botanicalSprig+'</span><h2>Our Story</h2><p>'+storyText+'</p><span class="wb-botanical-signature">'+T(e.name1||'Your Name')+' &amp; '+T(e.name2||'Partner Name')+'</span></section>'}
 function gallery(e,v){let photos=e.photos.filter(p=>imgurl(p.src));if(!photos.length)return '';let items=photos.map((p,i)=>'<figure class="wb-slide wb-crop-'+p.crop+'" '+(v==='carousel'&&i?'hidden':'')+'>'+U.picture(p,'wb-gallery-image')+'<figcaption>'+T(p.alt)+'</figcaption></figure>').join('');return '<section data-feature="gallery" class="wb-unit wb-gallery wb-gallery-'+v+'">'+''+'<h2>Photo Gallery</h2>'+(photos.length?'<div class="wb-gallery-items" data-index="0">'+items+'</div>'+(v==='carousel'?'<div class="wb-gallery-controls"><button type="button" aria-label="Previous photo" onclick="uriBSlide(this,-1)">‹</button><span class="wb-gallery-status">1 / '+photos.length+'</span><button type="button" aria-label="Next photo" onclick="uriBSlide(this,1)">›</button></div>':''):'<div class="wb-empty">Add photos in the Photo Manager</div>')+'</section>'}
 function countdown(e,v){let when=e.date?new Date(e.date+'T'+(e.time||'00:00')+':00'):null,ms=when&&!isNaN(+when)?Math.max(0,+when-Date.now()):0,values=[Math.floor(ms/86400000),Math.floor(ms%86400000/3600000),Math.floor(ms%3600000/60000),Math.floor(ms%60000/1000)];return '<section data-feature="countdown" class="wb-unit wb-countdown wb-countdown-'+v+'">'+''+'<h2>Until Our Wedding</h2><div class="wb-counts">'+values.map((x,i)=>'<div><strong>'+String(x).padStart(2,'0')+'</strong><small>'+['Days','Hours','Minutes','Seconds'][i]+'</small></div>').join('')+'</div></section>'}
@@ -83,14 +98,19 @@ const views={hero,story,gallery,countdown,details,timeline,dress,gifts,rsvp};
    Pairs only form between adjacent compatible sections in the user's order. */
 U.compose=e=>{
  U.model(e);
- const layout=U.templateLayout[e.template]||U.templateLayout.classic;
- const list=e.featureOrder.filter(id=>U.enabled(e,id)).map(id=>({
-  id,variant:U.variant(e,id),html:views[id](e,U.variant(e,id))
- })).filter(x=>x.html&&x.html.trim());
+ const layout=U.templateLayout[U.baseTemplate(e)]||U.templateLayout.classic;
+ const list=e.featureOrder.filter(id=>U.enabled(e,id)).map(id=>{
+  const item=U.customItem(e,id);
+  return {id,variant:U.variant(e,id),html:item?(U.renderCustom?U.renderCustom(e,item):''):views[id]?views[id](e,U.variant(e,id)):''};
+ }).filter(x=>x.html&&x.html.trim());
+ const canPair=id=>{
+  const item=U.customItem(e,id);
+  return item?item.layout!=='wide'&&['text','faq','map','button'].includes(item.type):layout.pairs.includes(id);
+ };
  for(let i=0;i<list.length;i++){
   const item=list[i];
   item.width='wide';item.pair='single';
-  if(layout.pairs.includes(item.id)&&i+1<list.length&&layout.pairs.includes(list[i+1].id)){
+  if(canPair(item.id)&&i+1<list.length&&canPair(list[i+1].id)){
    item.width='half';item.pair='first';
    list[i+1].width='half';list[i+1].pair='second';
    i++;
@@ -100,10 +120,10 @@ U.compose=e=>{
   html:item.html.replace('<section ','<section data-layout-width="'+item.width+'" data-layout-pair="'+item.pair+'" data-layout-index="'+index+'" ')
  }));
 };
-U.render=e=>{U.model(e);let d=U.design(e),style='--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+';--wb-heading:'+U.fonts[d.heading]+';--wb-body:'+U.fonts[d.body]+';';const plan=U.compose(e);return '<article class="uri-builder-site wb-theme-'+(e.template==='garden'?'editorial':e.template==='nightfall'?'nightfall':'botanical')+' wb-spacing-'+d.spacing+'" data-visible-features="'+plan.length+'" style="'+style+'"><div class="wb-flow">'+plan.map(x=>x.html).join('')+'</div><footer class="wb-footer">URI</footer></article>'};
+U.render=e=>{U.model(e);let d=U.design(e),style='--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+';--wb-heading:'+U.fonts[d.heading]+';--wb-body:'+U.fonts[d.body]+';';const plan=U.compose(e);return '<article class="uri-builder-site wb-theme-'+(U.baseTemplate(e)==='garden'?'editorial':U.baseTemplate(e)==='nightfall'?'nightfall':'botanical')+' wb-spacing-'+d.spacing+'" data-visible-features="'+plan.length+'" style="'+style+'"><div class="wb-flow">'+plan.map(x=>x.html).join('')+'</div><footer class="wb-footer">URI</footer></article>'};
 U.cover=e=>{let title=T(e.name1||'Maya'),other=T(e.name2||'Emir'),date=T(e.date?fmt(e.date):'SAVE THE DATE'),src=imgurl(e.heroPhoto||'');let x=clamped(e.heroSettings?.x??50),y=clamped(e.heroSettings?.y??50),zoom=Math.min(3,Math.max(1,Number(e.heroSettings?.zoom)||1)),photo=src?'<img src="'+T(src)+'" alt="Wedding couple portrait" style="object-position:'+x+'% '+y+'%;transform-origin:'+x+'% '+y+'%;transform:scale('+zoom+')">':'';
-if(e.template==='nightfall')return '<div class="wb-cover-mini wb-mini-nightfall"><div class="wb-mini-nightfall-photo">'+photo+'</div><div class="wb-mini-nightfall-shade"></div><div class="wb-mini-nightfall-content"><span>THE WEDDING OF</span><strong>'+title+'<em>&amp;</em>'+other+'</strong><i></i><small>'+date+'</small></div></div>';
-if(e.template==='garden'){
+if(U.baseTemplate(e)==='nightfall')return '<div class="wb-cover-mini wb-mini-nightfall"><div class="wb-mini-nightfall-photo">'+photo+'</div><div class="wb-mini-nightfall-shade"></div><div class="wb-mini-nightfall-content"><span>THE WEDDING OF</span><strong>'+title+'<em>&amp;</em>'+other+'</strong><i></i><small>'+date+'</small></div></div>';
+if(U.baseTemplate(e)==='garden'){
  const hasDetails=U.enabled(e,'details'),hasTimeline=U.enabled(e,'timeline')&&(!window.URIWeddingDetails||window.URIWeddingDetails.getTimeline(e).length>0);
  const sides=hasDetails?(hasTimeline?'both':'details'):(hasTimeline?'timeline':'none');
  return '<div class="wb-cover-mini wb-cover-editorial wb-mini-stationery wb-mini-sides-'+sides+'">'
@@ -117,6 +137,6 @@ window.uriBuilderInv=U.render;
 window.uriBSlide=(btn,delta)=>{let g=btn.closest('.wb-gallery'),slides=[...g.querySelectorAll('.wb-slide')];if(!slides.length)return;let area=g.querySelector('.wb-gallery-items'),next=((Number(area.dataset.index)||0)+delta+slides.length)%slides.length;slides.forEach((s,i)=>s.hidden=i!==next);area.dataset.index=next;g.querySelector('.wb-gallery-status').textContent=(next+1)+' / '+slides.length};
 U.persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(state));U.lastSaveFailed=false;return true}catch(err){U.lastSaveFailed=true;alert('Unable to save changes in this browser. Remove some photos or free up storage.');return false}};
 U.refresh=()=>{let e=current(),el=document.getElementById('wbLivePreview');if(e&&el){el.innerHTML=U.render(e);if(window.uriBPreviewFit)setTimeout(window.uriBPreviewFit,0)}};
-U.payload=e=>{U.model(e);let keys=['type','name1','name2','title','date','time','venue','address','template','deadline','message','featureConfig','featureOrder','layoutByTemplate','designByTemplate','heroPhoto','heroSettings','photos','weddingDetails','timelineItems'];return Object.fromEntries(keys.map(k=>[k,JSON.parse(JSON.stringify(e[k]??null))]))};
+U.payload=e=>{U.model(e);let keys=['type','name1','name2','title','date','time','venue','address','template','deadline','message','featureConfig','featureOrder','layoutByTemplate','designByTemplate','heroPhoto','heroSettings','photos','weddingDetails','timelineItems','customSections','templateRecipes'];return Object.fromEntries(keys.map(k=>[k,JSON.parse(JSON.stringify(e[k]??null))]))};
 render();
 })();
