@@ -48,6 +48,10 @@
 .uri-template-studio .wb-field{margin:0;display:grid;gap:5px}
 .uri-template-studio .wb-field textarea{resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px}
 .uri-template-studio form>.btn{justify-self:start}
+.uri-template-quick-save{padding:12px;border:1px solid #d8e4da;border-radius:9px;background:#fff;margin-bottom:14px}
+.uri-template-quick-save .wb-field{min-width:0}
+.uri-template-quick-save .btn{width:max-content}
+@media(max-width:480px){.uri-template-quick-save .btn{width:100%}}
 .uri-template-library{border-top:1px solid #e0e9e0;margin-top:18px;padding-top:15px;display:grid;gap:10px}
 .uri-template-library>strong{font-size:13px;color:#36563e}
 .uri-template-library>small{font-size:12px;color:#6e7c70}
