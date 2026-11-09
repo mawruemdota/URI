@@ -56,6 +56,10 @@ const scenario=function(){
  const householdDenied=guest.status==='pending';
  window.uriGuestsRespond(evt({response:'attending',plusOnes:'1',q_meal:'Chicken'}));
  const accepted=guest.status==='attending'&&guest.plusOnesConfirmed===1&&guest.answers.meal==='Chicken';
+ window.uriHouseholdSeats(h.id,'1');
+ const householdCapProtected=h.seatLimit===2;
+ window.uriGuestsCapacity('1');
+ const globalCapProtected=e.rsvpSettings.capacity===3;
  h.seatLimit=0;e.rsvpSettings.capacity=1;
  window.uriGuestsRespond(evt({response:'attending',plusOnes:'1',q_meal:'Chicken'}));
  const globalDenied=guest.plusOnesConfirmed===1;
@@ -72,7 +76,7 @@ const scenario=function(){
  window.uriDashAction('duplicate','e-smoke');
  const duplicate=state.events.find(x=>x.id!=='e-smoke');
  const duplicateSafe=!!duplicate&&duplicate.guests.length===0&&duplicate.households.length===0&&duplicate.cloudPublished===false;
- return {initiallyBlocked,reviewRendered,ready,reviewNav,editNav,blockedReception,readyWithReception,photoTab,inlineHook,guestsPage,legacyMigration,guestPage,householdDenied,accepted,globalDenied,declined,csvQuotes,householdPanel,analytics,guestPrivacy,rsvpPublic,duplicateSafe};
+ return {initiallyBlocked,reviewRendered,ready,reviewNav,editNav,blockedReception,readyWithReception,photoTab,inlineHook,guestsPage,legacyMigration,guestPage,householdDenied,accepted,householdCapProtected,globalCapProtected,globalDenied,declined,csvQuotes,householdPanel,analytics,guestPrivacy,rsvpPublic,duplicateSafe};
 };
 const tests=vm.runInContext('('+scenario.toString()+')()',ctx);
 for(const [key,value] of Object.entries(tests))assert.equal(value,true,'Failed: '+key);
