@@ -89,7 +89,17 @@ const image=async (page,name)=>{
     const nightfallText=await page.locator('#wbLivePreview').innerText();
     assert.match(nightfallText,/maya/i);
     assert.match(nightfallText,/emir/i);
+    assert.equal(await page.locator('.wb-editor-controls label.wb-field').filter({hasText:'Heading font'}).locator('select').inputValue(),'barlow');
     await image(page,'06-nightfall-preview.png');
+    await page.setViewportSize({width:390,height:844});
+    await page.locator('.wb-preview-toolbar button').filter({hasText:'Mobile'}).click();
+    await page.waitForFunction(()=>document.getElementById('wbLivePreview')?.style.width==='390px');
+    const nightfallOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
+    assert.ok(nightfallOverflow<=3,'Nightfall mobile editor overflows by '+nightfallOverflow+' pixels');
+    await image(page,'06b-nightfall-mobile.png');
+    await page.setViewportSize({width:1440,height:900});
+    await page.locator('.wb-preview-toolbar button').filter({hasText:'Desktop'}).click();
+    await page.waitForFunction(()=>document.getElementById('wbLivePreview')?.style.width==='1024px');
     await page.locator('.wb-template-pick').first().click();
     await page.locator('#wbLivePreview .wb-theme-botanical').waitFor();
     const botanical=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
