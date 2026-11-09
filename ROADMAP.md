@@ -95,6 +95,15 @@
 - [x] Update existing smoke checks for streamlined interface copy
 - [ ] Verify live GitHub Pages visuals on desktop, iOS Safari and Android Chrome
 
+## Nightfall MiroMiro reference template (November 2026)
+- [x] Extract Abaddon page styling with MiroMiro and document the source's inferred colors and typography
+- [x] Create original dark/cinematic wedding design without Dota artwork or proprietary fonts
+- [x] Register third template in landing page, wedding wizard, Design Manager and dashboard
+- [x] Build responsive Nightfall hero, story, gallery, countdown and secondary section styles
+- [x] Support all wedding sections, photo crop controls, per-template colors, layouts, and public payloads
+- [x] Extend the feature/layout matrix to 63 cases and add Nightfall-specific and Chromium checks
+- [ ] Conduct a hands-on iPhone/Android visual review of Nightfall
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
