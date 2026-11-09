@@ -91,7 +91,16 @@ window.uriBDecorateSections=()=>{
  if(!preview||typeof preview.querySelectorAll!=='function')return;
  const sections=[...preview.querySelectorAll('[data-feature]')];
  sections.forEach((section,index)=>decorateSection(section,index,sections));
- addButton(preview.querySelector('[data-feature="hero"] .wb-names'),'Edit partners names','content','name1');
+ const names=preview.querySelector('[data-feature="hero"] .wb-names');
+ if(names){
+   const parts=[...names.querySelectorAll(':scope > span')];
+   if(parts.length>=2){
+     addButton(parts[0],"Edit first partner's name",'content','name1');
+     addButton(parts[1],"Edit second partner's name",'content','name2');
+   }else{
+     addButton(names,'Edit partners names','content','name1');
+   }
+ }
  addButton(preview.querySelector('[data-feature="story"] p'),'Edit your story','content','message');
  preview.querySelectorAll('.wb-venue-card').forEach(card=>{
   const r=card.classList.contains('wb-venue-reception');
