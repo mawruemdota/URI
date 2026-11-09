@@ -65,7 +65,6 @@ function preview(e){
   +parts.map(p=>'<div class="uri-adventure-page" data-adventure-id="'+p.id+'"><h2>'+T(p.title)+'</h2>'+p.html+'</div>').join('')
   +(parts.length===0?'<p>Add invitation sections in the Features tab.</p>':'')+'</div></details></div>'
   +'<footer class="wb-footer">URI · Your celebration, your adventure</footer></article>';
-  +'<footer class="wb-footer">URI · Your celebration, your adventure</footer></article>';
 }
 U.render=e=>active(e)?preview(e):originalRender(e);
 U.cover=e=>{
