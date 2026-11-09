@@ -76,12 +76,23 @@ window.uriPhotoDragStart=(ev,i)=>{
  const card=ev.target.closest?.('.wb-photo-tile');if(card)card.classList.add('is-dragging');
 };
 window.uriPhotoDragOver=(ev,i)=>{
- if(dragIndex<0)return;ev.preventDefault();if(ev.dataTransfer)ev.dataTransfer.dropEffect='move';
+ const ownDrag=dragIndex>=0;
+ const advertised=!!ev.dataTransfer&&Array.from(ev.dataTransfer.types||[]).includes('text/plain');
+ if(!ownDrag&&!advertised)return;
+ ev.preventDefault();
+ if(ev.dataTransfer)ev.dataTransfer.dropEffect='move';
  const card=ev.currentTarget;if(card)card.classList.add('is-drop-target');
 };
 window.uriPhotoDragLeave=ev=>{ev.currentTarget?.classList?.remove('is-drop-target')};
 window.uriPhotoDrop=(ev,i)=>{
- ev.preventDefault();const from=dragIndex;dragIndex=-1;
+ ev.preventDefault();
+ let from=dragIndex;
+ if(from<0&&ev.dataTransfer){
+  const token=String(ev.dataTransfer.getData('text/plain')||'');
+  const match=/^uri-photo-(\d+)$/.exec(token);
+  if(match)from=Number(match[1]);
+ }
+ dragIndex=-1;
  document.querySelectorAll('.wb-photo-tile').forEach(x=>x.classList.remove('is-drop-target','is-dragging'));
  if(move(from,i))afterUpdate('Gallery photo order saved.');
 };
