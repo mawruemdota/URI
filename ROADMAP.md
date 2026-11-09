@@ -1,5 +1,21 @@
 # URI Product Roadmap
 
+## Cross-device cloud drafts and secure online RSVP (2026-11-09)
+- [x] Owner-scoped private cloud drafts, email sign-in integration and explicit import of prior local-only drafts
+- [x] Optimistic cloud revision checks to prevent silent cross-device overwrites
+- [x] Restore saved invitations and preserve offline edits with reconnect retry
+- [x] Restrict drafts to their authenticated account and prevent cross-account upload
+- [x] Owner-only cloud guest records and cryptographically random, hash-verified individual RSVP URLs
+- [x] Public token RSVP lookup and submission without guest accounts
+- [x] Server validation of required answers, plus-one allowances, deadlines and total/household capacity
+- [x] Owner RSVP status refresh, online link copying, and safe cloud draft deletion
+- [x] Automated mock integration tests, anonymous-access checks and database RLS review
+- [ ] Real email magic-link authentication, cross-device edit and RSVP acceptance with two separate browsers/accounts
+- [ ] Rate limiting and independent review of token-gated public SECURITY DEFINER functions (Supabase advisor warnings remain)
+- [ ] Live publishing/unpublishing, session lifecycle and recovery tests
+- [ ] Physical iOS Safari/Android Chrome, privacy, accessibility and abuse tests
+- [ ] Production guest delivery, notification preferences and safe cleanup/retention of media
+
 ## Animation Manager 1.0 (2026-11-09)
 - [x] CSS-first preset animations: None / Elegant / Cinematic / Playful
 - [x] Per-event speed and independent entrance, scroll, photo, hover and decoration switches
@@ -140,10 +156,11 @@
 - [ ] Consider a hosted MiroMiro import endpoint when the app has a secure server-side integration
 
 ## Stage 2 — Real authentication and data
-- [ ] Account sign-in and event ownership
-- [ ] Database-backed event records
-- [ ] Cloud image storage
-- [ ] Secure event permissions and collaborator roles
+- [x] Email magic-link account flow and private owner RLS policies (acceptance pending)
+- [x] Versioned cloud draft records, explicit import, offline reconciliation and per-owner access
+- [x] Public photo and audio storage integration (live upload validation pending)
+- [ ] Real-user sign-in, cross-device saving and publishing acceptance tests
+- [ ] Secure collaborator roles and sharing permissions
 
 ## Stage 3 — Invitation builder 2.0
 - [x] Modular wedding sections and two reference-inspired wedding presets (browser QA pending)
@@ -152,11 +169,12 @@
 - [x] Responsive editor with mobile preview (browser QA pending)
 
 ## Stage 4 — Guests and RSVP
-- [ ] Households, allocations, and plus-ones
-- [ ] Secure personalized links
-- [ ] CSV import/export and guest filters
-- [ ] Cross-device RSVP and analytics
-- [ ] Sharing and QR codes
+- [x] Local household planning, guest allocations and plus-ones
+- [x] Personal online RSVP links with secure random bearer tokens (beta)
+- [x] CSV import/export and guest filters
+- [x] Online RSVP collection with manual owner refresh and server-side capacity enforcement (beta)
+- [ ] Live end-to-end response testing, throttling, notifications and privacy acceptance
+- [ ] Sharing tools and QR codes
 
 ## Stage 5 — Commercial platform
 - [ ] Free, Standard and Premium entitlements
