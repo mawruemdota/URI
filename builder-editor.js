@@ -93,7 +93,9 @@ window.uriBConfig=(key,value)=>{
  U.refresh();
 };
 window.uriBToggle=(id,value)=>{
- const e=event();if(!e||!U.ids.includes(id))return;
+ const e=event();if(!e)return;
+ if(U.customItem(e,id)){window.uriCustomToggle?.(id,value);return}
+ if(!U.ids.includes(id))return;
  const had=Object.hasOwn(e.featureConfig,id),old=e.featureConfig[id];
  if(commitEdit(()=>{e.featureConfig[id]=!!value},()=>{if(had)e.featureConfig[id]=old;else delete e.featureConfig[id]}))
    rerender({focusId:id,checkbox:true});
@@ -128,14 +130,15 @@ window.uriBVariant=(id,value)=>{
  if(commitEdit(()=>{e.layoutByTemplate[template]||={};e.layoutByTemplate[template][id]=value},()=>{e.layoutByTemplate[template]=old}))U.refresh();
 };
 window.uriBTemplate=value=>{
- const e=event();if(!e||!['classic','garden','nightfall'].includes(value))return;
+ const e=event();if(!e)return;
+ if(!U.presets[value]){window.uriTemplateStudioApply?.(value);return}
  const old=e.template;
  if(commitEdit(()=>{e.template=value},()=>{e.template=old}))rerender();
  else rerender();
 };
 window.uriBDesign=(key,value)=>{
  const e=event();if(!e)return;
- const base=U.presets[e.template];if(!Object.hasOwn(base,key))return;
+ const base=U.presets[U.baseTemplate(e)];if(!Object.hasOwn(base,key))return;
  if(['bg','ink','accent'].includes(key)&&!/^#[0-9a-fA-F]{6}$/.test(value))return;
  if(['body','heading'].includes(key)&&!U.fonts[value])return;
  if(key==='spacing'&&!['compact','balanced','airy'].includes(value))return;
@@ -174,6 +177,14 @@ function features(e){
   countdown:'Time until the ceremony',details:'Ceremony and reception information',
   timeline:'Order of activities',dress:'Attire and colors',gifts:'Gift information',rsvp:'Attendance information'};
  const rows=active.map((id,i)=>{
+  const custom=U.customItem(e,id);
+  if(custom){
+    return '<div class="wb-feature-item wb-custom-feature-item" data-feature-id="'+T(id)+'" draggable="true" ondragstart="uriBDragStart(event,\''+id+'\')" ondragover="event.preventDefault()" ondrop="uriBDrop(event,\''+id+'\')">'
+     +'<div class="wb-feature-top"><label class="wb-feature-check"><input type="checkbox" checked onchange="uriCustomToggle(\''+id+'\',this.checked)" aria-label="Show '+T(custom.title)+'"><span><strong>'+T(custom.title||'Custom section')+'</strong></span></label>'
+     +'<div class="wb-movers"><button type="button" data-move-dir="-1" aria-label="Move '+T(custom.title)+' up" '+(i===0?'disabled':'')+' onclick="uriBMove(\''+id+'\',-1)">Up</button>'
+     +'<button type="button" data-move-dir="1" aria-label="Move '+T(custom.title)+' down" '+(i===active.length-1?'disabled':'')+' onclick="uriBMove(\''+id+'\',1)">Down</button></div></div>'
+     +(window.URICustomSections?window.URICustomSections.editorItem(custom):'')+'</div>';
+  }
   const f=U.features.find(x=>x.id===id);
   const layout=layoutById[id];
   const info=layout?(layout.width==='half'?(layout.pair==='first'?'Paired with next section':'Paired with previous section'):'Full width in this design'):'Appears when content is added';
@@ -187,16 +198,16 @@ function features(e){
    +f.variants.map(([key,name])=>'<option value="'+key+'" '+(U.variant(e,id)===key?'selected':'')+'>'+T(name)+'</option>').join('')
    +'</select></label><small class="wb-feature-layout-note">'+info+'</small></div></div>';
  }).join('');
- const add=available.length?'<div class="wb-available-group"><h4>Add a section</h4><div class="wb-available-list">'
-  +available.map(id=>{
+ const add=available.filter(id=>U.ids.includes(id)).length?'<div class="wb-available-group"><h4>Add a section</h4><div class="wb-available-list">'
+  +available.filter(id=>U.ids.includes(id)).map(id=>{
    const f=U.features.find(x=>x.id===id);
    return '<div class="wb-available-item" data-feature-id="'+id+'"><div><strong>'+T(f.name)+'</strong><small>'+T(notes[id])+'</small></div>'
     +'<button type="button" class="btn small" data-feature-add onclick="uriBToggle(\''+id+'\',true)">Add</button></div>';
   }).join('')+'</div></div>':'';
  return '<h3>Sections</h3><div class="wb-feature-overview">'+actual.length+' shown in this design'+(active.length!==actual.length?' · '+(active.length-actual.length)+' awaiting content':'')+'</div>'
-  +'<div class="wb-feature-list">'+(rows||'<p class="wb-feature-empty">No sections selected. Add one below.</p>')+'</div>'+add;
+  +'<div class="wb-feature-list">'+(rows||'<p class="wb-feature-empty">No sections selected. Add one below.</p>')+'</div>'+add+(window.URICustomSections?window.URICustomSections.catalog(e):'');
 }
-function design(e){let d=U.design(e),options=(key,name,choices)=>'<label class="wb-field"><span>'+name+'</span><select onchange="uriBDesign(\''+key+'\',this.value)">'+choices.map(([id,label])=>'<option value="'+id+'" '+(d[key]===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>';return '<h3>Design</h3><div class="wb-template-choices">'+TEMPLATES.map(t=>'<button type="button" aria-pressed="'+(e.template===t.id)+'" class="wb-template-pick '+(e.template===t.id?'selected':'')+'" onclick="uriBTemplate(\''+t.id+'\')">'+(window.URIBuilder?'<div class="template-preview uri-ref-thumb">'+window.URIBuilder.cover({...e,template:t.id})+'</div>':templateThumb(t))+'<strong>'+t.name+'</strong><small class="wb-template-caption">'+(t.id===e.template?'Current template':'Switch without losing content')+'</small></button>').join('')+'</div><div class="wb-colors">'+[['bg','Background'],['ink','Text'],['accent','Accent']].map(([key,label])=>'<label><input type="color" value="'+d[key]+'" oninput="uriBDesign(\''+key+'\',this.value)"><span>'+label+'</span></label>').join('')+'</div>'+options('heading','Heading font',[['barlow','Barlow Condensed'],['cormorant','Cormorant Garamond'],['allura','Allura Script'],['playfair','Playfair Display'],['montserrat','Montserrat'],['dm','DM Sans']])+options('body','Body font',[['montserrat','Montserrat'],['dm','DM Sans'],['cormorant','Cormorant Garamond'],['playfair','Playfair Display'],['barlow','Barlow Condensed']])+options('spacing','Section spacing',[['compact','Compact'],['balanced','Balanced'],['airy','Airy']])+'<button type="button" class="btn small" onclick="uriBResetDesign()">Reset template style</button>'}
+function design(e){let d=U.design(e),options=(key,name,choices)=>'<label class="wb-field"><span>'+name+'</span><select onchange="uriBDesign(\''+key+'\',this.value)">'+choices.map(([id,label])=>'<option value="'+id+'" '+(d[key]===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>';return '<h3>Design</h3><div class="wb-template-choices">'+(window.URITemplateStudio?window.URITemplateStudio.list(e):TEMPLATES).map(t=>'<button type="button" aria-pressed="'+(e.template===t.id)+'" class="wb-template-pick '+(e.template===t.id?'selected':'')+'" onclick="uriBTemplate(\''+t.id+'\')">'+(window.URIBuilder?'<div class="template-preview uri-ref-thumb">'+window.URIBuilder.cover({...e,template:t.id})+'</div>':templateThumb(t))+'<strong>'+t.name+'</strong><small class="wb-template-caption">'+(t.id===e.template?'Current template':'Switch without losing content')+'</small></button>').join('')+'</div><div class="wb-colors">'+[['bg','Background'],['ink','Text'],['accent','Accent']].map(([key,label])=>'<label><input type="color" value="'+d[key]+'" oninput="uriBDesign(\''+key+'\',this.value)"><span>'+label+'</span></label>').join('')+'</div>'+options('heading','Heading font',[['barlow','Barlow Condensed'],['cormorant','Cormorant Garamond'],['allura','Allura Script'],['playfair','Playfair Display'],['montserrat','Montserrat'],['dm','DM Sans']])+options('body','Body font',[['montserrat','Montserrat'],['dm','DM Sans'],['cormorant','Cormorant Garamond'],['playfair','Playfair Display'],['barlow','Barlow Condensed']])+options('spacing','Section spacing',[['compact','Compact'],['balanced','Balanced'],['airy','Airy']])+'<button type="button" class="btn small" onclick="uriBResetDesign()">Reset template style</button>'+(window.URITemplateStudio?window.URITemplateStudio.studio(e):'')}
 function photos(e){return window.uriBuilderPhotosPanel?window.uriBuilderPhotosPanel(e):'<p>The photo manager is loading.</p>'}
 function publishing(e){return '<h3>Publishing</h3>'+(window.URICloud?window.URICloud.panel(e):'<div class="banner notice">Cloud publishing is not configured. This event is saved in your browser.</div>')+'<div class="banner notice">Guest lists are not included in public invitations. Cross-device RSVP collection requires a separately secured guest system.</div>'}
 const BUILDER_STEPS=['content','features','design','photos','review','publish'];
