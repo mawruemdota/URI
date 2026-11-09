@@ -163,6 +163,32 @@
  max-height:340px;object-fit:contain;height:auto
 }
 .uri-adventure-room-content .wb-hero{min-height:230px!important}
+
+/* The Adventure rooms carry their own scenery: suppress huge editorial
+   decoration from the classic template so actual story/details appear first. */
+.uri-adventure-room-content .wb-botanical-art,
+.uri-adventure-room-content .wb-botanical-art-story,
+.uri-adventure-room-content .wb-botanical-art-top,
+.uri-adventure-room-content .wb-botanical-art-side{
+ display:none!important
+}
+.uri-adventure-room-content .wb-botanical-story{
+ min-height:0!important;display:block!important;text-align:left!important;
+ padding:12px 8px!important
+}
+.uri-adventure-room-content .wb-botanical-story h2{
+ font:750 clamp(17px,2vw,23px) 'DM Sans',sans-serif!important;
+ margin:0 0 12px!important;color:#3d5b49!important
+}
+.uri-adventure-room-content .wb-botanical-story p{
+ margin:0 0 14px!important;max-width:100%!important;
+ font:400 14px/1.7 'DM Sans',sans-serif!important;color:#35493d!important
+}
+.uri-adventure-room-content .wb-botanical-signature{
+ display:block!important;position:static!important;
+ font:650 13px 'DM Sans',sans-serif!important;margin:10px 0!important
+}
+
 .uri-adventure-room-content a{color:#1f6a53;text-decoration:underline}
 .uri-adventure-room-content button{cursor:pointer}
 .uri-adventure-room-nav{
@@ -266,6 +292,20 @@
  @container (min-width:850px){
   .uri-adventure-controls{display:none}
  }
+}
+/* Preview containers can be 390px wide inside a desktop browser. */
+@container (max-width:700px){
+ .uri-adventure-stage.uri-adventure-inside{
+  height:clamp(460px,72dvh,760px);min-height:460px
+ }
+ .uri-adventure-room-head{padding:10px}
+ .uri-adventure-room-head button{padding:8px 9px;font-size:11px}
+ .uri-adventure-room-body{padding:9px}
+ .uri-adventure-room-content{padding:10px;border-width:3px;border-bottom-width:6px}
+ .uri-adventure-room-nav{padding:8px;gap:5px}
+ .uri-adventure-room-nav button{padding:7px;min-height:43px;font-size:10px}
+ .uri-adventure-interior-window{width:65px;height:85px;top:95px}
+ .uri-adventure-interior-banner{display:none}
 }
 @media(prefers-reduced-motion:reduce){
  .uri-adventure-site *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
