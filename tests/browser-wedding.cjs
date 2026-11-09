@@ -92,6 +92,43 @@ const image=async (page,name)=>{
     assert.match(nightfallText,/emir/i);
     assert.equal(await page.locator('.wb-editor-controls label.wb-field').filter({hasText:'Heading font'}).locator('select').inputValue(),'barlow');
     await image(page,'06-nightfall-preview.png');
+    // Theme-aware image backgrounds: upload, shade, adjust, and retain per template.
+    await page.locator('.uri-background-manager').waitFor();
+    await page.locator('input[name="uri-bg-mode"][value="image"]').check();
+    await page.locator('.uri-bg-upload input[type="file"]').setInputFiles({name:'background.png',mimeType:'image/png',buffer:PNG});
+    await page.locator('#wbLivePreview [data-uri-background="image"] .uri-theme-backdrop img').waitFor();
+    await page.locator('.uri-bg-field input[aria-label="Shading strength"]').evaluate(el=>{
+      el.value='65';el.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    const themeMedia=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].backgroundByTemplate.nightfall);
+    assert.equal(themeMedia.mode,'image');
+    assert.ok(themeMedia.source.startsWith('data:image/jpeg;base64,'));
+    assert.equal(themeMedia.shade,65);
+    await image(page,'06-background-image.png');
+    await page.locator('.wb-template-pick').nth(1).click();
+    assert.equal(await page.locator('#wbLivePreview .uri-theme-backdrop').count(),0);
+    await page.locator('.wb-template-pick').nth(2).click();
+    assert.equal(await page.locator('#wbLivePreview .uri-theme-backdrop').count(),1);
+    // Music manager: add, reorder, and render an accessible guest playlist.
+    await page.locator('.wb-tabs button').filter({hasText:'Music'}).click();
+    await page.locator('.uri-music-track-head button').click();
+    await page.locator('.uri-music-track input[type="text"]').first().fill('Our Song');
+    await page.locator('.uri-music-track input[type="url"]').first().fill('https://example.com/oursong.mp3');
+    await page.locator('.uri-music-track input[type="url"]').first().blur();
+    await page.locator('.uri-music-track-head button').click();
+    await page.locator('.uri-music-track input[type="url"]').nth(1).fill('https://example.com/another.mp3');
+    await page.locator('.uri-music-track input[type="url"]').nth(1).blur();
+    await page.locator('.uri-music-manager select').selectOption('playlist');
+    await page.locator('.uri-music-switch input[type="checkbox"]').nth(1).check();
+    const musicSaved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].music);
+    assert.equal(musicSaved.tracks.length,2);
+    assert.equal(musicSaved.autoplay,true);
+    assert.equal(musicSaved.loop,'playlist');
+    assert.equal(await page.locator('#wbLivePreview .uri-music-player').count(),1);
+    await page.locator('.uri-music-switch input[type="checkbox"]').nth(1).uncheck();
+    await image(page,'06-music-manager.png');
+    await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
+
     // Animation Manager: preset changes persist across templates and can be replayed.
     await page.locator('.uri-animation-manager').waitFor();
     await page.locator('[data-uri-animation-preset]').selectOption('cinematic');
