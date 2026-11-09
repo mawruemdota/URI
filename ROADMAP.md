@@ -1,5 +1,18 @@
 # URI Product Roadmap
 
+## Animation Manager 1.0 (2026-11-09)
+- [x] CSS-first preset animations: None / Elegant / Cinematic / Playful
+- [x] Per-event speed and independent entrance, scroll, photo, hover and decoration switches
+- [x] Owner preview playback without blocking normal editing interactions
+- [x] Preserve animation configuration when changing template and in public publication snapshots
+- [x] Progressive GSAP cinematic enhancement with CSS and IntersectionObserver fallback
+- [x] Respect system reduced-motion preferences; never depend on animation to reveal information
+- [x] Automated animation smoke coverage and full Chromium builder journey passed
+- [x] GitHub Pages build and deployment verified through GitHub Actions
+- [ ] Manual reduced-motion, iOS Safari, and Android Chrome checks on physical devices
+- [ ] Optional Lottie decoration assets with licensing / performance review
+- [ ] Optional interactive envelope-opening scene (separate future feature)
+
 ## Stage 1 — UI/UX polish (in progress)
 - [x] Responsive navigation improvements (browser QA pending)
 - [x] Five-step wedding wizard, inline validation, persistent draft recovery, progress and full-page preview (browser QA pending)
