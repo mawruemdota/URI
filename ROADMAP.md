@@ -5,13 +5,14 @@
 - [x] Original Phaser 3.90 Arcade Physics side-scroller with continuous non-punishing level
 - [x] Keyboard and responsive mobile controls, including virtual joystick option
 - [x] Original pixel-art character looks, world palettes and collectible memories
-- [x] Interactive checkpoint signs, native HTML detail overlays and world map navigation
+- [x] Interactive checkpoint signs, themed in-game interiors, scrollable native HTML, and in-viewport world map (no popup dialogs)
 - [x] All-section accessible fallback and skip-game navigation
 - [x] Game Template Manager for scene, character, control preference, speed and optional collectibles
 - [x] Published invitation payloads retain Adventure Game Manager settings and custom checkpoint order
-- [x] Personalized game invitation URL can link to token-protected online RSVP form
+- [x] Personalized game invitation URL loads a token-protected RSVP form directly within the in-game RSVP area
 - [x] Automated feature and safety regression tests
-- [x] Real Phaser Chromium movement, checkpoints, and 390px mobile preview validation (GitHub Actions run 42634951950)
+- [x] Real Phaser Chromium movement and 390px mobile preview validation (GitHub Actions run 42634951950)
+- [ ] Verify the revised in-game interior navigation and guest RSVP through Chromium CI
 - [ ] Actual iOS/Android hardware performance, screen-reader and keyboard accessibility acceptance
 - [ ] Live cloud guest RSVP acceptance, rate limiting and public beta security review
 - [ ] Optional custom sprite uploads, additional world scenery and more advanced level editing
