@@ -126,9 +126,9 @@ function compress(file){
       ctx.drawImage(img,0,0,canvas.width,canvas.height);
       for(const quality of [.72,.60,.48]){
         output=canvas.toDataURL('image/jpeg',quality);
-        if(output.length<=460000)break;
+        if(output.length<=320000)break;
       }
-      if(output.length<=460000)break;
+      if(output.length<=320000)break;
       limit=Math.round(limit*.75);
     }
     URL.revokeObjectURL(url);resolve(output);
