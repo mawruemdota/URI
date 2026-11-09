@@ -135,7 +135,7 @@ function enterRoom(root,heading,view){
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
   if(inst.scene?.player&&inst.scene.textures?.exists?.('uri-player-interact'))
    inst.scene.player.setTexture('uri-player-interact');
-  inst.scene?.scene?.pause?.();
+  if(inst.scene?.scene&&!inst.scene.scene.isPaused?.())inst.scene.scene.pause();
  }
  room.hidden=false;
  stage.classList.add('uri-adventure-inside');
@@ -158,7 +158,7 @@ function exitRoom(root){
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
   if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
   inst.scene?.input?.keyboard?.resetKeys?.();
-  const preferred=inst.returnFocus?.isConnected?inst.returnFocus:inst.game?.canvas;
+  const preferred=inst.game?.canvas||inst.returnFocus;
   preferred?.focus?.({preventScroll:true});
  }
 }
