@@ -110,11 +110,21 @@ const server=http.createServer((req,res)=>{
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-interior').evaluate(el=>el.hidden),true,
     'Back to world closes the in-game room, without navigating away');
   await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused(),{timeout:5000});
+  await page.waitForTimeout(120);
   const restartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
   await page.keyboard.down('ArrowLeft');
-  await page.waitForTimeout(350);
+  await page.waitForTimeout(550);
+  const whileHeld=await page.evaluate(()=>{
+   const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure,s=inst.scene;
+   return {x:s.player.x,bodyX:s.player.body.position.x,velocityX:s.player.body.velocity.x,
+    paused:s.scene.isPaused(),active:s.scene.isActive(),leftDown:s.keys.LEFT.isDown,
+    leftEnabled:s.keys.LEFT.enabled,keyboardEnabled:s.input.keyboard.enabled,
+    canvasFocused:document.activeElement===inst.game.canvas,activeTag:document.activeElement?.tagName,
+    frame:s.game.loop.frame,near:inst.near};
+  });
   await page.keyboard.up('ArrowLeft');
   const afterRestartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
+  if(!(afterRestartX<restartX-20))console.log('Room exit movement diagnostics',JSON.stringify({restartX,afterRestartX,whileHeld}));
   assert.ok(afterRestartX<restartX-20,'The character can move again after exiting the in-game room');
   await page.locator('#wbLivePreview [data-adventure-action="details"]').click();
   assert.ok(await page.locator('#wbLivePreview .uri-adventure-directory').evaluate(el=>el.open));
