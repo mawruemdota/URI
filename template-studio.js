@@ -13,7 +13,7 @@ const uuid=()=> 'tpl-'+Date.now().toString(36)+'-'+Math.random().toString(36).sl
 let library=[];
 try{const raw=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(raw))library=raw.slice(0,24).map(sanitize).filter(Boolean)}catch(_){}
 function sanitize(x){
- if(!x||typeof x!=='object'||!U.presets[x.base])return null;
+ if(!x||typeof x!=='object'||!Object.hasOwn(U.presets,x.base))return null;
  const id=/^tpl-[a-z0-9-]{3,35}$/i.test(String(x.id||''))?String(x.id):uuid();
  const p=U.presets[x.base],s=x.style&&typeof x.style==='object'?x.style:{};
  return {id,name:String(x.name||'Custom Design').trim().slice(0,60)||'Custom Design',base:x.base,
@@ -96,14 +96,15 @@ window.uriTemplateStudioApply=id=>{
 window.uriTemplateStudioCreate=ev=>{
  ev.preventDefault();
  const data=new FormData(ev.target),base=String(data.get('base')||'classic');
- if(!U.presets[base])return;
+ if(!Object.hasOwn(U.presets,base))return;
  const name=String(data.get('name')||'').trim().slice(0,60);
  if(!name){alert('Choose a name for your design.');return}
  let style;
  try{style=parseTokens(data.get('tokens'),base)}catch(err){alert(err.message);return}
  const recipe=sanitize({id:uuid(),name,base,style,sourceUrl:String(data.get('source')||''),notes:String(data.get('notes')||'')});
  if(!recipe)return;
- if(edit(e=>{if(e.templateRecipes.length>=16)throw Error('Too many designs');e.templateRecipes.push(recipe);e.template=recipe.id}))saveLibrary(recipe);
+ if(current()?.templateRecipes?.length>=16){alert('This invitation already has 16 designs.');return}
+ if(edit(e=>{e.templateRecipes.push(recipe);e.template=recipe.id}))saveLibrary(recipe);
 };
 window.uriTemplateStudioExport=id=>{
  const e=current(),recipe=saved(e||{}).find(x=>x.id===id)||library.find(x=>x.id===id);
@@ -154,5 +155,5 @@ function studio(e){
   +(currentRecipe?'<div class="uri-recipe-actions"><button type="button" class="btn small" onclick="uriTemplateStudioExport(\''+T(currentRecipe.id)+'\')">Export current design</button><button type="button" class="btn small" onclick="uriTemplateStudioRemove(\''+T(currentRecipe.id)+'\')">Remove current design</button></div>':'')
   +'</div></div></details>';
 }
-window.URITemplateStudio={list,sanitize,parseTokens,studio,library:()=>library.slice()};
+window.URITemplateStudio={list,sanitize,parseTokens,studio,library:()=>library.slice(),recipe:(e,id)=>saved(e).find(x=>x.id===id)||library.find(x=>x.id===id)||null};
 })();
