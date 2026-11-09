@@ -53,6 +53,13 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview [data-adventure-action="play"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage canvas').waitFor({timeout:25000});
   await page.waitForFunction(()=>!!document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure?.scene?.player,{timeout:15000});
+  try{
+    await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-load'),{timeout:8000});
+  }catch(err){
+    console.log('Adventure Phaser initialization errors:',errors);
+    console.log('Adventure stage:',await page.locator('#wbLivePreview .uri-adventure-stage').innerText());
+    throw err;
+  }
   await page.locator('#wbLivePreview .uri-adventure-stage canvas').click({position:{x:120,y:110}});
   const posBefore=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
   await page.keyboard.down('ArrowRight');
