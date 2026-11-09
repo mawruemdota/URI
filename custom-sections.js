@@ -54,6 +54,14 @@ function defaults(type){
 const miniButton=(label,fn)=>'<button type="button" class="btn small" onclick="'+fn+'">'+label+'</button>';
 function renderSection(e,section){
  const item=normalize(section),base=U.baseTemplate(e),className='wb-custom wb-custom-'+item.type+' wb-custom-'+base;
+ const completeFAQ=item.items.filter(row=>row.q.trim()&&row.a.trim());
+ const safeImage=typeof item.src==='string'&&(/^data:image\/(?:jpeg|png|webp);base64,/.test(item.src)||!!safeLink(item.src));
+ if((item.type==='text'&&!item.body.trim())||
+    (item.type==='image'&&!safeImage)||
+    (item.type==='video'&&!videoEmbed(item.url))||
+    (item.type==='faq'&&!completeFAQ.length)||
+    (item.type==='map'&&!item.body.trim()&&!safeLink(item.url))||
+    (item.type==='button'&&!safeLink(item.url)))return '';
  const head=item.title?'<h2>'+T(item.title)+'</h2>':'';
  let contents='';
  if(item.type==='text')contents='<div class="wb-custom-copy">'+T(item.body).replace(/\n/g,'<br>')+'</div>';
@@ -64,7 +72,7 @@ function renderSection(e,section){
    '<div class="wb-custom-empty">Add a YouTube or Vimeo video URL</div>';
   if(item.body)contents+='<p class="wb-custom-caption">'+T(item.body)+'</p>';
  }
- if(item.type==='faq')contents='<div class="wb-custom-questions">'+item.items.map(row=>'<details class="wb-custom-question"><summary>'+T(row.q||'Question')+'</summary><p>'+T(row.a||'Answer to follow.').replace(/\n/g,'<br>')+'</p></details>').join('')+'</div>';
+ if(item.type==='faq')contents='<div class="wb-custom-questions">'+completeFAQ.map(row=>'<details class="wb-custom-question"><summary>'+T(row.q||'Question')+'</summary><p>'+T(row.a||'Answer to follow.').replace(/\n/g,'<br>')+'</p></details>').join('')+'</div>';
  if(item.type==='map')contents='<div class="wb-custom-location">'+(item.body?'<p>'+T(item.body).replace(/\n/g,'<br>')+'</p>':'')+(safeLink(item.url)?'<a href="'+T(safeLink(item.url))+'" target="_blank" rel="noopener noreferrer" class="wb-custom-cta">View directions</a>':'')+'</div>';
  if(item.type==='button')contents='<div class="wb-custom-action">'+(item.body?'<p>'+T(item.body)+'</p>':'')+(safeLink(item.url)?'<a href="'+T(safeLink(item.url))+'" target="_blank" rel="noopener noreferrer" class="wb-custom-cta">'+T(item.label||'View details')+'</a>':'')+'</div>';
  return '<section data-feature="'+T(item.id)+'" data-custom-id="'+T(item.id)+'" class="wb-unit '+className+'" data-custom-type="'+T(item.type)+'">'+head+contents+'</section>';
