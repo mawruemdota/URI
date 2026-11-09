@@ -13,7 +13,7 @@ function focusTarget(target,index){
  else if(target==='gallery'||target==='cover')el=document.querySelector('.wb-photo-add input[type="file"],.wb-photo-choose input[type="file"]');
  else el=document.querySelector('[data-uri-field="'+target+'"] input,[data-uri-field="'+target+'"] textarea,[data-uri-field="'+target+'"] select');
  if(!el&&target.startsWith('reception-'))el=document.querySelector('.wb-reception-toggle input');
- if(el){el.scrollIntoView?.({behavior:'smooth',block:'center'});el.focus?.({preventScroll:true})}
+ if(el){const fold=el.closest?.('details');if(fold)fold.open=true;el.scrollIntoView?.({behavior:'smooth',block:'center'});el.focus?.({preventScroll:true})}
 }
 window.uriBEditTarget=(panel,target,index)=>{
  if(panel==='guests'){tab='guests';eventPage();document.querySelector('.uri-guests')?.scrollIntoView?.({block:'start'});return}
