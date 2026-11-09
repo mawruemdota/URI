@@ -264,7 +264,10 @@ function makeScene(P,inst){
    this.collected=0;
    if(inst.root.dataset.adventureCollectibles==='true'){
     const c=this.make.graphics({x:0,y:0,add:false});
-    c.fillStyle(0xffd878);c.fillStar(12,12,5,5,11);c.generateTexture('uri-memory',24,24);c.destroy();
+    c.fillStyle(0xffd878);c.fillCircle(12,12,11);
+    c.lineStyle(2,0xfff6c1);c.strokeCircle(12,12,9);
+    c.fillStyle(0xffffff);c.fillCircle(9,9,3);
+    c.generateTexture('uri-memory',24,24);c.destroy();
     const items=this.physics.add.staticGroup();
     for(let x=410;x<width-100;x+=380)items.create(x,groundY-70-(x%3)*33,'uri-memory');
     this.physics.add.overlap(this.player,items,(_,item)=>{
@@ -274,7 +277,7 @@ function makeScene(P,inst){
     });
    }
    this.input.keyboard?.on('keydown-E',()=>{if(inst.near)openStation(inst.root,inst.near)});
-   this.input.keyboard?.on('keydown-UP',()=>{if(inst.near&&this.player.body.blocked.down===false)return});
+
    inst.root.querySelector('.uri-adventure-load')?.remove();
    inst.root.querySelector('.uri-adventure-world')?.classList.add('uri-adventure-playing');
   }
