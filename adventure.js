@@ -47,8 +47,14 @@ function preview(e){
   +'<header class="uri-adventure-heading"><span class="uri-adventure-eyebrow">THE CELEBRATION JOURNEY</span><h1>'+T(e.name1||'Your Name')+' <em>&amp;</em> '+T(e.name2||'Partner Name')+'</h1><p>'+T(e.date?fmt(e.date):'Save the date')+' · '+T(e.venue||'Venue to be announced')+'</p></header>'
   +'<div class="wb-flow"><div class="uri-adventure-world" role="region" aria-label="Playable wedding invitation">'
   +'<div class="uri-adventure-intro"><strong>Explore our invitation</strong><span>Move, jump and visit the glowing signs to uncover the celebration.</span></div>'
-  +'<div class="uri-adventure-stage" role="img" aria-label="Original side-scrolling platform game. You can also read all details below.">'
-  +'<div class="uri-adventure-load"><span class="uri-adventure-loading-icon" aria-hidden="true">✦</span><span>Preparing your adventure…</span><button type="button" data-adventure-action="play">Play adventure</button></div></div>'
+  +'<div class="uri-adventure-stage" role="group" aria-label="Playable platform game with explorable invitation areas">'
+  +'<div class="uri-adventure-load"><span class="uri-adventure-loading-icon" aria-hidden="true">✦</span><span>Preparing your adventure…</span><button type="button" data-adventure-action="play">Play adventure</button></div>'
+  +'<section class="uri-adventure-interior" hidden role="region" aria-label="Inside an adventure area">'
+  +'<div class="uri-adventure-interior-scenery" aria-hidden="true"><span class="uri-adventure-interior-window"></span><span class="uri-adventure-interior-banner"></span></div>'
+  +'<header class="uri-adventure-room-head"><span class="uri-adventure-room-eyebrow">INSIDE THE ADVENTURE</span><h2 class="uri-adventure-room-title" tabindex="-1">Welcome</h2><button type="button" data-adventure-action="room-exit">← Return to world</button></header>'
+  +'<div class="uri-adventure-room-body" tabindex="0"></div>'
+  +'<nav class="uri-adventure-room-nav" aria-label="Navigate adventure areas"><button type="button" data-adventure-action="room-prev">← Previous area</button><button type="button" data-adventure-action="room-map">World map</button><button type="button" data-adventure-action="room-next">Next area →</button></nav>'
+  +'</section></div>'
   +'<div class="uri-adventure-hud"><span class="uri-adventure-position" aria-live="off">Starting meadow</span><span class="uri-adventure-stars" aria-live="polite">'+(a.collectibles?'Memories: 0':'A celebration awaits')+'</span><span class="uri-adventure-prompt">Approach a sign and press E or Interact</span></div>'
   +'<div class="uri-adventure-controls" aria-label="Game controls">'
   +(a.touch==='joystick'?'<div class="uri-adventure-joystick" data-adventure-control="joystick" role="group" aria-label="Movement joystick"><span class="uri-adventure-stick" aria-hidden="true"></span><small>Move</small></div>'
@@ -58,10 +64,7 @@ function preview(e){
   +'</div><details class="uri-adventure-directory"><summary>View all invitation information without playing</summary><div class="uri-adventure-pages">'
   +parts.map(p=>'<div class="uri-adventure-page" data-adventure-id="'+p.id+'"><h2>'+T(p.title)+'</h2>'+p.html+'</div>').join('')
   +(parts.length===0?'<p>Add invitation sections in the Features tab.</p>':'')+'</div></details></div>'
-  +'<dialog class="uri-adventure-dialog" aria-label="Invitation information"><div class="uri-adventure-dialog-head"><strong class="uri-adventure-dialog-title">Invitation details</strong><button type="button" data-adventure-action="close" aria-label="Close invitation details">Close</button></div><div class="uri-adventure-dialog-body"></div></dialog>'
-  +'<dialog class="uri-adventure-map" aria-label="Adventure world map"><h2>Choose a destination</h2><p>Jump directly to any invitation detail.</p><div class="uri-adventure-map-list">'
-  +parts.map((p,i)=>'<button type="button" data-adventure-station="'+p.id+'"><span>'+String(i+1).padStart(2,'0')+'</span>'+T(p.title)+'</button>').join('')
-  +'</div><button type="button" data-adventure-action="close">Back to game</button></dialog>'
+  +'<footer class="wb-footer">URI · Your celebration, your adventure</footer></article>';
   +'<footer class="wb-footer">URI · Your celebration, your adventure</footer></article>';
 }
 U.render=e=>active(e)?preview(e):originalRender(e);
@@ -113,57 +116,130 @@ function loadPhaser(){
  return enginePromise;
 }
 function stationNodes(root){return [...root.querySelectorAll('.uri-adventure-page[data-adventure-id]')]}
-function closeDialog(root,dialog){
- if(dialog?.open)dialog.close();
- else if(dialog)dialog.removeAttribute('data-fallback-open');
+/* Each checkpoint is an explorable room within the game stage, never a modal.
+ * Phaser pauses at the doorway. The native HTML content stays accessible and scrollable. */
+function travelTo(root,id){
+ const inst=root._uriAdventure,scene=inst?.scene;
+ const cp=scene?.checkpoints?.find?.(c=>c.id===id);
+ if(cp&&scene.player){
+  scene.player.setX(Math.max(40,cp.x-65));
+  scene.player.setVelocityX(0);
+ }
+}
+function enterRoom(root,heading,view){
+ const inst=root._uriAdventure,stage=root.querySelector('.uri-adventure-stage');
+ const room=stage?.querySelector('.uri-adventure-interior');
+ if(!room)return null;
+ if(inst){
+  if(inst.view==='world'||!inst.view)inst.returnFocus=document.activeElement;
+  inst.view=view;
+  inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
+  if(inst.scene?.player&&inst.scene.textures?.exists?.('uri-player-interact'))
+   inst.scene.player.setTexture('uri-player-interact');
+  inst.scene?.scene?.pause?.();
+ }
+ room.hidden=false;
+ stage.classList.add('uri-adventure-inside');
+ const title=room.querySelector('.uri-adventure-room-title');
+ if(title){title.textContent=heading;title.focus({preventScroll:true})}
+ const body=room.querySelector('.uri-adventure-room-body');
+ if(body)body.scrollTop=0;
+ return room;
+}
+function exitRoom(root){
  const inst=root._uriAdventure;
- if(inst?.scene?.scene?.isPaused?.())inst.scene.scene.resume();
- inst?.scene?.input?.keyboard?.resetKeys?.();
+ const stage=root.querySelector('.uri-adventure-stage'),room=stage?.querySelector('.uri-adventure-interior');
+ if(!room||room.hidden)return;
+ room.hidden=true;
+ stage.classList.remove('uri-adventure-inside');
+ stage.removeAttribute('data-interior-type');
+ room.querySelector('.uri-adventure-room-body').replaceChildren();
+ if(inst){
+  inst.view='world';inst.currentStation=null;
+  inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
+  if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
+  inst.scene?.input?.keyboard?.resetKeys?.();
+  const preferred=inst.returnFocus?.isConnected?inst.returnFocus:inst.game?.canvas;
+  preferred?.focus?.({preventScroll:true});
+ }
 }
 function openStation(root,id){
  const page=stationNodes(root).find(p=>p.dataset.adventureId===id);
  if(!page)return;
- const dialog=root.querySelector('.uri-adventure-dialog');
- if(!dialog)return;
- if(root._uriAdventure?.scene?.player)root._uriAdventure.scene.player.setTexture('uri-player-interact');
- root._uriAdventure?.scene?.scene?.pause?.();
- dialog.querySelector('.uri-adventure-dialog-title').textContent=page.querySelector('h2')?.textContent||'Invitation details';
- dialog.querySelector('.uri-adventure-dialog-body').innerHTML=page.innerHTML;
+ const title=page.querySelector('h2')?.textContent||'Invitation details';
+ const room=enterRoom(root,title,'station');if(!room)return;
+ const stage=root.querySelector('.uri-adventure-stage');
+ stage.dataset.interiorType=id;
+ const inst=root._uriAdventure;
+ if(inst)inst.currentStation=id;
+ const stations=stationNodes(root),index=stations.indexOf(page);
+ const prev=room.querySelector('[data-adventure-action="room-prev"]');
+ const next=room.querySelector('[data-adventure-action="room-next"]');
+ if(prev)prev.disabled=index<=0;
+ if(next)next.disabled=index>=stations.length-1;
+ room.querySelector('.uri-adventure-room-nav').hidden=false;
+ const content=room.querySelector('.uri-adventure-room-body');
+ content.innerHTML='<div class="uri-adventure-room-content">'+page.innerHTML+'</div>';
+ // The online guest form is rendered in the same game room via the existing
+ // token-protected RSVP API; it never requires a dialog or a second website.
  if(id==='rsvp'){
   const link=root.querySelector('.uri-adventure-rsvp-link');
-  if(link&&!link.hidden){const action=link.cloneNode(true);action.hidden=false;
-   dialog.querySelector('.uri-adventure-dialog-body').appendChild(action)}
+  if(link&&!link.hidden){
+   const url=link.getAttribute('href')||'',token=url.startsWith('#rsvp/')?url.slice(6):'';
+   if(/^[a-f0-9]{64}$/.test(token)&&window.uriCloudEmbedRSVP){
+    const slot=document.createElement('div');slot.className='uri-adventure-inline-rsvp';
+    content.appendChild(slot);
+    window.uriCloudEmbedRSVP(token,slot).catch(()=>{});
+   }else{
+    const action=link.cloneNode(true);action.hidden=false;
+    action.textContent='Open personalized RSVP form';
+    content.appendChild(action);
+   }
+  }
  }
- if(typeof dialog.showModal==='function'&&!dialog.open)dialog.showModal();
- else dialog.setAttribute('data-fallback-open','yes');
- dialog.querySelector('[data-adventure-action="close"]')?.focus();
 }
 function openMap(root){
- const map=root.querySelector('.uri-adventure-map');if(!map)return;
- root._uriAdventure?.scene?.scene?.pause?.();
- if(typeof map.showModal==='function'&&!map.open)map.showModal();
- else map.setAttribute('data-fallback-open','yes');
- map.querySelector('button')?.focus();
+ const room=enterRoom(root,'World map','map');if(!room)return;
+ const stage=root.querySelector('.uri-adventure-stage');
+ stage.dataset.interiorType='map';
+ room.querySelector('.uri-adventure-room-nav').hidden=true;
+ const list=stationNodes(root).map((p,i)=>
+  '<button type="button" data-adventure-station="'+T(p.dataset.adventureId)+'"><span>'+String(i+1).padStart(2,'0')+'</span>'+T(p.querySelector('h2')?.textContent||'Invitation area')+'</button>'
+ ).join('');
+ room.querySelector('.uri-adventure-room-body').innerHTML='<div class="uri-adventure-map-sheet"><p>Select an area to visit it inside the game, or return to the path.</p><div class="uri-adventure-map-list">'+list+'</div></div>';
+}
+function moveRoom(root,direction){
+ const stations=stationNodes(root),id=root._uriAdventure?.currentStation;
+ const index=stations.findIndex(p=>p.dataset.adventureId===id);
+ const next=stations[index+direction];if(!next)return;
+ travelTo(root,next.dataset.adventureId);
+ openStation(root,next.dataset.adventureId);
 }
 function setupUi(root){
  if(root.dataset.adventureWired)return;
  root.dataset.adventureWired='yes';
- const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},near:null,destroyed:false};
+ const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},near:null,view:'world',currentStation:null,destroyed:false};
  root._uriAdventure=inst;instances.add(inst);
  root.addEventListener('click',ev=>{
   const button=ev.target.closest('button');
   if(!button||!root.contains(button))return;
   const station=button.dataset.adventureStation;
-  if(station){closeDialog(root,root.querySelector('.uri-adventure-map'));openStation(root,station);return}
+  if(station){travelTo(root,station);openStation(root,station);return}
   const action=button.dataset.adventureAction;
   if(action==='details'){
    const d=root.querySelector('.uri-adventure-directory');if(d){d.open=true;d.scrollIntoView?.({behavior:'smooth',block:'start'})}
   }else if(action==='interact'){if(inst.near)openStation(root,inst.near)}
-  else if(action==='map')openMap(root);
-  else if(action==='close')closeDialog(root,button.closest('dialog'));
+  else if(action==='map'||action==='room-map')openMap(root);
+  else if(action==='room-exit')exitRoom(root);
+  else if(action==='room-prev')moveRoom(root,-1);
+  else if(action==='room-next')moveRoom(root,1);
   else if(action==='play')startGame(inst);
  });
- root.querySelectorAll('dialog').forEach(d=>d.addEventListener('close',()=>{if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume()}));
+ root.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'&&inst.view&&inst.view!=='world'){
+   ev.preventDefault();ev.stopPropagation();exitRoom(root);
+  }
+ });
  function setControl(control,pressed,ev){
   if(ev?.cancelable)ev.preventDefault();
   if(control==='joystick'){
@@ -358,7 +434,7 @@ function init(){
   });observer.observe(app,{childList:true,subtree:true});
  }
 }
-window.URIAdventure={normalize,manager,features,render:preview,mount,start:root=>{
+window.URIAdventure={normalize,manager,features,render:preview,mount,openStation,openMap,exitRoom,start:root=>{
  if(!root)return;setupUi(root);return startGame(root._uriAdventure)
 },worlds:Object.keys(WORLDS)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
