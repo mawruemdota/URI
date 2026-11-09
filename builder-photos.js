@@ -7,14 +7,14 @@ const U=window.URIBuilder;
 const T=v=>esc(v==null?'':String(v));
 const clamp=(v,min=0,max=100)=>Math.min(max,Math.max(min,Number(v)||0));
 const FORMATS=[['landscape','Landscape · 3:2'],['square','Square · 1:1'],['portrait','Portrait · 3:4']];
-let dialog=null,dragIndex=-1,pointer=null,lastFocused=null,escHandler=null;
+let dialog=null,dragIndex=-1,pointer=null,reorderPointer=null,lastFocused=null,escHandler=null;
 function event(){const value=current();return value&&value.type==='Wedding'?U.model(value):null}
 function fresh(){eventPage()}
 function formatSelect(i,value){return '<label class="wb-field"><span>Display shape</span><select aria-label="Gallery photo '+(i+1)+' display shape" onchange="uriBPhotoSet('+i+',\'crop\',this.value)">'+FORMATS.map(([id,label])=>'<option value="'+id+'" '+(value===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>'}
 function photoCard(p,i,total){
  const n=i+1;
- return '<article class="wb-photo-card wb-photo-tile" data-photo-index="'+i+'" ondragover="uriPhotoDragOver(event,'+i+')" ondragleave="uriPhotoDragLeave(event)" ondrop="uriPhotoDrop(event,'+i+')">'
-   +'<div class="wb-photo-tile-header"><span class="wb-photo-tile-number">PHOTO '+n+'</span><button type="button" class="wb-photo-grip" draggable="true" title="Drag this handle to reorder" aria-label="Drag photo '+n+' to reorder" ondragstart="uriPhotoDragStart(event,'+i+')" ondragend="uriPhotoDragEnd(event)">⠿ <span>Drag to reorder</span></button></div>'
+ return '<article class="wb-photo-card wb-photo-tile" data-photo-index="'+i+'" ondragover="uriPhotoDragOver(event,'+i+')" ondragleave="uriPhotoDragLeave(event)" ondrop="uriPhotoDrop(event,'+i+')" onpointerup="uriPhotoReorderPointerEnd(event,'+i+')">'
+   +'<div class="wb-photo-tile-header"><span class="wb-photo-tile-number">PHOTO '+n+'</span><button type="button" class="wb-photo-grip" draggable="true" title="Drag this handle to reorder" aria-label="Drag photo '+n+' to reorder" ondragstart="uriPhotoDragStart(event,'+i+')" ondragend="uriPhotoDragEnd(event)" onpointerdown="uriPhotoReorderPointerStart(event,'+i+')">⠿ <span>Drag to reorder</span></button></div>'
    +'<button type="button" class="wb-photo-tile-image" onclick="uriPhotoOpen(\'gallery\','+i+')" aria-label="Open crop editor for photo '+n+'">'+U.picture(p,'wb-photo-card-image')+'<span class="wb-photo-tile-edit">Edit crop</span></button>'
    +'<div class="wb-photo-card-controls"><label class="wb-field"><span>Photo description</span><input aria-label="Description for photo '+n+'" value="'+T(p.alt)+'" maxlength="180" oninput="uriBPhotoSet('+i+',\'alt\',this.value)" placeholder="Describe this moment"></label>'
    +formatSelect(i,p.crop)
@@ -70,6 +70,18 @@ window.uriBPhotoRemove=i=>{
  if(persistOrRollback(x=>{x.photos.splice(i,1)}))afterUpdate('Photo removed.');
 };
 window.uriBHeroRemove=()=>{if(typeof confirm==='function'&&!confirm('Remove the wedding cover photograph?'))return;if(persistOrRollback(e=>{e.heroPhoto=''}))afterUpdate('Cover photograph removed.')};
+window.uriPhotoReorderPointerStart=(ev,i)=>{
+ if(ev.pointerType&&ev.pointerType!=='mouse')return;
+ if(ev.button!==0)return;
+ reorderPointer={id:ev.pointerId,index:i,x:ev.clientX,y:ev.clientY};
+};
+window.uriPhotoReorderPointerEnd=(ev,i)=>{
+ if(!reorderPointer||reorderPointer.id!==ev.pointerId)return;
+ const from=reorderPointer.index;
+ const distance=Math.hypot(ev.clientX-reorderPointer.x,ev.clientY-reorderPointer.y);
+ reorderPointer=null;
+ if(from!==i&&distance>16&&move(from,i))afterUpdate('Gallery photo order saved.');
+};
 window.uriPhotoDragStart=(ev,i)=>{
  const e=event();if(!e||!e.photos[i]||!ev.dataTransfer)return;
  dragIndex=i;ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain','uri-photo-'+i);
@@ -92,7 +104,7 @@ window.uriPhotoDrop=(ev,i)=>{
   const match=/^uri-photo-(\d+)$/.exec(token);
   if(match)from=Number(match[1]);
  }
- dragIndex=-1;
+ dragIndex=-1;reorderPointer=null;
  document.querySelectorAll('.wb-photo-tile').forEach(x=>x.classList.remove('is-drop-target','is-dragging'));
  if(move(from,i))afterUpdate('Gallery photo order saved.');
 };
