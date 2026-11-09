@@ -11,7 +11,7 @@
 - [x] Published invitation payloads retain Adventure Game Manager settings and custom checkpoint order
 - [x] Personalized game invitation URL can link to token-protected online RSVP form
 - [x] Automated feature and safety regression tests
-- [ ] Final real-browser Phaser and mobile viewport validation
+- [x] Real Phaser Chromium movement, checkpoints, and 390px mobile preview validation (GitHub Actions run 42634951950)
 - [ ] Actual iOS/Android hardware performance, screen-reader and keyboard accessibility acceptance
 - [ ] Live cloud guest RSVP acceptance, rate limiting and public beta security review
 - [ ] Optional custom sprite uploads, additional world scenery and more advanced level editing
