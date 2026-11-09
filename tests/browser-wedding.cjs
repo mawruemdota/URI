@@ -71,8 +71,9 @@ const image=async (page,name)=>{
     assert.match(await page.locator('.uri-ready-panel').innerText(),/Required for publishing/);
     await image(page,'04b-readiness-checklist.png');
     await page.locator('.wb-tabs button').filter({hasText:'Content'}).click();
-    await page.locator('#wbLivePreview [data-feature="hero"] .wb-names .wb-inline-edit').waitFor();
-    await page.locator('#wbLivePreview [data-feature="hero"] .wb-names .wb-inline-edit').click();
+    await page.getByRole('button',{name:"Edit first partner's name"}).waitFor();
+    assert.equal(await page.getByRole('button',{name:"Edit second partner's name"}).count(),1);
+    await page.getByRole('button',{name:"Edit first partner's name"}).click();
     assert.equal(await page.locator('[data-uri-field="name1"] input').count(),1);
     // Design choice previews must show this couple, not generic demo names.
     await page.locator('.wb-tabs button').filter({hasText:'Design'}).click();
