@@ -17,6 +17,12 @@ U.presets={classic:{bg:'#f6f0e8',ink:'#49483d',accent:'#967c72',heading:'cormora
 U.fonts={cormorant:"'Cormorant Garamond',serif",allura:"'Allura',cursive",playfair:"'Playfair Display',serif",montserrat:"'Montserrat',sans-serif",dm:"'DM Sans',sans-serif",barlow:"'Barlow Condensed','Arial Narrow',sans-serif"};
 const variants={classic:{hero:'split',story:'letter',gallery:'carousel',countdown:'classic',details:'columns',timeline:'vertical',dress:'palette',gifts:'note',rsvp:'framed'},garden:{hero:'split',story:'columns',gallery:'collage',countdown:'tiles',details:'cards',timeline:'horizontal',dress:'simple',gifts:'card',rsvp:'simple'},nightfall:{hero:'immersive',story:'quote',gallery:'grid',countdown:'tiles',details:'cards',timeline:'vertical',dress:'simple',gifts:'card',rsvp:'framed'}};
 const enabledDefaults={hero:true,story:true,gallery:true,countdown:true,details:true,timeline:true,dress:false,gifts:false,rsvp:true};
+/* Each template arranges existing sections differently. A missing pair expands to full width. */
+U.templateLayout={
+ classic:{wide:['hero','story','gallery','countdown','rsvp'],pairs:['details','timeline','dress','gifts']},
+ garden:{wide:['hero','story','gallery','rsvp'],pairs:['countdown','details','timeline','dress','gifts']},
+ nightfall:{wide:['hero','story','gallery','countdown','rsvp'],pairs:['details','timeline','dress','gifts']}
+};
 const T=v=>esc(v==null?'':String(v));
 const color=(v,def)=>/^#[0-9a-fA-F]{6}$/.test(v||'')?v:def;
 const clamped=v=>Math.min(100,Math.max(0,Number(v)||0));
@@ -58,7 +64,10 @@ function nightfallStory(e,v,storyText){
   +'<div class="wb-nightfall-story-body"><p>'+storyText+'</p></div>'
   +'</section>';
 }
-function hero(e,v){let hp=U.photo({src:e.heroPhoto||'',...e.heroSettings});if(e.template==='nightfall')return nightfallHero(e,v,hp);if(e.template==='garden'){return '<section data-feature="hero" class="wb-unit wb-hero wb-hero-'+v+' wb-editorial-cover"><aside class="wb-editorial-side wb-editorial-left">'+teaserDetails(e)+'</aside><div class="wb-editorial-middle"><div class="wb-editorial-landscape">'+U.picture(hp,'wb-hero-image','Add your wedding photograph')+'</div><div class="wb-editorial-main"><h1 class="wb-names">'+lovelyNames(e)+'</h1><span class="wb-editorial-fine-rule"></span><div class="wb-editorial-date">'+T(e.date?fmt(e.date):'Save the date')+'</div>'+(U.enabled(e,'details')?'':'<p>'+T(e.venue||'Venue to be announced')+'</p>')+'</div></div><aside class="wb-editorial-side wb-editorial-right">'+teaserTimeline(e)+'</aside></section>'}
+function hero(e,v){let hp=U.photo({src:e.heroPhoto||'',...e.heroSettings});if(e.template==='nightfall')return nightfallHero(e,v,hp);if(e.template==='garden'){
+const showDetails=U.enabled(e,'details'),showTimeline=U.enabled(e,'timeline')&&(!window.URIWeddingDetails||window.URIWeddingDetails.getTimeline(e).length>0);
+const sides=showDetails?(showTimeline?'both':'details'):(showTimeline?'timeline':'none');
+return '<section data-feature="hero" class="wb-unit wb-hero wb-hero-'+v+' wb-editorial-cover wb-editorial-sides-'+sides+'">'+(showDetails?'<aside class="wb-editorial-side wb-editorial-left">'+teaserDetails(e)+'</aside>':'')+'<div class="wb-editorial-middle"><div class="wb-editorial-landscape">'+U.picture(hp,'wb-hero-image','Add your wedding photograph')+'</div><div class="wb-editorial-main"><h1 class="wb-names">'+lovelyNames(e)+'</h1><span class="wb-editorial-fine-rule"></span><div class="wb-editorial-date">'+T(e.date?fmt(e.date):'Save the date')+'</div>'+(U.enabled(e,'details')?'':'<p>'+T(e.venue||'Venue to be announced')+'</p>')+'</div></div>'+(showTimeline?'<aside class="wb-editorial-side wb-editorial-right">'+teaserTimeline(e)+'</aside>':'')+'</section>'}
 return '<section data-feature="hero" class="wb-unit wb-hero wb-hero-'+v+' wb-botanical-cover">'+U.picture(hp,'wb-hero-image','Add your wedding portrait')+'<div class="wb-hero-copy"><span class="wb-botanical-art wb-botanical-art-top">'+botanicalSprig+'</span><span class="wb-botanical-art wb-botanical-art-side">'+botanicalSprig+'</span><h1 class="wb-names">'+lovelyNames(e)+'</h1><strong class="wb-botanical-date">'+T(e.date?fmt(e.date):'Save the date')+'</strong><p class="wb-botanical-venue">'+T(e.venue||'Venue to be announced')+'</p>'+(U.enabled(e,'gallery')&&e.photos.some(p=>imgurl(U.photo(p).src))?'<div class="wb-botanical-round-photo">'+U.picture(e.photos[0]||{src:'',alt:'Wedding photograph'},'wb-portrait-small','Add a photo')+'</div>':'')+'</div></section>'}
 function story(e,v){let storyText=T(e.message||'Together with our families, we joyfully invite you to celebrate with us.');if(e.template==='nightfall')return nightfallStory(e,v,storyText);if(e.template==='garden'){let photo=e.photos.length&&U.enabled(e,'gallery')?e.photos[0]:{src:e.heroPhoto||'',...e.heroSettings};return '<section data-feature="story" class="wb-unit wb-story wb-story-'+v+' wb-editorial-story"><div class="wb-editorial-story-photo">'+U.picture(photo,'wb-story-image','A moment together')+'</div><div class="wb-editorial-story-center"><div class="wb-editorial-story-monogram"><span>'+simpleMonogram(e)+'</span></div><p>'+storyText+'</p></div><div class="wb-editorial-story-names"><span class="wb-kicker">OUR STORY</span><strong>'+T(e.name1||'Your Name')+'<span>&amp;</span>'+T(e.name2||'Partner Name')+'</strong></div></section>'}
 return '<section data-feature="story" class="wb-unit wb-story wb-story-'+v+' wb-botanical-story"><span class="wb-botanical-art wb-botanical-art-story">'+botanicalSprig+'</span><h2>Our Story</h2><p>'+storyText+'</p><span class="wb-botanical-signature">'+T(e.name1||'Your Name')+' &amp; '+T(e.name2||'Partner Name')+'</span></section>'}
@@ -70,7 +79,28 @@ function dress(e,v){let c=e.featureConfig,colors=String(c.dressColors||'#B5A48B,
 function gifts(e,v){let c=e.featureConfig,url=String(c.registryUrl||'');return '<section data-feature="gifts" class="wb-unit wb-gifts wb-gifts-'+v+'">'+''+'<h2>Gift Registry</h2><p>'+T(c.gifts??'Your presence is our greatest gift.')+'</p>'+(url.startsWith('https://')?'<a target="_blank" rel="noopener noreferrer" href="'+T(url)+'">View registry </a>':'')+'</section>'}
 function rsvp(e,v){return '<section data-feature="rsvp" class="wb-unit wb-rsvp wb-rsvp-'+v+'">'+''+'<h2>Kindly RSVP</h2><p>'+(e.deadline?'Please reply by '+T(fmt(e.deadline))+'.':'Please let us know if you can celebrate with us.')+'</p><small>Online RSVP collection is not active yet. Please contact the hosts directly to respond.</small></section>'}
 const views={hero,story,gallery,countdown,details,timeline,dress,gifts,rsvp};
-U.render=e=>{U.model(e);let d=U.design(e),style='--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+';--wb-heading:'+U.fonts[d.heading]+';--wb-body:'+U.fonts[d.body]+';';return '<article class="uri-builder-site wb-theme-'+(e.template==='garden'?'editorial':e.template==='nightfall'?'nightfall':'botanical')+' wb-spacing-'+d.spacing+'" style="'+style+'"><div class="wb-flow">'+e.featureOrder.filter(id=>U.enabled(e,id)).map(id=>views[id](e,U.variant(e,id))).join('')+'</div><footer class="wb-footer">URI</footer></article>'};
+/* Compose actual renderable sections first: disabled/empty features leave no holes.
+   Pairs only form between adjacent compatible sections in the user's order. */
+U.compose=e=>{
+ U.model(e);
+ const layout=U.templateLayout[e.template]||U.templateLayout.classic;
+ const list=e.featureOrder.filter(id=>U.enabled(e,id)).map(id=>({
+  id,variant:U.variant(e,id),html:views[id](e,U.variant(e,id))
+ })).filter(x=>x.html&&x.html.trim());
+ for(let i=0;i<list.length;i++){
+  const item=list[i];
+  item.width='wide';item.pair='single';
+  if(layout.pairs.includes(item.id)&&i+1<list.length&&layout.pairs.includes(list[i+1].id)){
+   item.width='half';item.pair='first';
+   list[i+1].width='half';list[i+1].pair='second';
+   i++;
+  }
+ }
+ return list.map((item,index)=>({...item,
+  html:item.html.replace('<section ','<section data-layout-width="'+item.width+'" data-layout-pair="'+item.pair+'" data-layout-index="'+index+'" ')
+ }));
+};
+U.render=e=>{U.model(e);let d=U.design(e),style='--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+';--wb-heading:'+U.fonts[d.heading]+';--wb-body:'+U.fonts[d.body]+';';const plan=U.compose(e);return '<article class="uri-builder-site wb-theme-'+(e.template==='garden'?'editorial':e.template==='nightfall'?'nightfall':'botanical')+' wb-spacing-'+d.spacing+'" data-visible-features="'+plan.length+'" style="'+style+'"><div class="wb-flow">'+plan.map(x=>x.html).join('')+'</div><footer class="wb-footer">URI</footer></article>'};
 U.cover=e=>{let title=T(e.name1||'Maya'),other=T(e.name2||'Emir'),date=T(e.date?fmt(e.date):'SAVE THE DATE'),src=imgurl(e.heroPhoto||'');let x=clamped(e.heroSettings?.x??50),y=clamped(e.heroSettings?.y??50),zoom=Math.min(3,Math.max(1,Number(e.heroSettings?.zoom)||1)),photo=src?'<img src="'+T(src)+'" alt="Wedding couple portrait" style="object-position:'+x+'% '+y+'%;transform-origin:'+x+'% '+y+'%;transform:scale('+zoom+')">':'';
 if(e.template==='nightfall')return '<div class="wb-cover-mini wb-mini-nightfall"><div class="wb-mini-nightfall-photo">'+photo+'</div><div class="wb-mini-nightfall-shade"></div><div class="wb-mini-nightfall-content"><span>THE WEDDING OF</span><strong>'+title+'<em>&amp;</em>'+other+'</strong><i></i><small>'+date+'</small></div></div>';
 if(e.template==='garden')return '<div class="wb-cover-mini wb-cover-editorial wb-mini-stationery"><div class="wb-mini-details"><span class="wb-editorial-side-title">The Details</span><small>THE WEDDING</small><strong>'+date+'</strong><small>'+T(e.venue||'THE VENUE')+'</small></div><div class="wb-mini-main"><div class="wb-mini-landscape">'+photo+'</div><strong>'+title+' <em>&amp;</em> '+other+'</strong><span class="wb-mini-date">'+date+'</span></div><div class="wb-mini-timeline"><span class="wb-editorial-side-title">Timeline</span><small> CEREMONY</small><small> RECEPTION</small><small> CELEBRATE</small></div></div>';
