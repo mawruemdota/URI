@@ -44,3 +44,5 @@
 @media(max-width:600px){.uri-household-row{flex-wrap:wrap}.uri-household-row>label{flex:1;max-width:130px}}
 
 .uri-ready-item>span{display:none}
+
+.uri-guest-row[hidden]{display:none!important}
