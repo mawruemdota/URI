@@ -18,7 +18,7 @@ const sample={
  featureConfig:{},layoutByTemplate:{},designByTemplate:{}
 };
 let combinations=0;
-for(const template of ['classic','garden']){
+for(const template of ['classic','garden','nightfall']){
  const e=structuredClone(sample);e.template=template;
  U.model(e);
  for(const def of U.features){
@@ -60,4 +60,4 @@ invalid.name1='<img src=x onerror=alert(1)>',invalid.message='<script>alert(2)</
 const secure=U.render(invalid);
 assert.doesNotMatch(secure,/<script>|<img src=x onerror=/);
 assert.match(secure,/&lt;script&gt;/);
-console.log('Template matrix passed:',combinations,'feature/layout combinations across both templates, visibility, ordering, empty-photo and HTML escaping checks.');
+console.log('Template matrix passed:',combinations,'feature/layout combinations across three templates, visibility, ordering, empty-photo and HTML escaping checks.');
