@@ -53,11 +53,17 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview [data-adventure-action="play"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage canvas').waitFor({timeout:25000});
   await page.waitForFunction(()=>!!document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure?.scene?.player,{timeout:15000});
+  await page.locator('#wbLivePreview .uri-adventure-stage canvas').click({position:{x:120,y:110}});
   const posBefore=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
   await page.keyboard.down('ArrowRight');
   await page.waitForTimeout(750);
   await page.keyboard.up('ArrowRight');
   const posAfter=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
+  if(!(posAfter>posBefore+40))console.log('Adventure movement diagnostics',await page.evaluate(()=>{
+    const s=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene;
+    return {active:s.scene.isActive(),paused:s.scene.isPaused(),gameFrame:s.game.loop.frame,velocity:s.player.body.velocity.x,focus:document.activeElement?.tagName,
+      keyboard:s.input.keyboard?.enabled,keys:Object.fromEntries(Object.entries(s.keys||{}).map(([k,v])=>[k,!!v?.isDown]))};
+  }));
   assert.ok(posAfter>posBefore+40,'Keyboard input moves the Phaser player: '+posBefore+' => '+posAfter);
   await page.locator('#wbLivePreview [data-adventure-action="map"]').click();
   await page.locator('#wbLivePreview .uri-adventure-map').waitFor({state:'visible'});
