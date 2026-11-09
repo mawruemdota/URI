@@ -53,6 +53,15 @@ for(const file of ['wedding.js','builder-core.js','wedding-details.js','readines
  good.heroPhoto='https://example.test/couple.jpg';
  good.heroSettings={zoom:1.75,x:34,y:68};
  const U=win.URIBuilder;
+ const originalSetter=localStorage.setItem;
+ localStorage.setItem=()=>{throw new Error('QuotaExceededError')};
+ const previousName=good.name1;
+ win.uriBSet('name1','Cannot save this');
+ assert.equal(good.name1,previousName,'Failed persistence must roll back the edited value');
+ assert.equal(U.lastSaveFailed,true,'Save failure must be visible to the editor');
+ localStorage.setItem=originalSetter;
+ win.uriBSet('name1',previousName);
+ assert.equal(U.lastSaveFailed,false,'Successful persistence must clear the failure flag');
  const cover=U.cover(good);
  assert.match(cover,/scale\(1\.75\)/,'Dashboard cover must preserve hero zoom');
  assert.match(U.render(good),/scale\(1\.75\)/,'Invitation must preserve the same hero zoom');
