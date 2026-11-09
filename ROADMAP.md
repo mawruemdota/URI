@@ -114,6 +114,18 @@
 - [x] Cover 1,536 visibility configurations in the section regression suite
 - [ ] Allow user-defined additional section types beyond the nine built-in features
 
+## Custom Builder and Template Studio (November 2026)
+- [x] Add independent Text, Image, Video, FAQ, Location, and Button blocks
+- [x] Render custom blocks according to the selected wedding template and responsive layout
+- [x] Add, edit, duplicate, hide, show, reorder and delete custom sections
+- [x] Add hover/focus/touch editing controls to the owner-only live preview
+- [x] Create reusable Template Studio recipes from MiroMiro tokens or CSS color variables
+- [x] Export/import template recipes and preserve them in publication snapshots
+- [x] Add automated custom-section, token-import and real-browser regression checks
+- [ ] Verify interactive controls on physical iOS Safari and Android Chrome
+- [ ] Implement optional cloud synchronization for reusable template library
+- [ ] Consider a hosted MiroMiro import endpoint when the app has a secure server-side integration
+
 ## Stage 2 — Real authentication and data
 - [ ] Account sign-in and event ownership
 - [ ] Database-backed event records
