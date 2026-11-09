@@ -49,6 +49,8 @@ jobs:
         run: node tests/inline-edit-smoke.cjs
       - name: Test storage recovery and async photo isolation
         run: node tests/qa-hardening.cjs
+      - name: Test cross-device draft sync and private RSVP link workflows
+        run: node tests/cloud-sync-smoke.cjs
 
   browser-qa:
     runs-on: ubuntu-24.04
