@@ -50,6 +50,27 @@ window.uriCloudOpenRSVP=async function(token){
   activeInvite=data;app.innerHTML=formMarkup(data);
  }catch(err){unavailable('Unable to load your RSVP. Please check the link or try again.')}
 };
+/* Use the same server-validated personal RSVP inside an Adventure game room.
+ * A hash bearer token is still necessary and is never included in public event data. */
+window.uriCloudEmbedRSVP=async function(token,target){
+ const requested=String(token||'').trim().toLowerCase();
+ if(!target)return;
+ if(!/^[a-f0-9]{64}$/.test(requested)){
+  target.textContent='This personal RSVP link is invalid.';return;
+ }
+ const c=client();if(!c){target.textContent='Online RSVP is unavailable.';return}
+ target.innerHTML='<p class="uri-adventure-rsvp-loading" role="status">Loading your personalized RSVP…</p>';
+ try{
+  const {data,error}=await c.rpc('uri_rsvp_lookup',{p_token:requested});
+  if(error)throw error;
+  if(!target.isConnected)return;
+  if(!data){target.textContent='Your RSVP link is unavailable or has been revoked.';return}
+  activeToken=requested;activeInvite=data;
+  target.innerHTML=formMarkup(data);
+ }catch(err){
+  if(target.isConnected)target.textContent='Unable to load RSVP details. Please try again.';
+ }
+};
 window.uriOnlineRSVPSubmit=async ev=>{
  ev.preventDefault();
  if(submitting||!activeInvite||!activeToken)return;
@@ -63,7 +84,8 @@ window.uriOnlineRSVPSubmit=async ev=>{
    answers[q.id]=String(f.get('q_'+q.id)||'').trim().slice(0,400);
   }
  }
- const status=document.getElementById('uriOnlineRsvpStatus'),button=ev.target.querySelector('[type=submit]');
+ const status=ev.target.closest('.uri-rsvp-paper')?.querySelector('.uri-online-status')||
+  document.getElementById('uriOnlineRsvpStatus'),button=ev.target.querySelector('[type=submit]');
  submitting=true;if(button)button.disabled=true;
  if(status)status.textContent='Saving your RSVP…';
  try{
