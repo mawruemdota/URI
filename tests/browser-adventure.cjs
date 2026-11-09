@@ -109,8 +109,13 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview [data-adventure-action="room-exit"]').click();
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-interior').evaluate(el=>el.hidden),true,
     'Back to world closes the in-game room, without navigating away');
-  assert.equal(await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused()),false,
-    'The overworld resumes when leaving an area');
+  await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused(),{timeout:5000});
+  const restartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
+  await page.keyboard.down('ArrowLeft');
+  await page.waitForTimeout(350);
+  await page.keyboard.up('ArrowLeft');
+  const afterRestartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
+  assert.ok(afterRestartX<restartX-20,'The character can move again after exiting the in-game room');
   await page.locator('#wbLivePreview [data-adventure-action="details"]').click();
   assert.ok(await page.locator('#wbLivePreview .uri-adventure-directory').evaluate(el=>el.open));
   await page.screenshot({path:path.join(screens,'01-adventure-desktop.png'),fullPage:true,animations:'disabled'});
