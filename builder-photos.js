@@ -120,13 +120,17 @@ window.uriBPhotoUpload=async function(ev,target,index){
  if(target==='gallery'&&count+files.length>8){setNotice('The gallery supports up to eight photos.');ev.target.value='';return}
  if(!['hero','gallery','replace'].includes(target)||(target==='replace'&&!e.photos[index]))return;
  setNotice('Preparing '+(files.length===1?'your photograph':files.length+' photographs')+'…');
- const previous=e.photos.map(p=>({...p})),oldHero=e.heroPhoto;
+ const sourceEventId=e.id;
  try{
   const prepared=[];
   for(const file of (target==='gallery'?files:[files[0]])){
    const src=await compress(file);
    prepared.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,9),src,alt:file.name.replace(/\.[^.]+$/,'').slice(0,180),x:50,y:50,zoom:1,crop:'landscape'});
   }
+  const currentEvent=event();
+  if(!currentEvent||currentEvent.id!==sourceEventId)throw new Error('Upload cancelled because you switched invitations.');
+  if(target==='gallery'&&currentEvent.photos.length+prepared.length>8)throw new Error('The gallery supports up to eight photos.');
+  if(target==='replace'&&!currentEvent.photos[index])throw new Error('The selected photo is no longer available.');
   const okay=persistOrRollback(x=>{
    if(target==='hero'){x.heroPhoto=prepared[0].src;x.heroSettings={...(x.heroSettings||{}),x:50,y:50,zoom:1,alt:'Wedding couple'}}
    else if(target==='gallery')x.photos.push(...prepared);
@@ -136,9 +140,8 @@ window.uriBPhotoUpload=async function(ev,target,index){
   window.uriPhotoClose(true);
   afterUpdate(target==='hero'?'Cover photo saved.':target==='gallery'?files.length+' gallery photo(s) added.':'Photo replaced.');
  }catch(err){
-  e.photos=previous;e.heroPhoto=oldHero;
-  setNotice(err.message||'Unable to add this photo.');
- }finally{ev.target.value=''}
+  if(event()?.id===sourceEventId)setNotice(err.message||'Unable to add this photo.');
+ }finally{if(ev.target)ev.target.value=''}
 };
 function source(kind,index){
  const e=event();if(!e)return null;
