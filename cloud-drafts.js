@@ -37,38 +37,18 @@ async function syncGuests(c,e){
  for(const g of e.guests||[]){
   if(!g?.id||!g.name)continue;
   rows.push({
-   owner_id:user.id,local_event_id:e.id,guest_id:String(g.id),
+   guest_id:String(g.id),
    token_hash:await sha256(g.onlineToken),name:String(g.name).slice(0,120),
    email:String(g.email||'').slice(0,160),
    household_id:String(g.householdId||'').slice(0,100),
-   plus_ones_allowed:Math.max(0,Math.min(5,Number(g.plusOnesAllowed)||0)),active:true
+   plus_ones_allowed:Math.max(0,Math.min(5,Number(g.plusOnesAllowed)||0))
   });
  }
- if(rows.length){
-  const {error}=await c.from('uri_guest_tokens').upsert(rows,{onConflict:'owner_id,local_event_id,guest_id'});
-  if(error)throw error;
- }
- const {data:existing,error:readError}=await c.from('uri_guest_tokens')
-  .select('guest_id,status,plus_ones_confirmed,answers,responded_at')
-  .eq('owner_id',user.id).eq('local_event_id',e.id);
- if(readError)throw readError;
- const ids=new Set(rows.map(x=>x.guest_id));
- const stale=(existing||[]).filter(x=>!ids.has(x.guest_id)).map(x=>x.guest_id);
- if(stale.length){
-  const {error}=await c.from('uri_guest_tokens').delete()
-    .eq('owner_id',user.id).eq('local_event_id',e.id).in('guest_id',stale);
-  if(error)throw error;
- }
- // Live guest replies remain authoritative; never overwrite them with a stale local draft.
- for(const row of existing||[]){
-  const g=e.guests.find(x=>String(x.id)===row.guest_id);if(!g)continue;
-  g.status=row.status;
-  g.plusOnesConfirmed=row.plus_ones_confirmed;
-  g.answers=row.answers||{};
-  g.respondedAt=row.responded_at?Date.parse(row.responded_at):undefined;
- }
- store();
+ const {error:syncError}=await c.rpc('uri_sync_guest_tokens',{p_event_id:e.id,p_guests:rows});
+ if(syncError)throw syncError;
+ await cloudGuestRefresh(e);
 }
+
 async function saveEvent(e,c){
  if(!user||!e||e.type!=='Wedding')return;
  ensureGuestTokens(e);
@@ -81,8 +61,8 @@ async function saveEvent(e,c){
  if(error){if(/conflict/i.test(error.message))conflicts.add(e.id);throw error}
  e._uriCloudRevision=Number(data);
  e._uriCloudSyncedAt=new Date().toISOString();
- dirty.delete(e.id);conflicts.delete(e.id);store();
  await syncGuests(c,e);
+ dirty.delete(e.id);conflicts.delete(e.id);store();
 }
 async function flush(){
  if(working||!user||!dirty.size)return;
