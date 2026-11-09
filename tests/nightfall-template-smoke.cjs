@@ -68,7 +68,7 @@ sample.name1='<script>alert(1)</script>';
 assert.doesNotMatch(U.render(sample),/<script>/);
 assert.match(U.render(sample),/&lt;script&gt;/);
 assert.match(wedding,/id:'nightfall',name:'Nightfall'/);
-assert.match(wizard,/\['classic','garden','nightfall'\]/);
+assert.match(wizard,/\['classic','garden','nightfall','adventure'\]/);
 assert.match(editor,/U\.presets\[value\]/);
 assert.match(html,/href="nightfall-template\.css"/);
 assert.match(css,/@container \(max-width:480px\)/);
