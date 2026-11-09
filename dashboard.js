@@ -26,7 +26,7 @@ function card(e){
 }
 function sortedItems(){
  const es=[...events()];
- es.sort((a,b)=>activeSort==='date'?(a.date||'9999').localeCompare(b.date||'9999'):(stamp(b)-stamp(a)));
+ es.sort((a,b)=>activeSort==='date'?String(a.date||'9999').localeCompare(String(b.date||'9999')):(stamp(b)-stamp(a)));
  return es;
 }
 function filterItems(){
