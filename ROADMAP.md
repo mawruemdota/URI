@@ -1,5 +1,21 @@
 # URI Product Roadmap
 
+## Adventure Invitation 1.0 — Light Platformer (2026-11-09)
+- [x] Fourth selectable wedding template with the existing shared event model and section settings
+- [x] Original Phaser 3.90 Arcade Physics side-scroller with continuous non-punishing level
+- [x] Keyboard and responsive mobile controls, including virtual joystick option
+- [x] Original pixel-art character looks, world palettes and collectible memories
+- [x] Interactive checkpoint signs, native HTML detail overlays and world map navigation
+- [x] All-section accessible fallback and skip-game navigation
+- [x] Game Template Manager for scene, character, control preference, speed and optional collectibles
+- [x] Published invitation payloads retain Adventure Game Manager settings and custom checkpoint order
+- [x] Personalized game invitation URL can link to token-protected online RSVP form
+- [x] Automated feature and safety regression tests
+- [ ] Final real-browser Phaser and mobile viewport validation
+- [ ] Actual iOS/Android hardware performance, screen-reader and keyboard accessibility acceptance
+- [ ] Live cloud guest RSVP acceptance, rate limiting and public beta security review
+- [ ] Optional custom sprite uploads, additional world scenery and more advanced level editing
+
 ## Cross-device cloud drafts and secure online RSVP (2026-11-09)
 - [x] Owner-scoped private cloud drafts, email sign-in integration and explicit import of prior local-only drafts
 - [x] Optimistic cloud revision checks to prevent silent cross-device overwrites
