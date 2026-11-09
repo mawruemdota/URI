@@ -62,6 +62,7 @@ async function saveEvent(e,c){
  if(error){if(/conflict/i.test(error.message))conflicts.add(e.id);throw error}
  e._uriCloudRevision=Number(data);
  e._uriCloudOwnerId=user.id;
+ e._uriCloudPending=false;
  e._uriCloudSyncedAt=new Date().toISOString();
  await syncGuests(c,e);
  dirty.delete(e.id);conflicts.delete(e.id);store();
@@ -82,10 +83,10 @@ async function flush(){
  }finally{working=false}
 }
 function queueSave(){
- if(!user)return;
  const e=current();if(!e?.id||e.type!=='Wedding')return;
+ if(!user){if(e._uriCloudOwnerId){e._uriCloudPending=true;store()}return}
  if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id){stamp('Draft belongs to another account; sync blocked.');return}
- dirty.add(e.id);
+ e._uriCloudPending=true;store();dirty.add(e.id);
  stamp('Saved locally · Syncing to cloud…');
  if(timer)clearTimeout(timer);
  timer=setTimeout(flush,1200);
@@ -118,7 +119,7 @@ async function pull(force=false){
    const i=local().findIndex(e=>e.id===row.local_event_id);
    const old=i>=0?local()[i]:null;
    if(old&&old._uriCloudOwnerId&&old._uriCloudOwnerId!==user.id){skipped++;continue}
-   if(old&&!force&&(dirty.has(old.id)||
+   if(old&&!force&&(old._uriCloudPending||dirty.has(old.id)||
       ((!old._uriCloudRevision||Number(old._uriCloudRevision)===0)&&i>=0&&
        !old._uriCloudSyncedAt)||Number(old._uriCloudRevision)>Number(row.revision))){skipped++;continue}
    if(old&&Number(old._uriCloudRevision)===Number(row.revision)&&!force)continue;
@@ -144,7 +145,8 @@ async function signedIn(){
 async function activate(){
  try{
   await signedIn();
-  if(user){await pull(false);for(const e of local())if(e.type==='Wedding'&&e._uriCloudOwnerId===user.id&&dirty.has(e.id))dirty.add(e.id);
+  if(user){for(const e of local())if(e.type==='Wedding'&&e._uriCloudOwnerId===user.id&&e._uriCloudPending)dirty.add(e.id);
+   await pull(false);
    await flush();
   }else stamp('Local drafts only. Sign in to synchronize across devices.');
  }catch(err){stamp('Cloud account check failed: '+(err.message||'Unknown error'))}
