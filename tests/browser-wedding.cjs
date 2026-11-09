@@ -37,6 +37,7 @@ const image=async (page,name)=>{
     await page.locator('#templates .template').first().click();
     assert.match(await page.locator('body').innerText(),/Choose your wedding design/);
     await image(page,'01-select-template.png');
+    assert.equal(await page.locator('.wf-design').count(),3,'All three wedding designs should be available');
     await page.locator('.wf-design').nth(1).click();
     await clickNext(page);
     await page.locator('#wf-name1').fill('Maya');
@@ -78,6 +79,16 @@ const image=async (page,name)=>{
     assert.match(await page.locator('.wb-template-choices').innerText(),/Maya/);
     assert.match(await page.locator('.wb-template-choices').innerText(),/Emir/);
     await image(page,'05-design-options.png');
+    await page.locator('.wb-template-pick').nth(2).click();
+    await page.locator('#wbLivePreview .wb-theme-nightfall').waitFor();
+    const nightfallSaved=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
+    assert.equal(nightfallSaved.template,'nightfall');
+    assert.equal(nightfallSaved.name1,'Maya');
+    assert.equal(nightfallSaved.name2,'Emir');
+    assert.match(nightfallSaved.heroPhoto,/^data:image\/jpeg/);
+    assert.match(await page.locator('#wbLivePreview').innerText(),/Maya/);
+    assert.match(await page.locator('#wbLivePreview').innerText(),/Emir/);
+    await image(page,'06-nightfall-preview.png');
     await page.locator('.wb-template-pick').first().click();
     await page.locator('#wbLivePreview .wb-theme-botanical').waitFor();
     const botanical=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
