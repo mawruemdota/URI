@@ -141,8 +141,7 @@ const image=async (page,name)=>page.screenshot({path:path.join(shots,name),fullP
     await page.setViewportSize({width:390,height:844});
     await page.locator('.wb-editor').waitFor();
     await page.locator('.wb-preview-toolbar button').filter({hasText:'Mobile'}).click();
-    const frame=await page.locator('#wbLivePreview').evaluate(el=>el.style.width);
-    assert.equal(frame,'390px');
+    await page.waitForFunction(()=>document.getElementById('wbLivePreview')?.style.width==='390px',{timeout:5000});
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
     assert.ok(overflow<=3,'Mobile editor overflows viewport by '+overflow+'px');
     await image(page,'12-mobile-photo-manager.png');
