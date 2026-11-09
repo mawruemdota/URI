@@ -106,6 +106,16 @@ window.uriTemplateStudioCreate=ev=>{
  if(current()?.templateRecipes?.length>=16){alert('This invitation already has 16 designs.');return}
  if(edit(e=>{e.templateRecipes.push(recipe);e.template=recipe.id}))saveLibrary(recipe);
 };
+window.uriTemplateStudioSaveCurrent=ev=>{
+ ev.preventDefault();
+ const e=current();if(e?.type!=='Wedding')return;
+ U.model(e);
+ const name=String(new FormData(ev.target).get('name')||'').trim().slice(0,60);
+ if(!name){alert('Enter a name for this design.');return}
+ if(e.templateRecipes.length>=16){alert('This invitation already has 16 designs.');return}
+ const recipe=sanitize({id:uuid(),name,base:U.baseTemplate(e),style:U.design(e)});
+ if(recipe&&edit(e=>{e.templateRecipes.push(recipe);e.template=recipe.id}))saveLibrary(recipe);
+};
 window.uriTemplateStudioExport=id=>{
  const e=current(),recipe=saved(e||{}).find(x=>x.id===id)||library.find(x=>x.id===id);
  if(!recipe)return;
@@ -143,6 +153,7 @@ function studio(e){
  const currentRecipe=saved(e).find(x=>x.id===e.template);
  return '<details class="uri-template-studio"><summary>Template Studio <small>Create a reusable design</small></summary>'
   +'<div class="uri-template-studio-body"><p>Start with one of URI’s responsive layouts. Paste color and font tokens extracted by MiroMiro, or set your colors manually in Design.</p>'
+  +'<form class="uri-template-quick-save" onsubmit="uriTemplateStudioSaveCurrent(event)"><label class="wb-field">Save current appearance as template<input name="name" maxlength="60" required placeholder="Design name"></label><button type="submit" class="btn small">Save reusable design</button></form>'
   +'<form onsubmit="uriTemplateStudioCreate(event)"><label class="wb-field">Design name<input name="name" required maxlength="60" placeholder="e.g. Moonlit Garden"></label>'
   +'<label class="wb-field">Base layout<select name="base">'+bases.map(([id,name])=>'<option value="'+id+'" '+(U.baseTemplate(e)===id?'selected':'')+'>'+name+'</option>').join('')+'</select></label>'
   +'<label class="wb-field">Reference website<input name="source" type="url" placeholder="https://example.com" maxlength="500"></label>'
