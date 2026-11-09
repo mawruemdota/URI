@@ -1,0 +1,179 @@
+/* URI template-aware section composition.
+   Each template owns the visual treatment; the builder only supplies visible
+   features and their current order. Empty/disabled sections never reserve space. */
+
+.uri-builder-site .wb-flow > .wb-unit[data-layout-width] {
+  min-width:0;
+  grid-row:auto;
+}
+.uri-builder-site.wb-theme-botanical .wb-flow>.wb-unit[data-layout-width="wide"],
+.uri-builder-site.wb-theme-editorial .wb-flow>.wb-unit[data-layout-width="wide"],
+.uri-builder-site.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-width="wide"] {
+  grid-column:1/-1;
+}
+.uri-builder-site.wb-theme-botanical .wb-flow>.wb-unit[data-layout-width="half"],
+.uri-builder-site.wb-theme-editorial .wb-flow>.wb-unit[data-layout-width="half"],
+.uri-builder-site.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-width="half"] {
+  grid-column:span 6;
+}
+
+/* Botanical: balanced stationery spreads. Remaining standalone panels become
+   full-width rather than a card stranded in one column. */
+.uri-builder-site.wb-theme-botanical .wb-flow>.wb-unit[data-layout-pair="single"]:not(.wb-hero):not(.wb-story):not(.wb-gallery):not(.wb-countdown):not(.wb-rsvp) {
+  padding-inline:clamp(26px,9cqw,130px);
+}
+.wb-theme-botanical .wb-flow>.wb-unit[data-layout-pair="single"] .wb-venues,
+.wb-theme-botanical .wb-flow>.wb-unit[data-layout-pair="single"] .wb-wedding-schedule ol{
+  max-width:890px;
+  margin-inline:auto;
+}
+.wb-theme-botanical .wb-flow>.wb-unit[data-layout-pair="single"] .wb-swatches{
+  justify-content:center;
+}
+.wb-theme-botanical .wb-flow>.wb-unit[data-layout-pair="first"]{
+  border-right:1px solid var(--wb-hairline);
+}
+.wb-theme-botanical .wb-flow>.wb-unit[data-layout-pair="second"]{
+  border-right:0;
+}
+
+/* Editorial: the sheet can now contain a single wide announcement or two
+   symmetrical modules. No fake left/right teaser panels are shown. */
+.uri-builder-site.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="first"],
+.uri-builder-site.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="second"] {
+  padding:clamp(28px,4.7cqw,64px);
+}
+.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="first"]{
+  border-right:1px solid var(--wb-hairline);
+}
+.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="second"]{
+  border-right:0;
+}
+.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="single"]:not(.wb-hero):not(.wb-story):not(.wb-gallery):not(.wb-rsvp){
+  padding-inline:clamp(30px,8cqw,130px);
+}
+.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="single"] .wb-venues,
+.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="single"] .wb-wedding-schedule ol,
+.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="single"] .wb-counts{
+  max-width:920px;
+  margin-inline:auto;
+}
+.uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-both{
+  grid-template-columns:22% 56% 22%;
+}
+.uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-details{
+  grid-template-columns:minmax(160px,27%) minmax(0,1fr);
+}
+.uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-timeline{
+  grid-template-columns:minmax(0,1fr) minmax(160px,27%);
+}
+.uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none{
+  grid-template-columns:minmax(0,1fr);
+}
+.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none .wb-editorial-middle{
+  width:100%;max-width:900px;margin-inline:auto;
+}
+.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none .wb-editorial-landscape{
+  height:clamp(210px,27cqw,360px);
+}
+.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none .wb-editorial-main .wb-names {
+  font-size:clamp(52px,8cqw,100px);
+}
+.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-details .wb-editorial-left,
+.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-timeline .wb-editorial-right{
+  border-color:var(--wb-hairline);
+}
+
+/* Nightfall: solitary panels are broad editorial chapters; pairs read like
+   two related scenes rather than generic bright cards. */
+.uri-builder-site.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="single"]:not(.wb-hero):not(.wb-story):not(.wb-gallery):not(.wb-countdown):not(.wb-rsvp){
+  padding-inline:clamp(36px,8cqw,130px);
+}
+.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="single"] .wb-venues,
+.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="single"] .wb-wedding-schedule ol{
+  max-width:1020px;margin-inline:auto;
+}
+.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="first"]{
+  border-right:1px solid color-mix(in srgb,var(--wb-accent) 45%,transparent);
+}
+.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="second"]{
+  border-right:0;
+}
+.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="first"]:before,
+.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="second"]:before{
+  content:'';display:block;width:62px;height:3px;
+  margin-bottom:25px;background:var(--wb-accent);
+}
+.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="single"] .wb-swatches{justify-content:center}
+
+/* Source order and visual order always agree, including on narrow previews. */
+@container (max-width:780px) {
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-both{
+    grid-template-columns:24% 52% 24%;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-details{
+    grid-template-columns:30% 70%;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-timeline{
+    grid-template-columns:70% 30%;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none{
+    grid-template-columns:1fr;
+  }
+}
+@container (max-width:740px){
+  .uri-builder-site.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-width]{
+    grid-column:1/-1!important;
+    border-right:0;
+  }
+}
+@container (max-width:575px){
+  .uri-builder-site.wb-theme-botanical .wb-flow>.wb-unit[data-layout-width],
+  .uri-builder-site.wb-theme-editorial .wb-flow>.wb-unit[data-layout-width],
+  .uri-builder-site.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-width]{
+    grid-column:1/-1!important;
+    border-right:0!important;
+  }
+  .uri-builder-site.wb-theme-botanical .wb-flow>.wb-unit[data-layout-pair="single"]:not(.wb-hero):not(.wb-story):not(.wb-gallery):not(.wb-countdown):not(.wb-rsvp),
+  .uri-builder-site.wb-theme-editorial .wb-flow>.wb-unit[data-layout-pair="single"]:not(.wb-hero):not(.wb-story):not(.wb-gallery):not(.wb-rsvp),
+  .uri-builder-site.wb-theme-nightfall .wb-flow>.wb-unit[data-layout-pair="single"]:not(.wb-hero):not(.wb-story):not(.wb-gallery):not(.wb-countdown):not(.wb-rsvp){
+    padding-inline:25px;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-details{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"middle" "details"!important;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-timeline{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"middle" "timeline"!important;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"middle"!important;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-both{
+    grid-template-columns:1fr 1fr!important;
+    grid-template-areas:"middle middle" "details timeline"!important;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none .wb-editorial-landscape{
+    height:230px;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none .wb-editorial-main .wb-names{
+    font-size:clamp(47px,11cqw,66px);
+  }
+}
+@container (max-width:370px){
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-details{
+    grid-template-areas:"middle" "details"!important;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-timeline{
+    grid-template-areas:"middle" "timeline"!important;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-none{
+    grid-template-areas:"middle"!important;
+  }
+  .uri-builder-site.wb-theme-editorial .wb-editorial-cover.wb-editorial-sides-both{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"middle" "details" "timeline"!important;
+  }
+}
