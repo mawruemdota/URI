@@ -183,9 +183,11 @@ function editorItem(item){
  +miniButton('Delete',"uriCustomRemove('"+id+"')")+'</div></details>';
 }
 function catalog(e){
+ const hidden=e.customSections.filter(x=>x.enabled===false);
  return '<div class="uri-custom-catalog"><h4>Custom content</h4><div class="uri-custom-types">'
  +types.map(([id,label])=>'<button type="button" onclick="uriCustomAdd(\''+id+'\')" '+(e.customSections.length>=16?'disabled':'')+'>'+label+'</button>').join('')
- +'</div><small>'+e.customSections.length+' / 16 custom sections</small></div>';
+ +'</div><small>'+e.customSections.length+' / 16 custom sections</small>'
+ +(hidden.length?'<div class="uri-custom-hidden"><strong>Hidden sections</strong>'+hidden.map(item=>'<div><span>'+T(item.title)+'</span><button class="btn small" type="button" onclick="uriCustomToggle(\''+T(item.id)+'\',true)">Show</button><button class="btn small" type="button" onclick="uriCustomRemove(\''+T(item.id)+'\')">Delete</button></div>').join('')+'</div>':'')+'</div>';
 }
 window.URICustomSections={types,normalize,defaults,renderSection,editorItem,catalog,safeLink,videoEmbed};
 U.renderCustom=renderSection;
