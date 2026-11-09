@@ -36,6 +36,10 @@
 .uri-adventure-tools button,.uri-adventure-dialog button,.uri-adventure-map>button{font:700 12px 'DM Sans',sans-serif;padding:9px 13px;min-height:38px;background:#fff;border:1px solid #9bb7a5;border-radius:8px;color:#345744;cursor:pointer}
 .uri-adventure-tools button:first-child{background:#3b765e;color:#fff}
 .uri-adventure-tools span{margin-left:auto;color:#6d796e;font:400 11px 'DM Sans',sans-serif}
+.uri-adventure-rsvp-link{display:inline-flex;align-items:center;justify-content:center;min-height:39px;
+ border-radius:8px;padding:9px 14px;background:#c58549;color:#fff!important;
+ font:800 12px 'DM Sans',sans-serif;text-decoration:none!important}
+.uri-adventure-rsvp-link[hidden]{display:none!important}
 .uri-adventure-directory{border:1px solid #b9c9b8;border-radius:12px;margin:18px 17px 24px;background:#fffdf4}
 .uri-adventure-directory>summary{cursor:pointer;padding:16px;font:700 15px 'DM Sans',sans-serif;color:#345b45}
 .uri-adventure-directory .uri-adventure-pages{padding:0 16px 16px;display:grid;gap:14px}
