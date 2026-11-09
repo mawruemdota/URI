@@ -12,7 +12,7 @@
 - [x] Personalized game invitation URL loads a token-protected RSVP form directly within the in-game RSVP area
 - [x] Automated feature and safety regression tests
 - [x] Real Phaser Chromium movement and 390px mobile preview validation (GitHub Actions run 42634951950)
-- [ ] Verify the revised in-game interior navigation and guest RSVP through Chromium CI
+- [x] Verify in-game interior transitions, guest RSVP submissions, return-to-game movement and mobile story readability in Chromium (run 42708536186)
 - [ ] Actual iOS/Android hardware performance, screen-reader and keyboard accessibility acceptance
 - [ ] Live cloud guest RSVP acceptance, rate limiting and public beta security review
 - [ ] Optional custom sprite uploads, additional world scenery and more advanced level editing
