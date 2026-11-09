@@ -162,6 +162,15 @@ The interface is wedding-focused while the other event types remain deferred. Ph
 - `supabase/schema.sql` and `supabase/SETUP.md` — database setup and security guidance
 - `ROADMAP.md` — development milestones
 
+## Builder QA and usability refinement (2026-11-09)
+
+- Wedding setup now accepts a direct **Nightfall** template selection while preserving the existing saved draft fields.
+- Owner-preview name shortcuts target the first or second partner separately, including Nightfall. Public invitation pages remain non-editable.
+- Template Studio offers **Save current appearance as template** to preserve the active template's visual settings in a reusable local recipe without pasting design tokens.
+- Regression cases were added for direct Nightfall selection, reusable appearance saving, and unsafe/incomplete custom blocks. Mobile styling for quick template saving was added.
+
+**Verification pending:** CI/browser workflow results, live GitHub Pages deployment, visual screenshots, mobile devices, and accessibility checks have not been independently verified during this change. These code changes do not implement cloud-synced designs, secure guest RSVP, or remote hosting.
+
 ## Critical limitations
 
 **Not production-ready.** The cloud publication beta has a configured backend, but email authentication redirect settings and live publication tests remain pending. Local drafts and guest RSVP data stay in the current browser. Personalized guest links do not work across devices. The optional cloud layer publishes a **public snapshot** of the wedding website only: guest lists are omitted, and public photo files are stored in a public bucket. Real cross-device RSVP, secure guest tokens, private event visibility, payments, cloud-synced drafts, security testing and production data management are future milestones.
