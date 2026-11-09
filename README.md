@@ -18,6 +18,16 @@ Three wedding styles:
 
 All three styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
 
+## Animation Manager 1.0 (November 2026)
+
+The Wedding Builder's **Design** tab now includes an **Animation Manager** with four options: None, Elegant, Cinematic, and Playful. Users can set animation speed (0.5× to 1.5×) and independently toggle **page entrance**, **scroll reveals**, **photo movement**, **button interactions**, and **animated decorations**. A **Play animation** button in the editor preview deliberately replays the effects while keeping ordinary editing static and predictable.
+
+Animation preferences are saved alongside each event in browser storage, preserved while switching wedding designs, and included in public publication snapshots. New invitations start on the subtle Elegant preset; older invitations without animation configuration remain static until an owner chooses a preset. The live website and full-page previews mount the animations automatically.
+
+The implementation is **CSS-first with optional GSAP enhancement** for cinematic section reveals. When the GSAP CDN is unavailable, CSS transitions and browser-native IntersectionObserver remain available. When IntersectionObserver or JavaScript animation features are unavailable, the invitation content must remain visible. The operating system's `prefers-reduced-motion` setting takes precedence over event animation options. Animations affect only the presentation of invitation sections, never original photo crop transforms or guest lists.
+
+Source: `animation.js`, `animation.css`. QA: `tests/animation-smoke.cjs` and the Chromium walkthrough in `tests/browser-wedding.cjs`. Confirmed GitHub Actions smoke, Chromium, and Pages deployment passed at commit `bf42ee226661fc0694d9496ab1e57dda58641ce3`. Lottie assets and an interactive envelope-opening experience are **not included** in this release. For future advanced visual builders, review GSAP licensing restrictions separately.
+
 ## Custom Builder, Visual Editing 2.0 and Template Studio
 
 URI now supports six **custom section types** in addition to its nine built-in wedding sections: Text, Image, Video (YouTube/Vimeo), FAQ, Location and Button. Custom sections use the same data model, visibility, ordering, theme colors, and publication snapshot as existing features. Each template supplies its own responsive appearance.
