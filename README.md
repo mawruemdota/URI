@@ -18,6 +18,18 @@ Three wedding styles:
 
 All three styles use the **same underlying event data and the same nine features**. Switching templates does not delete the entered content.
 
+## Dynamic sections and template-aware layouts
+
+URI currently offers **nine wedding sections**: Hero, Our Story, Photo Gallery, Countdown, Event Details, Event Timeline, Dress Code, Gift Registry, and RSVP. The default invitation enables all except Dress Code and Gift Registry. Empty galleries and timelines do not reserve space.
+
+Under **Editor → Features**, active sections can be removed, reordered and assigned an appearance. Disabled sections appear under **Add a section**. Re-adding one restores its existing content. All sections share the same event data, so switching between Romantic Botanical, Minimalist Editorial and Nightfall does not delete details, photos, or other section settings.
+
+The renderer (`URIBuilder.compose()`) builds a layout from the **actual visible sections**, not a fixed grid. Each template defines which sections can form adjacent pairs. When a partner section is removed, the remaining section expands to full width. The Editorial cover and template thumbnails independently hide the Details and Timeline side panels when those features are disabled. Mobile and desktop layouts are governed by `dynamic-sections.css`, loaded after the template styles.
+
+The test suite `tests/dynamic-sections-smoke.cjs` checks **1,536 feature-visibility combinations** (512 configurations × three designs), section ordering, pairing, empty-content behavior, template switching, and Editorial cover reflow. The Chromium test also toggles and re-adds sections through the actual interface.
+
+**Scope:** "Add a section" currently means selecting one of these nine built-in section types. A user-defined custom feature builder is not yet implemented.
+
 ## Nightfall — MiroMiro design reference
 
 A third wedding theme, **Nightfall**, is available in the wedding setup and in the editor's Design tab. Its palette, typography hierarchy, and cinematic split-photo layout were studied from [Dota 2's Abaddon hero page](https://www.dota2.com/hero/abaddon) using MiroMiro. The resulting layout and CSS are original to URI and use only wedding-owner photographs; no game images, logos, or proprietary fonts are included.
