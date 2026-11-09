@@ -39,7 +39,7 @@ window.uriBEditTarget=(panel,target,index)=>{
   else focusTarget(target||'',index);
  },0);
 };
-const sectionId=section=>section?.getAttribute('data-feature')||'';
+const sectionId=section=>section?.getAttribute?.('data-feature')||section?.dataset?.feature||'';
 window.uriBVisualAction=(action,id)=>{
  const e=current();if(!e||e.type!=='Wedding'||!window.URIBuilder)return;
  const U=window.URIBuilder,custom=U.customItem(e,id),route=map[id];
