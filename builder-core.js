@@ -97,7 +97,7 @@ const views={hero,story,gallery,countdown,details,timeline,dress,gifts,rsvp};
 /* Compose actual renderable sections first: disabled/empty features leave no holes.
    Pairs only form between adjacent compatible sections in the user's order. */
 U.compose=e=>{
- if(!Array.isArray(e.featureOrder)||!Array.isArray(e.customSections))U.model(e);
+ U.model(e);
  const layout=U.templateLayout[U.baseTemplate(e)]||U.templateLayout.classic;
  const list=e.featureOrder.filter(id=>U.enabled(e,id)).map(id=>{
   const item=U.customItem(e,id);
