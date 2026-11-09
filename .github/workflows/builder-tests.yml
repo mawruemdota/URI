@@ -30,6 +30,8 @@ jobs:
         run: node tests/experience-smoke.cjs
       - name: Verify direct preview focus targets and edit buttons
         run: node tests/inline-edit-smoke.cjs
+      - name: Test storage recovery and async photo isolation
+        run: node tests/qa-hardening.cjs
 
   browser-qa:
     runs-on: ubuntu-24.04
