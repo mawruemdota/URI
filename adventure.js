@@ -98,7 +98,7 @@ function ownerCharacterChooser(a){
   +Object.entries(CHARACTERS).map(([id,label])=>
    '<button type="button" class="uri-adventure-owner-card'+(id===a.character?' selected':'')+
    '" data-uri-character="'+id+'" aria-pressed="'+(id===a.character)+'" onclick="uriAdventureSet(\'character\',\''+id+'\')">'
-   +'<span class="uri-adventure-owner-avatar">'+(PX?.svg(id,a.characterVariant)||'✿')+'</span>'
+   +'<span class="uri-adventure-owner-avatar">'+(window.URIAdventureRealAssets?.portrait?.(id,a.characterVariant)||PX?.svg(id,a.characterVariant)||'✿')+'</span>'
    +'<strong>'+T(label)+'</strong></button>'
   ).join('')
   +'</div><div class="uri-adventure-variant-row"><strong>Outfit palette</strong>'
@@ -118,7 +118,7 @@ function manager(e){
   +controls('touch','Mobile movement',[['buttons','Left / Right buttons'],['joystick','Virtual joystick']],a)
   +controls('pace','Movement speed',[['gentle','Gentle'],['normal','Normal'],['brisk','Brisk']],a)
   +'</div><div class="uri-adventure-default-preview" aria-label="Main character preview">'
-  +'<div class="uri-adventure-default-avatar">'+(PX?.svg(a.character,a.characterVariant)||'✿')+'</div>'
+  +'<div class="uri-adventure-default-avatar">'+(window.URIAdventureRealAssets?.portrait?.(a.character,a.characterVariant)||PX?.svg(a.character,a.characterVariant)||'✿')+'</div>'
   +'<div><strong>'+T(CHARACTERS[a.character])+'</strong><p>'+T(PX?.ROLES[a.character]?.tag||'Your invitation main character')+'</p>'
   +'<small>'+T(PX?.VARIANTS[a.characterVariant]?.name||'Original')+' outfit · Shown to all guests</small></div></div>'
   +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'collectibles\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
@@ -161,7 +161,10 @@ function enterRoom(root,heading,view){
   if(inst.scene?.player){
    inst.scene.player.setVelocity(0,0);
    inst.scene.player.body?.setAllowGravity?.(false);
-   if(inst.scene.uriArtCharacter)
+   if(inst.scene.uriRealCharacter){
+    inst.scene.player.anims?.stop?.();
+    inst.scene.player.setTexture(inst.scene.uriRealCharacter.texture,0);
+   }else if(inst.scene.uriArtCharacter)
     inst.scene.player.setTexture(inst.scene.uriArtCharacter.key,inst.scene.uriArtCharacter.frame('interact'));
    else if(inst.scene.textures?.exists?.('uri-player-interact'))
     inst.scene.player.setTexture('uri-player-interact');
@@ -381,6 +384,9 @@ function makeScene(P,inst){
  const width=Math.max(1600,checkpoints.length*440+620),groundY=418;
  class AdventureScene extends P.Scene{
   constructor(){super({key:'URIAdventureWorld'})}
+  preload(){
+   window.URIAdventureRealAssets?.preload?.(this,inst.selectedCharacter||inst.root.dataset.adventureCharacter);
+  }
   create(){
    inst.scene=this;
    this.cameras.main.setBounds(0,0,width,480);
@@ -414,14 +420,23 @@ function makeScene(P,inst){
    g.generateTexture('uri-platform',64,20);g.destroy();
    const ground=this.physics.add.staticGroup();
    ground.create(width/2,groundY+12,'uri-platform').setDisplaySize(width,34).refreshBody();
+   const raisedPlatforms=[];
    for(let x=530;x<width-240;x+=630){
     const y=300+(x%3)*18;
+    raisedPlatforms.push({x,y});
     ground.create(x,y,'uri-platform').setDisplaySize(120,20).refreshBody();
    }
+   const realAssets=window.URIAdventureRealAssets;
+   let realTerrain=false;
+   try{realTerrain=realAssets?.drawWorld?.(this,worldName,width,groundY,raisedPlatforms)||false}
+   catch(err){console.warn('Adventure terrain artwork fallback:',err)}
+   if(realTerrain)ground.children.iterate(tile=>{if(tile)tile.setVisible(false)});
    const avatar=inst.selectedCharacter||inst.root.dataset.adventureCharacter,variation=inst.selectedVariant||0;
+   let realCharacter=null;
+   try{realCharacter=realAssets?.character?.(this,avatar,variation)||null}catch(err){console.warn('Adventure PNG avatar fallback:',err)}
    let artCharacter=null;
-   try{artCharacter=artPack?.character?.(this,avatar,variation,PX)}catch(err){console.warn('Adventure sprite sheet fallback:',err)}
-   if(!artCharacter){
+   if(!realCharacter)try{artCharacter=artPack?.character?.(this,avatar,variation,PX)}catch(err){console.warn('Adventure sprite sheet fallback:',err)}
+   if(!realCharacter&&!artCharacter){
     drawSprite(this,'idle',avatar,0,variation);
     drawSprite(this,'walk0',avatar,0,variation);
     drawSprite(this,'walk1',avatar,1,variation);
@@ -429,9 +444,14 @@ function makeScene(P,inst){
     drawSprite(this,'interact',avatar,0,variation);
    }
    this.uriArtCharacter=artCharacter;
+   this.uriRealCharacter=realCharacter;
    inst.playingCharacter=avatar;inst.playingVariant=variation;
-   this.player=this.physics.add.sprite(88,groundY-44,artCharacter?.key||'uri-player-idle',0);
-   this.player.setSize(28,38).setOffset(8,10).setCollideWorldBounds(true).setBounce(0);
+   this.player=this.physics.add.sprite(88,groundY-44,realCharacter?.texture||artCharacter?.key||'uri-player-idle',0);
+   if(realCharacter){
+    this.player.setScale(1.65).setSize(22,26).setOffset(5,5).setTint(realCharacter.tint);
+    this.player.play(realCharacter.keys.idle,true);
+   }else this.player.setSize(28,38).setOffset(8,10);
+   this.player.setCollideWorldBounds(true).setBounce(0);
    this.physics.add.collider(this.player,ground);
    this.cameras.main.startFollow(this.player,true,.085,.085,inst.viewportWidth===720?-90:-175,70);
    this.keys=this.input.keyboard?.addKeys('LEFT,RIGHT,UP,SPACE,A,D,W,E');
@@ -445,6 +465,7 @@ function makeScene(P,inst){
     const board=this.add.rectangle(0,0,178,72,0xffe8bc,artwork?.sign?0:1).setStrokeStyle(artwork?.sign?0:5,0x7a543c);
     const inner=this.add.rectangle(0,0,162,56,0xffe8bc,artwork?.sign?0:1).setStrokeStyle(artwork?.sign?0:2,0xe4b97f);
     const illustrated=artwork?.sign?.(cp.x,groundY-67);
+    realAssets?.decorateSign?.(this,cp.x,groundY-67);
     const label=this.add.text(0,-16,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
       {fontFamily:'Pixelify Sans, monospace',fontSize:'16px',fontStyle:'bold',color:'#4c382b',align:'center',wordWrap:{width:156}}).setOrigin(.5,0);
     const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
@@ -496,11 +517,19 @@ function makeScene(P,inst){
    if(this.player.body.blocked.down&&(keys.UP?.isDown||keys.SPACE?.isDown||keys.W?.isDown||mobile.jump)){
     this.player.setVelocityY(-445);mobile.jump=false;
    }
-   const state=left!==right?'walk'+(Math.floor(this.time.now/150)%2):'idle';
-   this.player.setFlipX(!!left);
-   const pose=!this.player.body.blocked.down?'jump':state;
-   if(this.uriArtCharacter)this.player.setTexture(this.uriArtCharacter.key,this.uriArtCharacter.frame(pose));
-   else this.player.setTexture('uri-player-'+pose);
+   const running=Boolean(left!==right);
+   if(running)this.player.setFlipX(Boolean(left));
+   if(this.uriRealCharacter){
+    const keys=this.uriRealCharacter.keys;
+    const mode=!this.player.body.blocked.down?(this.player.body.velocity.y>45?'fall':'jump'):running?'run':'idle';
+    if(this.player.anims.currentAnim?.key!==keys[mode]||!this.player.anims.isPlaying)
+     this.player.play(keys[mode],true);
+   }else{
+    const state=running?'walk'+(Math.floor(this.time.now/150)%2):'idle';
+    const pose=!this.player.body.blocked.down?'jump':state;
+    if(this.uriArtCharacter)this.player.setTexture(this.uriArtCharacter.key,this.uriArtCharacter.frame(pose));
+    else this.player.setTexture('uri-player-'+pose);
+   }
    const cp=this.checkpoints.reduce((best,c)=>{
     const dist=Math.abs(c.x-this.player.x);
     return dist<145&&(!best||dist<best.dist)?{...c,dist}:best;
