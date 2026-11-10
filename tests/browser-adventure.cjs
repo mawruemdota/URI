@@ -5,7 +5,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
 const {chromium}=require('playwright');
 const base=path.resolve(__dirname,'..'),screens=path.join(base,'artifacts','adventure-browser');
 fs.mkdirSync(screens,{recursive:true});
-const types={'.html':'text/html','.js':'application/javascript','.css':'text/css'};
+const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=http.createServer((req,res)=>{
  let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/URI\/?/,'').replace(/^\/+/, '')||'index.html';
  const file=path.resolve(base,name);
@@ -51,6 +51,8 @@ const server=http.createServer((req,res)=>{
   await page.locator('.uri-adventure-variant-row button').filter({hasText:'Pastel'}).click();
   assert.equal(await page.locator('.uri-adventure-owner-card[data-uri-character="floral"]').getAttribute('aria-pressed'),'true');
   assert.match(await page.locator('.uri-adventure-default-preview').innerText(),/Floral Traveler/);
+  assert.equal(await page.locator('.uri-adventure-owner-card .uri-real-avatar').count(),6,
+    'Owner picker uses actual PNG character portraits rather than generated SVG shapes');
   await page.locator('.uri-adventure-setting').filter({hasText:'Mobile movement'}).locator('select').selectOption('joystick');
   const settings=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].adventure);
   assert.equal(settings.world,'sunset');
@@ -67,15 +69,19 @@ const server=http.createServer((req,res)=>{
   await page.waitForFunction(()=>!!document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure?.scene?.player,{timeout:15000});
   const art=await page.evaluate(()=>{
    const scene=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene;
-   return {character:scene.uriArtCharacter?.key||null,
-    sky:scene.textures.exists('uri-artpack-sky-sunset'),
-    tree:scene.textures.exists('uri-artpack-tree-sunset'),
-    cottage:scene.textures.exists('uri-artpack-cottage-sunset'),
-    sign:scene.textures.exists('uri-artpack-sign-sunset'),
-    frames:scene.uriArtCharacter?scene.textures.get(scene.uriArtCharacter.key).frameTotal:0};
+   return {role:scene.uriRealCharacter?.name||null,selected:scene.uriRealCharacter?.texture||null,
+     animated:!!scene.player.anims?.currentAnim,
+     terrain:scene.textures.exists('uri-pf-terrain'),
+     checkpoint:scene.textures.exists('uri-pf-checkpoint'),
+     idle:scene.textures.exists('uri-pf-pink-idle'),
+     run:scene.textures.exists('uri-pf-pink-run'),
+     jump:scene.textures.exists('uri-pf-pink-jump'),
+     sky:scene.textures.exists('uri-artpack-sky-sunset')};
   });
-  assert.ok(art.character&&art.frames>=5,'Phaser uses the generated multi-frame character sprite sheet: '+JSON.stringify(art));
-  assert.ok(art.sky&&art.tree&&art.cottage&&art.sign,'Art Pack generated real scene textures: '+JSON.stringify(art));
+  assert.equal(art.role,'pink','The selected owner avatar uses real authored PNG sprite sheets: '+JSON.stringify(art));
+  assert.ok(art.animated&&art.idle&&art.run&&art.jump,'Phaser animates actual PNG sprite frames: '+JSON.stringify(art));
+  assert.ok(art.terrain&&art.checkpoint,'The real terrain and checkpoint PNG atlases load: '+JSON.stringify(art));
+  assert.ok(art.sky,'Parallax background remains available');
 
   try{
     await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-load'),{timeout:8000});
@@ -227,6 +233,41 @@ const server=http.createServer((req,res)=>{
   },{timeout:10000});
   assert.equal(await page.locator('.wf-full-content .uri-adventure-mobile-hint').count(),1,
     'Mobile players see touch instructions instead of desktop keyboard instructions');
+  // Releasing a finger OUTSIDE the joystick must immediately clear direction
+  // even in iOS/Facebook in-app browsers where pointer capture is unreliable.
+  await page.locator('.wf-full-content .uri-adventure-joystick').evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   el.dispatchEvent(new PointerEvent('pointerdown',{
+    bubbles:true,cancelable:true,pointerId:971,pointerType:'touch',
+    clientX:r.right-7,clientY:r.top+r.height/2,button:0,buttons:1
+   }));
+  });
+  await page.waitForFunction(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.controls.right===true);
+  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{
+   bubbles:true,cancelable:true,pointerId:971,pointerType:'touch',buttons:0
+  })));
+  await page.waitForFunction(()=>{
+   const i=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure;
+   return !i.controls.left&&!i.controls.right&&i.scene?.player?.body?.velocity.x===0;
+  });
+  const stoppedAt=await page.evaluate(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.scene.player.x);
+  await page.waitForTimeout(180);
+  const stoppedAfter=await page.evaluate(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.scene.player.x);
+  assert.ok(Math.abs(stoppedAfter-stoppedAt)<3,'Player must stop after pointer release anywhere on the screen');
+  // A second gesture that is cancelled by the browser must also stop walking.
+  await page.locator('.wf-full-content .uri-adventure-joystick').evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   el.dispatchEvent(new PointerEvent('pointerdown',{
+    bubbles:true,cancelable:true,pointerId:972,pointerType:'touch',
+    clientX:r.left+6,clientY:r.top+r.height/2,button:0,buttons:1
+   }));
+  });
+  await page.waitForFunction(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.controls.left===true);
+  await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
+  await page.waitForFunction(()=>{
+   const i=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure;
+   return !i.controls.left&&!i.controls.right&&i.scene?.player?.body?.velocity.x===0;
+  });
   await page.screenshot({path:path.join(screens,'02-adventure-mobile.png'),fullPage:true,animations:'disabled'});
   await page.locator('.wf-full-content [data-adventure-action="map"]').click();
   await page.locator('.wf-full-content .uri-adventure-stage.uri-adventure-inside .uri-adventure-map-list').waitFor({state:'visible'});
