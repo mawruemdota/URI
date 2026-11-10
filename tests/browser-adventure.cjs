@@ -109,6 +109,14 @@ const server=http.createServer((req,res)=>{
   assert.match(await page.locator('#wbLivePreview .uri-adventure-map-sheet').innerText(),/does not skip ahead/);
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-map-stop[data-visited="true"]').count(),0);
   await page.locator('#wbLivePreview [data-adventure-action="room-exit"]').click();
+  await page.evaluate(()=>{
+    const root=document.querySelector('#wbLivePreview .uri-adventure-site');
+    window.URIAdventure.openStation(root,'rsvp');
+  });
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside').count(),0,
+    'Guests cannot open the RSVP checkpoint from a distant location');
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-tools .uri-adventure-rsvp-link').isVisible(),false,
+    'Personal RSVP link is not a shortcut outside its checkpoint');
 
   // Browser test fast-forwards the physics player to the venue sign, exactly
   // as a guest reaches it by walking; the UI itself has no teleport option.
@@ -245,6 +253,18 @@ const server=http.createServer((req,res)=>{
   await page.screenshot({path:path.join(screens,'02b-in-game-story-mobile.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Back to editor/}).click();
   await page.setViewportSize({width:390,height:844});
+  await page.locator('.wb-editor').waitFor();
+  await page.getByRole('button',{name:/Full-page preview|Preview website/}).first().click();
+  await page.locator('.wf-full-content .uri-adventure-site').waitFor();
+  const mobileDefault=await page.evaluate(()=>{
+    const c=document.getElementById('wfFullCanvas'),p=document.getElementById('wfFullContent');
+    return {mode:c?.dataset.mode,preview:p?.getBoundingClientRect().width,
+      available:c?.getBoundingClientRect().width,scale:p?.style.transform};
+  });
+  assert.equal(mobileDefault.mode,'mobile','Phone opens the real mobile preview by default');
+  assert.equal(mobileDefault.scale,'scale(1)','Mobile preview renders at native size, not 33%');
+  assert.ok(mobileDefault.preview<=mobileDefault.available+1,'Mobile preview fits the phone without horizontal scrolling');
+  await page.getByRole('button',{name:/Back to editor/}).click();
   await page.locator('.wb-editor').waitFor();
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
   assert.ok(overflow<=4,'Mobile site overflows by '+overflow+' pixels');
