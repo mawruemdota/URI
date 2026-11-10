@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const U=window.URIBuilder;
-let panel='content',viewport='desktop',dragging='';
+let panel='content',viewport=(window.matchMedia?.('(max-width: 700px)')?.matches??window.innerWidth<=700)?'mobile':'desktop',dragging='';
 const T=v=>esc(v==null?'':String(v));
 const LABELS={content:'Content',features:'Features',design:'Design',photos:'Photos',music:'Music',review:'Review',publish:'Publish'};
 function event(){let e=current();return e&&e.type==='Wedding'?U.model(e):null}
@@ -31,9 +31,9 @@ function fitLivePreview(){
   const stage=document.getElementById('wbPreviewStage');
   const preview=document.getElementById('wbLivePreview');
   if(!surface||!stage||!preview||!surface.clientWidth)return;
-  const designWidth=viewport==='mobile'?390:1024;
-  const innerWidth=Math.max(0,surface.clientWidth-32);
-  const scale=Math.min(1,innerWidth/designWidth);
+  const innerWidth=Math.max(0,surface.clientWidth-16);
+  const designWidth=viewport==='mobile'?Math.min(390,innerWidth):1024;
+  const scale=viewport==='mobile'?1:Math.min(1,innerWidth/designWidth);
   preview.style.width=designWidth+'px';
   preview.style.maxWidth='none';
   preview.style.transformOrigin='top left';
