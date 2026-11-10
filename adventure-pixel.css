@@ -307,6 +307,15 @@
 .uri-adventure-site .uri-char-select-actions button:hover{filter:brightness(1.08)}
 .uri-adventure-site .uri-char-select-actions button:focus-visible{outline-color:#214e42}
 
+/* Keep Phaser's canvas alive underneath character/room overlays. A true
+   visibility:hidden canvas can cause Chromium to throttle WebGL and stop the
+   game scene's update loop after the overlay closes. The HTML layer remains
+   above the canvas; it is simply transparent rather than display-hidden. */
+.uri-adventure-site .uri-adventure-stage.uri-adventure-choosing>canvas,
+.uri-adventure-site .uri-adventure-stage.uri-adventure-inside>canvas{
+ visibility:visible!important;opacity:0!important;pointer-events:none!important
+}
+
 /* In-game interiors now share the same pixel-illustrated frame. */
 .uri-adventure-site .uri-adventure-interior{
  --uri-interior-wall:#eee2c5;--uri-interior-trim:#855e3d;
