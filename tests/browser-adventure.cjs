@@ -96,6 +96,16 @@ const server=http.createServer((req,res)=>{
   });
   assert.equal(liveAvatar.role,'royal','Character selection updates the playable sprite');
   assert.ok(liveAvatar.started&&Math.abs(liveAvatar.x-posAfter)<15,'Switching character keeps world progress');
+  const switchBefore=await page.evaluate(()=>{
+    const g=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.game;
+    return {frame:g.loop.frame,running:g.loop.running,paused:g.isPaused};
+  });
+  await page.waitForTimeout(250);
+  const switchAfter=await page.evaluate(()=>{
+    const g=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.game;
+    return {frame:g.loop.frame,running:g.loop.running,paused:g.isPaused};
+  });
+  console.log('Phaser after avatar change',JSON.stringify({switchBefore,switchAfter}));
   // The map and every checkpoint must be INSIDE the Phaser viewport, with no dialog.
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site dialog').count(),0,
     'Checkpoint experience must not use popups or modal dialogs');
@@ -142,7 +152,8 @@ const server=http.createServer((req,res)=>{
     paused:s.scene.isPaused(),active:s.scene.isActive(),leftDown:s.keys.LEFT.isDown,
     leftEnabled:s.keys.LEFT.enabled,keyboardEnabled:s.input.keyboard.enabled,
     canvasFocused:document.activeElement===inst.game.canvas,activeTag:document.activeElement?.tagName,
-    frame:s.game.loop.frame,near:inst.near};
+    frame:s.game.loop.frame,gameRunning:s.game.loop.running,gamePaused:s.game.isPaused,
+    physicsPaused:s.physics.world.isPaused,view:inst.view,documentVisibility:document.visibilityState,near:inst.near};
   });
   await page.keyboard.up('ArrowLeft');
   const afterRestartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
