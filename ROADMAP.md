@@ -7,7 +7,7 @@
 - [x] Six original pixel-art playable characters, three outfit palettes, world themes and collectibles
 - [x] Interactive checkpoint signs, themed in-game interiors, scrollable native HTML, and in-viewport world map (no popup dialogs)
 - [x] All-section accessible fallback and skip-game navigation
-- [x] Game Template Manager for scene, default character, guest selection toggle, outfit colors, movement, control preference and collectibles
+- [x] Game Template Manager for client-only main-character selection, three outfit colors, scene, movement, control preference and collectibles
 - [x] Published invitation payloads retain Adventure Game Manager settings and custom checkpoint order
 - [x] Personalized game invitation URL loads a token-protected RSVP form directly within the in-game RSVP area
 - [x] Automated feature and safety regression tests
@@ -16,6 +16,9 @@
 - [ ] Actual iOS/Android hardware performance, screen-reader and keyboard accessibility acceptance
 - [ ] Live cloud guest RSVP acceptance, rate limiting and public beta security review
 - [x] Pixel-themed invitation HUD, wooden/parchment UI, original forest, cottage, waterfall, bridge and castle scenery
+- [x] Remove guest character selection; the client-selected main character is used for all public viewers
+- [ ] Build approved master character art and export consistent idle/walk/jump/interact transparent PNG sprite sheets for Phaser
+- [ ] Replace generated Phaser shape scenery with cohesive layered tilemap, prop sprites and parallax backgrounds
 - [ ] Optional custom sprites, additional levels, and advanced tile-by-tile editing
 
 ## Cross-device cloud drafts and secure online RSVP (2026-11-09)
