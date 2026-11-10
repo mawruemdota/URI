@@ -45,7 +45,7 @@ function characterSelection(a){
  const options=Object.entries(CHARACTERS);
  return '<section class="uri-character-select" hidden aria-label="Choose your playable wedding adventure character">'
   +'<div class="uri-character-select-top"><span class="uri-char-crest" aria-hidden="true">♡</span><h2 tabindex="-1">Choose Your Character</h2>'
-  +'<p>Select an avatar for your wedding adventure. Every character moves and jumps the same way.</p></div>'
+  +'<p>Pick your companion, then press Confirm Character to begin. Use Tab or arrow keys to browse.</p></div>'
   +'<div class="uri-char-cards" role="group" aria-label="Available characters">'
   +options.map(([id,label])=>'<button type="button" class="uri-char-card'+(id===a.character?' selected':'')+'" aria-pressed="'+(id===a.character)+'" data-adventure-role="'+id+'">'
    +'<span class="uri-char-card-art">'+(PX?.svg(id,a.characterVariant)||'✿')+'</span>'
@@ -76,7 +76,7 @@ function preview(e){
   +'<div class="uri-pixel-topbar"><div class="uri-pixel-brand"><span class="uri-pixel-brand-flower">✿</span><div><strong>URI ADVENTURE</strong><small>WEDDING INVITATION QUEST</small></div></div>'
   +'<div class="uri-pixel-topnav"><span class="uri-pixel-topmemories"><span class="uri-pixel-nav-icon">✧</span> <strong>Memories</strong><span class="uri-pixel-memory-count">0 / 0</span></span>'
   +'<button type="button" data-adventure-action="map"><span class="uri-pixel-nav-icon">▤</span> World Map [M]</button>'
-  +'<a href="#home" class="uri-pixel-home"><span class="uri-pixel-nav-icon">⌂</span> Home [Esc]</a></div></div>'
+  +'<a href="#home" class="uri-pixel-home"><span class="uri-pixel-nav-icon">⌂</span> URI Home</a></div></div>'
   +'<div class="uri-pixel-banner"><span class="uri-pixel-wedding-rings" aria-hidden="true">♡</span><span class="uri-adventure-eyebrow">THE ADVENTURE BEGINS</span>'
   +'<h1>'+T(e.name1||'Your Name')+' <em>&amp;</em> '+T(e.name2||'Partner Name')+'</h1>'
   +'<p class="uri-pixel-event-meta"><span>▣ '+T(e.date?fmt(e.date):'Save the date')+'</span><span>⌖ '+T(e.venue||'Venue to be announced')+'</span></p></div>'
@@ -97,7 +97,7 @@ function preview(e){
   +(a.touch==='joystick'?'<div class="uri-adventure-joystick" data-adventure-control="joystick" role="group" aria-label="Movement joystick"><span class="uri-adventure-stick" aria-hidden="true"></span><small>Move</small></div>'
    :'<div class="uri-adventure-dpad"><button type="button" data-adventure-control="left" aria-label="Move left">◀</button><button type="button" data-adventure-control="right" aria-label="Move right">▶</button></div>')
   +'<div class="uri-adventure-actions"><button type="button" data-adventure-control="jump" aria-label="Jump">Jump</button><button type="button" data-adventure-action="interact" aria-label="Interact with nearby invitation sign">Interact</button></div></div>'
-  +'<div class="uri-adventure-tools"><button type="button" data-adventure-action="details">View all details / Skip game</button><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span>Move: ← → / A D · Jump: Space · Interact: E</span></div>'
+  +'<div class="uri-adventure-tools"><button type="button" data-adventure-action="details">View all details / Skip game</button><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span class="uri-adventure-keyboard-hint">Move: ← → / A D · Jump: Space · Interact: E · Map: M</span><span class="uri-adventure-mobile-hint">Touch the movement pad, then Jump or Interact near a sign.</span></div>'
   +'</div><details class="uri-adventure-directory"><summary>View all invitation information without playing</summary><div class="uri-adventure-pages">'
   +parts.map(p=>'<div class="uri-adventure-page" data-adventure-id="'+p.id+'"><h2>'+T(p.title)+'</h2>'+p.html+'</div>').join('')
   +(parts.length===0?'<p>Add invitation sections in the Features tab.</p>':'')+'</div></details></div>'
@@ -354,7 +354,25 @@ function setupUi(root){
  });
  root.addEventListener('keydown',ev=>{
   if(ev.key==='Escape'&&inst.view&&inst.view!=='world'){
-   ev.preventDefault();ev.stopPropagation();exitRoom(root);
+   ev.preventDefault();ev.stopPropagation();
+   if(inst.view==='character')hideCharacterSelection(inst);
+   else exitRoom(root);
+   return;
+  }
+  if(inst.view==='character'){
+   const focused=document.activeElement;
+   const options=[...root.querySelectorAll('.uri-char-card[data-adventure-role]')];
+   const index=options.findIndex(el=>el===focused);
+   if(index<0)return;
+   const delta=ev.key==='ArrowRight'?1:ev.key==='ArrowLeft'?-1:
+     ev.key==='ArrowDown'?3:ev.key==='ArrowUp'?-3:0;
+   if(delta){
+    ev.preventDefault();
+    const next=options[(index+delta+options.length)%options.length];
+    inst.selectedCharacter=next.dataset.adventureRole;
+    refreshCharacterSelect(inst);
+    next.focus({preventScroll:true});
+   }
   }
  });
  function setControl(control,pressed,ev){
@@ -442,7 +460,7 @@ function makeScene(P,inst){
    this.player=this.physics.add.sprite(88,groundY-44,'uri-player-idle');
    this.player.setSize(28,38).setOffset(8,10).setCollideWorldBounds(true).setBounce(0);
    this.physics.add.collider(this.player,ground);
-   this.cameras.main.startFollow(this.player,true,.085,.085,-175,70);
+   this.cameras.main.startFollow(this.player,true,.085,.085,inst.viewportWidth===720?-90:-175,70);
    this.keys=this.input.keyboard?.addKeys('LEFT,RIGHT,UP,SPACE,A,D,W,E');
    const canvas=this.game.canvas;
    if(canvas){canvas.tabIndex=0;canvas.setAttribute('aria-label','Adventure game controls');canvas.focus?.({preventScroll:true})}
@@ -527,13 +545,32 @@ async function startGame(inst){
   const P=await loadPhaser();
   if(inst.destroyed||!root.isConnected)return;
   const stage=root.querySelector('.uri-adventure-stage');
+  const viewportWidth=stage.clientWidth<700?720:960;
+  inst.viewportWidth=viewportWidth;
   inst.game=new P.Game({
-   type:P.AUTO,parent:stage,width:960,height:480,backgroundColor:'#9bd6ed',
+   type:P.AUTO,parent:stage,width:viewportWidth,height:480,backgroundColor:'#9bd6ed',
    pixelArt:true,render:{antialias:false},
-   scale:{mode:P.Scale.FIT,autoCenter:P.Scale.CENTER_BOTH,width:960,height:480},
+   scale:{mode:P.Scale.FIT,autoCenter:P.Scale.CENTER_BOTH,width:viewportWidth,height:480},
    physics:{default:'arcade',arcade:{gravity:{y:980},debug:false}},
    scene:[makeScene(P,inst)]
   });
+  // A full-page preview can switch between 1024px desktop and 390px mobile
+  // without remounting the invitation. Keep game and CSS aspect ratios paired.
+  if(window.ResizeObserver){
+   inst.viewportObserver?.disconnect?.();
+   inst.viewportObserver=new ResizeObserver(()=>{
+    if(inst.destroyed||!inst.game||!stage.isConnected)return;
+    const nextWidth=stage.clientWidth<700?720:960;
+    if(inst.viewportWidth===nextWidth)return;
+    inst.viewportWidth=nextWidth;
+    inst.game.scale.resize(nextWidth,480);
+    if(inst.scene?.cameras?.main){
+     inst.scene.cameras.main.setSize(nextWidth,480);
+     inst.scene.cameras.main.followOffset.x=nextWidth===720?-90:-175;
+    }
+   });
+   inst.viewportObserver.observe(stage);
+  }
  }catch(err){
   if(loader){loader.innerHTML='<p>Playable mode is unavailable. All invitation details are accessible below.</p>'}
   root.querySelector('.uri-adventure-directory')?.setAttribute('open','');
@@ -541,7 +578,7 @@ async function startGame(inst){
 }
 function cleanup(){
  for(const inst of instances)if(!inst.root.isConnected){
-  inst.destroyed=true;inst.game?.destroy?.(true);instances.delete(inst);
+  inst.destroyed=true;inst.viewportObserver?.disconnect?.();inst.game?.destroy?.(true);instances.delete(inst);
  }
 }
 function mount(root=document){
