@@ -161,5 +161,60 @@ function decorate(scene,world,width,groundY){
  for(let x=0;x<width;x+=128)scene.add.image(x,groundY-7,path).setOrigin(0,0).setDepth(-1);
  return {sign:(x,y)=>sign(scene,world,x,y)};
 }
-window.URIAdventureArtPack={version:'1.0',character,decorate,colors:COLORS,states:STATES};
+/* The invitation dashboard cover uses the same original pixel-art
+ * vocabulary as the playable world, instead of the old flat CSS placeholder. */
+function cover(world,characterId,variant){
+ const p=COLORS[world]||COLORS.meadow;
+ const box=(x,y,w,h,c)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+c+'"/>';
+ const flowers=(x,y)=>box(x+5,y,4,4,p.flower)+box(x,y+4,14,5,'#f6e8d1')+box(x+5,y+4,4,4,'#e4b675')+box(x+7,y+10,2,12,p.dark);
+ const cloud=(x,y)=>box(x+18,y,65,13,'#f7f1df')+box(x+5,y+12,105,16,'#fff4e3')+box(x,y+27,117,5,'#dce8d9');
+ const tree=(x,y,scale=1)=>'<g transform="translate('+x+' '+y+') scale('+scale+')">'
+  +box(41,67,18,123,p.dark)+box(46,80,8,107,'#957250')
+  +box(14,44,79,63,p.mid)+box(0,68,104,41,p.grass)
+  +box(23,14,70,50,p.grass)+box(32,1,50,34,p.far)
+  +box(12,86,18,8,p.far)+box(72,40,14,7,p.far)
+  +box(42,19,12,7,'#c4d9a0')+box(70,74,9,7,'#c4d9a0')
+  +'</g>';
+ const cottage='<g transform="translate(22 132)">'+box(8,58,154,142,'#493b36')
+  +box(14,64,142,132,p.wall)+box(0,45,170,22,p.roof)
+  +box(14,25,142,22,p.roof)+box(28,11,115,19,p.roof)
+  +box(42,1,86,15,p.roof)+box(15,60,8,136,p.stone)
+  +box(55,99,29,44,'#6a5948')+box(59,104,21,36,'#ffe1a6')
+  +box(60,120,20,4,p.stone)+box(108,101,29,40,'#6a5948')
+  +box(112,105,21,32,'#ffe1a6')+box(119,105,4,32,p.stone)
+  +box(89,144,43,52,'#6f5340')+box(94,149,33,47,'#a0724d')
+  +box(121,171,5,6,'#fce09b')+box(9,194,152,9,p.stone)
+  +flowers(2,178)+flowers(148,179)+'</g>';
+ const castle='<g opacity=".62" transform="translate(335 117)">'
+  +box(6,45,152,107,p.stone)+box(12,55,140,94,p.wall)
+  +box(0,15,40,137,p.stone)+box(119,15,42,137,p.stone)
+  +box(15,2,24,13,p.roof)+box(121,2,24,13,p.roof)
+  +box(57,26,53,36,p.roof)+box(68,8,33,26,p.roof)
+  +box(70,104,28,48,p.dark)+box(20,79,13,22,p.dark)
+  +box(130,79,13,22,p.dark)+'</g>';
+ const px=window.URIAdventurePixels;
+ const shapes=px?.shapes?.(characterId,Number(variant)||0,'idle',0)||[];
+ const avatar='<g transform="translate(207 242) scale(1.7)">'+shapes.map(q=>box(q.x,q.y,q.w,q.h,q.c)).join('')+'</g>';
+ const sign='<g transform="translate(391 205)">'+box(59,57,12,93,'#48362f')
+   +box(6,4,130,69,'#4d372d')+box(12,10,118,57,'#b9895c')
+   +box(18,16,106,45,'#fff0c7')+box(26,25,91,5,'#d1ab7a')
+   +box(31,38,80,5,'#9d7656')+box(35,48,72,3,'#d7b185')
+   +flowers(3,11)+flowers(122,11)+'</g>';
+ let ground=box(0,307,600,53,p.earth)+box(0,296,600,14,p.dark)+box(0,296,600,6,p.grass);
+ for(let i=0;i<55;i++){
+  const x=i*12,yy=323+(i%3)*10;
+  ground+=box(x,yy,7,2,i%3===0?'#ccaa78':'#6e503d');
+  if(i%4===0)ground+=box(x,286,4,14,p.dark)+box(x-3,280,10,8,p.grass);
+ }
+ return '<svg class="uri-adventure-cover-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Pixel-art wedding adventure world">'
+  +box(0,0,600,300,p.sky)
+  +box(0,142,600,155,p.far)
+  +'<path d="M0 218L50 218L50 181L104 181L104 207L177 207L177 165L247 165L247 196L313 196L313 173L391 173L391 207L458 207L458 180L526 180L526 210L600 210L600 296L0 296Z" fill="'+p.mid+'"/>'
+  +cloud(30,48)+cloud(270,35)+cloud(477,62)
+  +castle+tree(289,109,.72)+tree(520,108,.84)
+  +cottage+tree(176,89,.82)+sign+avatar+ground
+  +flowers(153,276)+flowers(353,276)+flowers(568,275)
+  +'</svg>';
+}
+window.URIAdventureArtPack={version:'1.0',character,decorate,cover,colors:COLORS,states:STATES};
 })();
