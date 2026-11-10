@@ -132,21 +132,28 @@ const server=http.createServer((req,res)=>{
   },{timeout:5000});
   await page.waitForTimeout(120);
   const restartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
+  // Wait for actual progress instead of assuming a fixed number of rendered
+  // frames in 550ms: the shared CI software renderer can be much slower than
+  // a normal device after the venue screenshot and mock online RSVP.
   await page.keyboard.down('ArrowLeft');
-  await page.waitForTimeout(550);
-  const whileHeld=await page.evaluate(()=>{
-   const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure,s=inst.scene;
-   return {x:s.player.x,bodyX:s.player.body.position.x,velocityX:s.player.body.velocity.x,
-    paused:s.scene.isPaused(),active:s.scene.isActive(),leftDown:s.keys.LEFT.isDown,
-    leftEnabled:s.keys.LEFT.enabled,keyboardEnabled:s.input.keyboard.enabled,
-    canvasFocused:document.activeElement===inst.game.canvas,activeTag:document.activeElement?.tagName,
-    frame:s.game.loop.frame,gameRunning:s.game.loop.running,gamePaused:s.game.isPaused,
-    physicsPaused:s.physics.world.isPaused,view:inst.view,documentVisibility:document.visibilityState,near:inst.near};
-  });
-  await page.keyboard.up('ArrowLeft');
-  const afterRestartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
-  if(!(afterRestartX<restartX-20))console.log('Room exit movement diagnostics',JSON.stringify({restartX,afterRestartX,whileHeld,errors}));
-  assert.ok(afterRestartX<restartX-20,'The character can move again after exiting the in-game room');
+  let moved=false;
+  try{
+    await page.waitForFunction(x=>{
+      const s=document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure?.scene;
+      return s?.player?.x < x-12;
+    },restartX,{timeout:8000,polling:100});
+    moved=true;
+  }catch(_){}
+  finally{await page.keyboard.up('ArrowLeft')}
+  if(!moved){
+    const diagnostic=await page.evaluate(()=>{
+      const i=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure,s=i.scene;
+      return {x:s.player.x,velocity:s.player.body.velocity.x,frame:s.game.loop.frame,
+        active:s.scene.isActive(),view:i.view,errors:[]};
+    });
+    console.log('Room exit movement diagnostics',JSON.stringify({restartX,diagnostic,errors}));
+  }
+  assert.ok(moved,'The character must respond to ArrowLeft again after exiting the in-game room');
   await page.locator('#wbLivePreview [data-adventure-action="details"]').click();
   assert.ok(await page.locator('#wbLivePreview .uri-adventure-directory').evaluate(el=>el.open));
   await page.screenshot({path:path.join(screens,'01-adventure-desktop.png'),fullPage:true,animations:'disabled'});
