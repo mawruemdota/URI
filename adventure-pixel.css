@@ -553,6 +553,72 @@
  .uri-adventure-site .uri-adventure-room-head button{font-size:10px}
  .uri-adventure-site .uri-adventure-room-nav button{font-size:10px}
 }
+/* The invitation is an actual walk-through: source HTML is only the private
+   content store for a nearby sign. It cannot be expanded below the game. */
+.uri-adventure-site .uri-adventure-directory[hidden],
+.uri-adventure-site .uri-adventure-pages[hidden]{display:none!important}
+.uri-adventure-site .uri-adventure-map-list{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px
+}
+.uri-adventure-site .uri-adventure-map-stop{
+ display:flex;align-items:center;gap:9px;min-width:0;min-height:55px;
+ padding:10px;border:3px solid #957653;background:#f4e4c1;
+ color:#64523f;box-shadow:2px 3px 0 #78573d;
+ font:750 12px var(--px-type)
+}
+.uri-adventure-site .uri-adventure-map-stop span:nth-child(2){
+ flex:1 1 auto;overflow-wrap:anywhere
+}
+.uri-adventure-site .uri-adventure-map-index{
+ background:#ccb184;min-width:25px;text-align:center;padding:3px
+}
+.uri-adventure-site .uri-adventure-map-stop small{
+ font:750 9px var(--px-type);white-space:nowrap;color:#866e5a
+}
+.uri-adventure-site .uri-adventure-map-stop[data-visited="true"]{
+ border-color:#568065;background:#e0efd3;color:#355941
+}
+.uri-adventure-site .uri-adventure-map-stop[data-visited="true"] small{
+ color:#3c795a
+}
+.uri-adventure-site .uri-adventure-room-nav>span{
+ font:750 12px/1.25 var(--px-type);color:#594c3c
+}
+.uri-adventure-site .uri-adventure-room-nav{justify-content:space-between}
+@container (max-width:550px){
+ .uri-adventure-site .uri-adventure-map-list{grid-template-columns:1fr}
+ .uri-adventure-site .uri-adventure-map-stop{font-size:12px}
+ .uri-adventure-site .uri-adventure-room-nav>span{font-size:10px}
+}
+/* Dashboard and wizard previews reuse an original detailed world illustration,
+   not the previous plain CSS hero and sign. SVG stays crisp at any card size. */
+.uri-adventure-cover-v2{
+ position:relative!important;height:100%!important;width:100%!important;
+ border:0!important;border-radius:0!important;
+ aspect-ratio:5/3!important;overflow:hidden!important;
+ background:#a6d3c8!important;isolation:isolate
+}
+.uri-adventure-cover-v2 .uri-adventure-cover-scene{
+ position:absolute;inset:0;width:100%;height:100%;
+ image-rendering:pixelated;display:block
+}
+.uri-adventure-cover-v2 .uri-adventure-cover-label{
+ position:absolute;inset:5% auto auto 5%;display:grid;gap:4px;
+ min-width:50%;max-width:85%;padding:8px 11px;
+ background:#f7e5baed;border:3px solid #6b4b36;
+ box-shadow:3px 3px 0 #57402f;color:#553b30;
+ font-family:var(--px-type);text-shadow:none;z-index:1
+}
+.uri-adventure-cover-v2 .uri-adventure-cover-label small{
+ font:800 clamp(6px,1cqw,11px)/1.1 var(--px-type);letter-spacing:.05em
+}
+.uri-adventure-cover-v2 .uri-adventure-cover-label strong{
+ font:850 clamp(13px,2.6cqw,31px)/1 var(--px-type);overflow-wrap:anywhere
+}
+.uri-adventure-cover-v2 .uri-adventure-cover-label em{font-style:normal;color:#9d6356}
+.uri-adventure-cover-v2 .uri-adventure-cover-label span{
+ font:800 clamp(7px,1.25cqw,15px)/1 var(--px-type);letter-spacing:.06em
+}
 /* Mobile playable camera uses a 3:2 stage; desktop stays 2:1. */
 @container (max-width:690px){
  .uri-adventure-site .uri-adventure-stage:not(.uri-adventure-inside):not(.uri-adventure-choosing){aspect-ratio:3/2;min-height:0}
