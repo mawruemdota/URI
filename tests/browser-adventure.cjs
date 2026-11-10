@@ -56,6 +56,15 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview .uri-character-select').waitFor({state:'visible'});
   assert.equal(await page.locator('#wbLivePreview .uri-char-card').count(),6,'Six pixel-art characters are selectable');
   assert.equal(await page.locator('#wbLivePreview .uri-char-card .uri-pixel-avatar-svg').count(),6,'Character images render as functional vector pixel sprites');
+  await page.locator('#wbLivePreview [data-adventure-role="explorer"]').focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.locator('#wbLivePreview [data-adventure-role="partner"]').getAttribute('aria-pressed'),'true',
+    'Arrow keys select the next character without requiring a mouse');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#wbLivePreview .uri-character-select').isVisible(),false,
+    'Escape returns from character selection to the invitation');
+  await page.locator('#wbLivePreview [data-adventure-action="play"]').click();
+  await page.locator('#wbLivePreview .uri-character-select').waitFor({state:'visible'});
   await page.screenshot({path:path.join(screens,'00-character-select-desktop.png'),fullPage:true,animations:'disabled'});
   await page.locator('#wbLivePreview [data-adventure-role="floral"]').click();
   assert.equal(await page.locator('#wbLivePreview [data-adventure-role="floral"]').getAttribute('aria-pressed'),'true');
@@ -166,6 +175,14 @@ const server=http.createServer((req,res)=>{
   await page.getByRole('button',{name:'Mobile'}).click();
   await page.waitForFunction(()=>document.getElementById('wfFullContent')?.style.width==='390px');
   await page.locator('.wf-full-content .uri-adventure-joystick').waitFor({state:'visible'});
+  await page.waitForFunction(()=>{
+   const root=document.querySelector('.wf-full-content .uri-adventure-site'),stage=root?.querySelector('.uri-adventure-stage');
+   if(!root||!stage)return false;
+   const ratio=stage.getBoundingClientRect().width/stage.getBoundingClientRect().height;
+   return Math.abs(ratio-1.5)<.04&&root._uriAdventure?.viewportWidth===720;
+  },{timeout:10000});
+  assert.equal(await page.locator('.wf-full-content .uri-adventure-mobile-hint').count(),1,
+    'Mobile players see touch instructions instead of desktop keyboard instructions');
   await page.screenshot({path:path.join(screens,'02-adventure-mobile.png'),fullPage:true,animations:'disabled'});
   await page.locator('.wf-full-content [data-adventure-action="map"]').click();
   await page.locator('.wf-full-content .uri-adventure-stage.uri-adventure-inside .uri-adventure-map-list').waitFor({state:'visible'});
