@@ -262,7 +262,7 @@ function openMap(root){
 function setupUi(root){
  if(root.dataset.adventureWired)return;
  root.dataset.adventureWired='yes';
- const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},near:null,view:'world',currentStation:null,visited:new Set(),
+ const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},inputAbort:new AbortController(),near:null,view:'world',currentStation:null,visited:new Set(),
   selectedCharacter:root.dataset.adventureCharacter||'explorer',
   selectedVariant:Math.max(0,Math.min(2,Number(root.dataset.adventureVariant)||0)),
   playingCharacter:null,playingVariant:null,destroyed:false};
@@ -282,25 +282,81 @@ function setupUi(root){
    ev.preventDefault();ev.stopPropagation();exitRoom(root);
   }
  });
- function setControl(control,pressed,ev){
+ // Mobile in-app browsers may drop pointerup after an address-bar gesture,
+ // lost capture, scroll, navigation or focus change. Never latch movement.
+ const pointerControls=new Map();
+ const resetMovement=()=>{
+  pointerControls.clear();
+  inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
+  root.querySelector('.uri-adventure-stick')?.style.removeProperty('transform');
+  inst.scene?.player?.setVelocityX?.(0);
+  inst.scene?.input?.keyboard?.resetKeys?.();
+ };
+ inst.releaseControls=resetMovement;
+ const updateControl=(key,pressed,ev,element)=>{
   if(ev?.cancelable)ev.preventDefault();
-  if(control==='joystick'){
-   if(!pressed){inst.controls.left=false;inst.controls.right=false;root.querySelector('.uri-adventure-stick')?.style.removeProperty('transform');return}
-   const bounds=ev.currentTarget.getBoundingClientRect(),mid=bounds.left+bounds.width/2;
-   const d=ev.clientX-mid;inst.controls.left=d< -10;inst.controls.right=d>10;
-   const dot=root.querySelector('.uri-adventure-stick');if(dot)dot.style.transform='translateX('+Math.max(-23,Math.min(23,d))+'px)';
+  if(key==='joystick'){
+   if(!pressed){
+    inst.controls.left=false;inst.controls.right=false;
+    root.querySelector('.uri-adventure-stick')?.style.removeProperty('transform');
+    return;
+   }
+   const bounds=element.getBoundingClientRect();
+   const dx=ev.clientX-(bounds.left+bounds.width/2);
+   inst.controls.left=dx < -10;inst.controls.right=dx > 10;
+   const thumb=root.querySelector('.uri-adventure-stick');
+   if(thumb)thumb.style.transform='translateX('+Math.max(-23,Math.min(23,dx))+'px)';
    return;
   }
-  inst.controls[control]=pressed;
- }
- root.querySelectorAll('[data-adventure-control]').forEach(el=>{
-  const key=el.dataset.adventureControl;
-  if(key==='joystick'){
-   el.addEventListener('pointerdown',ev=>{el.setPointerCapture?.(ev.pointerId);setControl(key,true,ev)});
-   el.addEventListener('pointermove',ev=>{if(ev.buttons)setControl(key,true,ev)});
-  }else el.addEventListener('pointerdown',ev=>{el.setPointerCapture?.(ev.pointerId);setControl(key,true,ev)});
-  for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,ev=>setControl(key,false,ev));
+  inst.controls[key]=pressed;
+ };
+ root.querySelectorAll('[data-adventure-control]').forEach(element=>{
+  const key=element.dataset.adventureControl;
+  element.addEventListener('pointerdown',ev=>{
+   if(ev.pointerType==='mouse'&&ev.button!==0)return;
+   pointerControls.set(ev.pointerId,{element,key});
+   try{element.setPointerCapture?.(ev.pointerId)}catch(_){}
+   updateControl(key,true,ev,element);
+  });
+  if(key==='joystick')element.addEventListener('pointermove',ev=>{
+   if(pointerControls.get(ev.pointerId)?.element!==element)return;
+   // Touch events may report buttons=0 even while a finger is down.
+   if(ev.pointerType!=='touch'&&ev.buttons===0){
+    pointerControls.delete(ev.pointerId);
+    updateControl(key,false,ev,element);return;
+   }
+   updateControl(key,true,ev,element);
+  });
+  const release=ev=>{
+   if(pointerControls.get(ev.pointerId)?.element!==element)return;
+   pointerControls.delete(ev.pointerId);
+   updateControl(key,false,ev,element);
+  };
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])
+   element.addEventListener(type,release);
+  element.addEventListener('contextmenu',ev=>ev.preventDefault());
  });
+ const releaseOutside=ev=>{
+  const input=pointerControls.get(ev.pointerId);
+  if(!input)return;
+  pointerControls.delete(ev.pointerId);
+  updateControl(input.key,false,ev,input.element);
+ };
+ // Captured pointer events aren't reliable in iOS WebViews when the user
+ // releases a finger outside the game control or browser chrome appears.
+ const options={capture:true,signal:inst.inputAbort.signal};
+ for(const name of ['pointerup','pointercancel'])
+  window.addEventListener(name,releaseOutside,options);
+ for(const name of ['touchend','touchcancel'])
+  window.addEventListener(name,()=>{
+   if(pointerControls.size)resetMovement();
+  },options);
+ window.addEventListener('blur',resetMovement,{signal:inst.inputAbort.signal});
+ window.addEventListener('pagehide',resetMovement,{signal:inst.inputAbort.signal});
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)resetMovement();
+ },{signal:inst.inputAbort.signal});
+
 }
 function drawSprite(scene,key,variant,step,colorVariant=0){
  const g=scene.make.graphics({x:0,y:0,add:false});
@@ -503,7 +559,7 @@ async function startGame(inst){
 }
 function cleanup(){
  for(const inst of instances)if(!inst.root.isConnected){
-  inst.destroyed=true;inst.viewportObserver?.disconnect?.();inst.game?.destroy?.(true);instances.delete(inst);
+  inst.destroyed=true;inst.releaseControls?.();inst.inputAbort?.abort?.();inst.viewportObserver?.disconnect?.();inst.game?.destroy?.(true);instances.delete(inst);
  }
 }
 function mount(root=document){
