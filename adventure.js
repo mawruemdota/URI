@@ -226,7 +226,15 @@ function openStation(root,id){
  if(next)next.disabled=index>=stations.length-1;
  room.querySelector('.uri-adventure-room-nav').hidden=false;
  const content=room.querySelector('.uri-adventure-room-body');
- content.innerHTML='<div class="uri-adventure-room-content">'+page.innerHTML+'</div>';
+ // The room itself already supplies a title. Reusing the source heading makes
+ // every area look doubled-up. Clone the actual invitation content instead,
+ // stripping builder-only edit controls from its read-only presentation.
+ const paper=document.createElement('div');paper.className='uri-adventure-room-content';
+ const source=page.cloneNode(true);
+ source.querySelector(':scope > h2')?.remove();
+ source.querySelectorAll('.wb-visual-toolbar,.wb-inline-edit').forEach(el=>el.remove());
+ while(source.firstChild)paper.appendChild(source.firstChild);
+ content.replaceChildren(paper);
  // The online guest form is rendered in the same game room via the existing
  // token-protected RSVP API; it never requires a dialog or a second website.
  if(id==='rsvp'){
@@ -246,6 +254,10 @@ function openStation(root,id){
  }
 }
 function openMap(root){
+ // Guests may open the map before choosing a character. Do not leave the
+ // character selection overlay covering the map in that case.
+ const inst=root._uriAdventure;
+ if(inst?.view==='character')hideCharacterSelection(inst);
  const room=enterRoom(root,'World map','map');if(!room)return;
  const stage=root.querySelector('.uri-adventure-stage');
  stage.dataset.interiorType='map';
