@@ -97,7 +97,7 @@ function ownerCharacterChooser(a){
   +'<div class="uri-adventure-owner-roster" role="group" aria-label="Choose the main playable character">'
   +Object.entries(CHARACTERS).map(([id,label])=>
    '<button type="button" class="uri-adventure-owner-card'+(id===a.character?' selected':'')+
-   '" aria-pressed="'+(id===a.character)+'" onclick="uriAdventureSet(\'character\',\''+id+'\')">'
+   '" data-uri-character="'+id+'" aria-pressed="'+(id===a.character)+'" onclick="uriAdventureSet(\'character\',\''+id+'\')">'
    +'<span class="uri-adventure-owner-avatar">'+(PX?.svg(id,a.characterVariant)||'✿')+'</span>'
    +'<strong>'+T(label)+'</strong></button>'
   ).join('')
