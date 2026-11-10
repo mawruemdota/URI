@@ -114,7 +114,7 @@ U.cover=e=>{
   +'<div class="uri-adventure-mini-floor"></div></div>';
 };
 U.payload=e=>({...originalPayload(e),adventure:normalize(e.adventure)});
-const controls=(key,label,options,a)=>'<label class="wb-field uri-adventure-setting"><span>'+label+'</span><select onchange="uriAdventureSet(\''+key+'\',this.value)">'+options.map(([id,title])=>'<option value="'+id+'"'+(a[key]===id?' selected':'')+'>'+title+'</option>').join('')+'</select></label>';
+const controls=(key,label,options,a)=>'<label class="wb-field uri-adventure-setting"><span>'+label+'</span><select onchange="uriAdventureSet(\''+key+'\',this.value)">'+options.map(([id,title])=>'<option value="'+id+'"'+(String(a[key])===String(id)?' selected':'')+'>'+title+'</option>').join('')+'</select></label>';
 function manager(e){
  if(!active(e))return '';
  const a=normalize(e.adventure),parts=features(e);
@@ -407,11 +407,9 @@ function makeScene(P,inst){
    }
    bg.fillStyle(theme.ground);bg.fillRect(0,groundY,width,62);
    bg.fillStyle(theme.grass);bg.fillRect(0,groundY-7,width,9);
-   for(let x=190;x<width;x+=260){
-    bg.fillStyle(0x634b40);bg.fillRect(x,groundY-57,10,50);
-    bg.fillStyle(theme.hill2);bg.fillCircle(x+5,groundY-69,29);
-   }
    bg.setDepth(-5);
+   // Procedural pixel cottage, castle, bridge, flowers, tree canopies and waterfall.
+   window.URIAdventureLandscape?.paint?.(this,worldName,width,groundY);
    const g=this.make.graphics({x:0,y:0,add:false});
    g.fillStyle(theme.ground);g.fillRect(0,0,64,20);g.fillStyle(theme.grass);g.fillRect(0,0,64,6);
    g.generateTexture('uri-platform',64,20);g.destroy();
@@ -438,14 +436,16 @@ function makeScene(P,inst){
    this.checkpoints=checkpoints;
    checkpoints.forEach((cp,i)=>{
     const sign=this.add.container(cp.x,groundY-67);
-    const pole=this.add.rectangle(0,31,7,64,0x654f45);
-    const board=this.add.rectangle(0,0,124,53,0xffe7b1).setStrokeStyle(3,0x705740);
-    const label=this.add.text(0,-12,String(i+1).padStart(2,'0')+'  '+cp.title.toUpperCase(),
-      {fontFamily:'Arial',fontSize:'11px',fontStyle:'bold',color:'#493b35',align:'center',wordWrap:{width:112}}).setOrigin(.5,0);
-    const dot=this.add.circle(0,-42,8,theme.decor).setStrokeStyle(2,0xffffff);
+    const shadow=this.add.rectangle(4,5,155,66,0x3b3033);
+    const pole=this.add.rectangle(0,41,10,78,0x63483b);
+    const board=this.add.rectangle(0,0,155,66,0xffe8bc).setStrokeStyle(5,0x7a543c);
+    const inner=this.add.rectangle(0,0,139,50).setStrokeStyle(2,0xe4b97f);
+    const label=this.add.text(0,-15,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
+      {fontFamily:'monospace',fontSize:'12px',fontStyle:'bold',color:'#644b38',align:'center',wordWrap:{width:130}}).setOrigin(.5,0);
+    const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
     this.tweens.add({targets:dot,alpha:.4,duration:800,yoyo:true,repeat:-1});
     board.setInteractive({useHandCursor:true}).on('pointerdown',()=>openStation(inst.root,cp.id));
-    sign.add([pole,board,label,dot]);
+    sign.add([shadow,pole,board,inner,label,dot]);
    });
    this.collected=0;
    if(inst.root.dataset.adventureCollectibles==='true'){
@@ -455,14 +455,20 @@ function makeScene(P,inst){
     c.fillStyle(0xffffff);c.fillCircle(9,9,3);
     c.generateTexture('uri-memory',24,24);c.destroy();
     const items=this.physics.add.staticGroup();
+    const total=Math.max(0,Math.ceil((width-510)/380));
+    const top=inst.root.querySelector('.uri-pixel-memory-count');
+    if(top)top.textContent='0 / '+total;
     for(let x=410;x<width-100;x+=380)items.create(x,groundY-70-(x%3)*33,'uri-memory');
     this.physics.add.overlap(this.player,items,(_,item)=>{
      item.disableBody(true,true);this.collected++;
      const status=inst.root.querySelector('.uri-adventure-stars');
      if(status)status.textContent='Memories: '+this.collected;
+     const top=inst.root.querySelector('.uri-pixel-memory-count');
+     if(top)top.textContent=this.collected+' / '+total;
     });
    }
    this.input.keyboard?.on('keydown-E',()=>{if(inst.near)openStation(inst.root,inst.near)});
+   this.input.keyboard?.on('keydown-M',()=>openMap(inst.root));
 
    inst.root.querySelector('.uri-adventure-load')?.remove();
    inst.root.querySelector('.uri-adventure-world')?.classList.add('uri-adventure-playing');
@@ -527,6 +533,8 @@ function mount(root=document){
  for(const el of nodes){
   if(el.closest('.template-preview,.wb-cover-mini'))continue;
   setupUi(el);
+  if(el.dataset.adventureBootstrapped==='yes')continue;
+  el.dataset.adventureBootstrapped='yes';
   if(!el.closest('#wbLivePreview')){
    if(el.dataset.adventureGuestChoice==='true')showCharacterSelection(el._uriAdventure);
    else startGame(el._uriAdventure);
