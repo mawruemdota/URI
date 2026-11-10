@@ -105,6 +105,8 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview .uri-adventure-room-body [data-adventure-station="details"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-room-body').innerText(),/Garden Pavilion/);
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-hud').isVisible(),false,
+    'Overworld movement HUD should not clutter an open invitation room');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content > h2').count(),0,
     'In-game rooms should not duplicate their own headings from the source directory');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content .wb-visual-toolbar').count(),0,
@@ -138,6 +140,8 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview [data-adventure-action="room-exit"]').click();
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-interior').evaluate(el=>el.hidden),true,
     'Back to world closes the in-game room, without navigating away');
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-hud').isVisible(),true,
+    'Returning to the world restores its HUD and controls');
   await page.waitForFunction(()=>{
     const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
     return inst.view==='world'&&inst.scene.player.body.allowGravity&&inst.scene.scene.isActive();
@@ -204,6 +208,8 @@ const server=http.createServer((req,res)=>{
   await page.locator('.wf-full-content .uri-adventure-room-body [data-adventure-station="story"]').click();
   await page.locator('.wf-full-content .uri-adventure-stage[data-interior-type="story"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('.wf-full-content .uri-adventure-room-body').innerText(),/Our own adventure/);
+  assert.equal(await page.locator('.wf-full-content .uri-adventure-room-content h2').filter({hasText:'Our Story'}).count(),0,
+    'The story room has one scene title, not an extra duplicated content heading');
   const legible=await page.evaluate(()=>{
     const room=document.querySelector('.wf-full-content .uri-adventure-room-body');
     const paragraph=room?.querySelector('.wb-botanical-story p');
