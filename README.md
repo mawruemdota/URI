@@ -19,6 +19,14 @@ Four wedding styles:
 
 All four styles use the **same underlying event data and the same nine built-in features**. Switching templates does not delete the entered content. Adventure also supports custom sections as additional checkpoints.
 
+## Adventure Art Pack 2.0 — real illustrated PNG sprites (November 2026)
+
+**The real artwork upgrade is now shipped.** Actual licensed pixel art is stored in `adventure-assets/pixel-frog/`, with its CC0 license and origin documented in [the asset README](adventure-assets/pixel-frog/README.md). This is **authored PNG art by Pixel Frog**, not the earlier procedural rectangle graphics. The client-selected main character plays with imported idle, running, jumping and falling sprite-sheet animations; terrain is rendered from PNG tiles and checkpoint decoration uses supplied game artwork. The Game Template Manager displays the same imported sprite as the game. All images are hosted in the URI repository and loaded locally on GitHub Pages, without external asset APIs. Six role options use four source-character designs with some recolored variations.
+
+The original `adventure-artpack.js` still draws background props and serves as a fallback. **The full environment has not been redrawn into a unified commissioned wedding-game tileset**; upgrading buildings, trees, interior rooms and prop art would be a separate illustration phase. This makes the improvement tangible without presenting the existing generated artwork as a completed custom illustrated pack.
+
+**Mobile movement fix:** The touch controls now release movement on pointer-up outside the button, pointer cancellation, loss of pointer capture, browser blur, page hide, and visibility change. Two-finger move/jump input remains supported. WebView users no longer need to refresh after a missed touch-release event.
+
 ## Adventure Art Pack 1.0 (November 2026)
 
 The playable Adventure now uses a **self-contained, original pixel-art asset generator** in `adventure-artpack.js`. It creates real transparent **Phaser canvas textures** and a **five-frame sprite sheet** for the client's selected character (idle, two walk frames, jump, interact). Character selection and costume colors remain owner-only. The scene now loads a reusable illustrated tree, cottage, flower/shrub, wooden sign, pixel-path tiles and a tiled distant landscape with camera parallax. There are three cohesive color palettes: Meadow, Sunset and Starlight. Assets are generated locally in the browser: **no image-generation subscription, external sprite API, paid license, or additional download** is required. Legacy Phaser-drawn sprites and scenery remain a fallback if art generation fails.
