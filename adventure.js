@@ -351,10 +351,11 @@ function setupUi(root){
  const options={capture:true,signal:inst.inputAbort.signal};
  for(const name of ['pointerup','pointercancel'])
   window.addEventListener(name,releaseOutside,options);
- for(const name of ['touchend','touchcancel'])
-  window.addEventListener(name,()=>{
-   if(pointerControls.size)resetMovement();
-  },options);
+ window.addEventListener('touchend',ev=>{
+  // Keep a held movement finger active if a second finger taps Jump.
+  if(!ev.touches?.length&&pointerControls.size)resetMovement();
+ },options);
+ window.addEventListener('touchcancel',resetMovement,options);
  window.addEventListener('blur',resetMovement,{signal:inst.inputAbort.signal});
  window.addEventListener('pagehide',resetMovement,{signal:inst.inputAbort.signal});
  document.addEventListener('visibilitychange',()=>{
