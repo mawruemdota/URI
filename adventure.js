@@ -13,10 +13,13 @@ const WORLDS={
  sunset:{name:'Sunset Village',sky:0xf7bd95,hill:0xd7a2a0,hill2:0x9e7994,ground:0x785c65,grass:0xc89069,decor:0xffecc4},
  starlight:{name:'Starlight Kingdom',sky:0x233b65,hill:0x3a5680,hill2:0x293f6b,ground:0x36465d,grass:0x7394af,decor:0xe2d4ff}
 };
-const CHARACTERS={explorer:'Explorer',partner:'Celebration Guest',dreamer:'Dreamer'};
+const PX=window.URIAdventurePixels;
+const CHARACTERS=Object.fromEntries(Object.entries(PX?.ROLES||{
+ explorer:{name:'Explorer'},partner:{name:'Celebration Guest'},dreamer:{name:'Dreamer'}
+}).map(([id,v])=>[id,v.name]));
 const TITLE={hero:'Welcome',story:'Our Story',gallery:'Photo Gallery',countdown:'Countdown',details:'Event Details',
  timeline:'Event Timeline',dress:'Dress Code',gifts:'Gifts',rsvp:'RSVP'};
-const DEFAULTS={world:'meadow',character:'explorer',touch:'buttons',pace:'normal',collectibles:true};
+const DEFAULTS={world:'meadow',character:'explorer',characterVariant:0,guestChoice:true,touch:'buttons',pace:'normal',collectibles:true};
 const instances=new Set();
 let enginePromise=null, scheduled=false;
 const T=v=>esc(v==null?'':String(v));
@@ -26,6 +29,8 @@ function normalize(v){
  return {
   world:Object.hasOwn(WORLDS,x.world)?x.world:DEFAULTS.world,
   character:Object.hasOwn(CHARACTERS,x.character)?x.character:DEFAULTS.character,
+  characterVariant:Number.isInteger(Number(x.characterVariant))&&Number(x.characterVariant)>=0&&Number(x.characterVariant)<=2?Number(x.characterVariant):0,
+  guestChoice:typeof x.guestChoice==='boolean'?x.guestChoice:true,
   touch:['buttons','joystick'].includes(x.touch)?x.touch:DEFAULTS.touch,
   pace:['gentle','normal','brisk'].includes(x.pace)?x.pace:DEFAULTS.pace,
   collectibles:typeof x.collectibles==='boolean'?x.collectibles:DEFAULTS.collectibles
@@ -36,6 +41,29 @@ function features(e){return U.compose(e).map((x,i)=>({
  id:uid(x.id),title:TITLE[x.id]||(U.customItem(e,x.id)?.title||'Extra Information').slice(0,60),
  html:x.html,index:i
 })).filter(x=>x.id&&x.html)}
+function characterSelection(a){
+ const options=Object.entries(CHARACTERS);
+ return '<section class="uri-character-select" hidden aria-label="Choose your playable wedding adventure character">'
+  +'<div class="uri-character-select-top"><span class="uri-char-crest" aria-hidden="true">♡</span><h2 tabindex="-1">Choose Your Character</h2>'
+  +'<p>Select an avatar for your wedding adventure. Every character moves and jumps the same way.</p></div>'
+  +'<div class="uri-char-cards" role="group" aria-label="Available characters">'
+  +options.map(([id,label])=>'<button type="button" class="uri-char-card'+(id===a.character?' selected':'')+'" aria-pressed="'+(id===a.character)+'" data-adventure-role="'+id+'">'
+   +'<span class="uri-char-card-art">'+(PX?.svg(id,a.characterVariant)||'✿')+'</span>'
+   +'<span class="uri-char-card-label">'+T(label)+'</span></button>').join('')
+  +'</div>'
+  +'<div class="uri-char-detail"><div class="uri-char-large-avatar">'+(PX?.svg(a.character,a.characterVariant)||'✿')+'</div>'
+  +'<div class="uri-char-description"><div class="uri-char-name-row"><strong class="uri-char-active-name">'+T(CHARACTERS[a.character])+'</strong>'
+  +'<div class="uri-char-variations"><button type="button" data-adventure-action="variant-prev" aria-label="Previous outfit color">◀</button>'
+  +'<span class="uri-char-variation-label">Variation 1/3</span><button type="button" data-adventure-action="variant-next" aria-label="Next outfit color">▶</button></div></div>'
+  +'<p class="uri-char-active-tag">'+T(PX?.ROLES[a.character]?.tag||'Your story begins here')+'</p>'
+  +'<dl><div><dt>Style</dt><dd class="uri-char-style-value">'+T(PX?.ROLES[a.character]?.detail||'Wedding adventure')+'</dd></div>'
+  +'<div><dt>Vibe</dt><dd>Curious, warm, and ready to celebrate</dd></div>'
+  +'<div><dt>Special look</dt><dd class="uri-char-variant-name">Original colors</dd></div></dl>'
+  +'</div></div>'
+  +'<div class="uri-char-select-actions"><button type="button" data-adventure-action="character-back">← Back to invitation</button>'
+  +'<button type="button" data-adventure-action="confirm-character">Confirm Character →</button></div>'
+  +'</section>';
+}
 const originalModel=U.model;
 U.model=function(e){const result=originalModel(e);if(active(e))e.adventure=normalize(e.adventure);return result};
 const originalRender=U.render,originalCover=U.cover,originalPayload=U.payload;
@@ -43,12 +71,21 @@ function preview(e){
  const d=U.design(e),a=normalize(e.adventure),world=WORLDS[a.world],parts=features(e);
  const style='--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+
   ';--wb-heading:'+U.fonts[d.heading]+';--wb-body:'+U.fonts[d.body]+';';
- return '<article class="uri-builder-site uri-adventure-site wb-theme-adventure wb-spacing-'+d.spacing+'" data-visible-features="'+parts.length+'" data-adventure-world="'+a.world+'" data-adventure-character="'+a.character+'" data-adventure-touch="'+a.touch+'" data-adventure-pace="'+a.pace+'" data-adventure-collectibles="'+a.collectibles+'" style="'+style+'">'
-  +'<header class="uri-adventure-heading"><span class="uri-adventure-eyebrow">THE CELEBRATION JOURNEY</span><h1>'+T(e.name1||'Your Name')+' <em>&amp;</em> '+T(e.name2||'Partner Name')+'</h1><p>'+T(e.date?fmt(e.date):'Save the date')+' · '+T(e.venue||'Venue to be announced')+'</p></header>'
+ return '<article class="uri-builder-site uri-adventure-site wb-theme-adventure wb-spacing-'+d.spacing+'" data-visible-features="'+parts.length+'" data-adventure-world="'+a.world+'" data-adventure-character="'+a.character+'" data-adventure-variant="'+a.characterVariant+'" data-adventure-guest-choice="'+a.guestChoice+'" data-adventure-touch="'+a.touch+'" data-adventure-pace="'+a.pace+'" data-adventure-collectibles="'+a.collectibles+'" style="'+style+'">'
+  +'<header class="uri-adventure-heading">'
+  +'<div class="uri-pixel-topbar"><div class="uri-pixel-brand"><span class="uri-pixel-brand-flower">✿</span><div><strong>URI ADVENTURE</strong><small>WEDDING INVITATION QUEST</small></div></div>'
+  +'<div class="uri-pixel-topnav"><span class="uri-pixel-topmemories"><span class="uri-pixel-nav-icon">✧</span> <strong>Memories</strong><span class="uri-pixel-memory-count">0 / 0</span></span>'
+  +'<button type="button" data-adventure-action="map"><span class="uri-pixel-nav-icon">▤</span> World Map [M]</button>'
+  +'<a href="#home" class="uri-pixel-home"><span class="uri-pixel-nav-icon">⌂</span> Home [Esc]</a></div></div>'
+  +'<div class="uri-pixel-banner"><span class="uri-pixel-wedding-rings" aria-hidden="true">♡</span><span class="uri-adventure-eyebrow">THE ADVENTURE BEGINS</span>'
+  +'<h1>'+T(e.name1||'Your Name')+' <em>&amp;</em> '+T(e.name2||'Partner Name')+'</h1>'
+  +'<p class="uri-pixel-event-meta"><span>▣ '+T(e.date?fmt(e.date):'Save the date')+'</span><span>⌖ '+T(e.venue||'Venue to be announced')+'</span></p></div>'
+  +'</header>'
   +'<div class="wb-flow"><div class="uri-adventure-world" role="region" aria-label="Playable wedding invitation">'
-  +'<div class="uri-adventure-intro"><strong>Explore our invitation</strong><span>Move, jump and visit the glowing signs to uncover the celebration.</span></div>'
+  +'<div class="uri-adventure-intro"><strong>✦ A CELEBRATION ADVENTURE ✦</strong><span>Move, jump and explore the signposts to uncover the invitation.</span></div>'
   +'<div class="uri-adventure-stage" role="group" aria-label="Playable platform game with explorable invitation areas">'
-  +'<div class="uri-adventure-load"><span class="uri-adventure-loading-icon" aria-hidden="true">✦</span><span>Preparing your adventure…</span><button type="button" data-adventure-action="play">Play adventure</button></div>'
+  +'<div class="uri-adventure-load"><span class="uri-adventure-loading-icon" aria-hidden="true">✦</span><span>Step into your story</span><button type="button" data-adventure-action="play">Play adventure</button></div>'
+  +characterSelection(a)
   +'<section class="uri-adventure-interior" hidden role="region" aria-label="Inside an adventure area">'
   +'<div class="uri-adventure-interior-scenery" aria-hidden="true"><span class="uri-adventure-interior-window"></span><span class="uri-adventure-interior-banner"></span></div>'
   +'<header class="uri-adventure-room-head"><span class="uri-adventure-room-eyebrow">INSIDE THE ADVENTURE</span><h2 class="uri-adventure-room-title" tabindex="-1">Welcome</h2><button type="button" data-adventure-action="room-exit">← Return to world</button></header>'
@@ -60,7 +97,7 @@ function preview(e){
   +(a.touch==='joystick'?'<div class="uri-adventure-joystick" data-adventure-control="joystick" role="group" aria-label="Movement joystick"><span class="uri-adventure-stick" aria-hidden="true"></span><small>Move</small></div>'
    :'<div class="uri-adventure-dpad"><button type="button" data-adventure-control="left" aria-label="Move left">◀</button><button type="button" data-adventure-control="right" aria-label="Move right">▶</button></div>')
   +'<div class="uri-adventure-actions"><button type="button" data-adventure-control="jump" aria-label="Jump">Jump</button><button type="button" data-adventure-action="interact" aria-label="Interact with nearby invitation sign">Interact</button></div></div>'
-  +'<div class="uri-adventure-tools"><button type="button" data-adventure-action="map">World map</button><button type="button" data-adventure-action="details">View all details / Skip game</button><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span>Desktop: ← → / A D, Space to jump, E to interact</span></div>'
+  +'<div class="uri-adventure-tools"><button type="button" data-adventure-action="map">▤ World map</button><button type="button" data-adventure-action="character">✿ Character</button><button type="button" data-adventure-action="details">View all details / Skip game</button><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span>Move: ← → / A D · Jump: Space · Interact: E</span></div>'
   +'</div><details class="uri-adventure-directory"><summary>View all invitation information without playing</summary><div class="uri-adventure-pages">'
   +parts.map(p=>'<div class="uri-adventure-page" data-adventure-id="'+p.id+'"><h2>'+T(p.title)+'</h2>'+p.html+'</div>').join('')
   +(parts.length===0?'<p>Add invitation sections in the Features tab.</p>':'')+'</div></details></div>'
