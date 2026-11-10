@@ -126,7 +126,12 @@ function manager(e){
   +controls('characterVariant','Default outfit color', [['0','Original'],['1','Pastel'],['2','Evening']],a)
   +controls('touch','Mobile movement', [['buttons','Left / Right buttons'],['joystick','Virtual joystick']],a)
   +controls('pace','Movement speed',[['gentle','Gentle'],['normal','Normal'],['brisk','Brisk']],a)
-  +'</div><label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'guestChoice\',this.checked)"'+(a.guestChoice?' checked':'')+'> Let guests choose their own character before starting</label>'
+  +'</div><div class="uri-adventure-default-preview" aria-label="Default character preview">'
+  +'<div class="uri-adventure-default-avatar">'+(PX?.svg(a.character,a.characterVariant)||'✿')+'</div>'
+  +'<div><strong>'+T(CHARACTERS[a.character])+'</strong><p>'
+  +T(PX?.ROLES[a.character]?.tag||'Your wedding-adventure avatar')+'</p>'
+  +'<small>'+T(PX?.VARIANTS[a.characterVariant]?.name||'Original')+' outfit · '+(a.guestChoice?'Guests may customize their avatar':'Owner-selected avatar')+'</small></div></div>'
+  +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'guestChoice\',this.checked)"'+(a.guestChoice?' checked':'')+'> Let guests choose their own character before starting</label>'
   +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'collectibles\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
   +'<div class="uri-adventure-stations"><strong>Active checkpoints ('+parts.length+')</strong><p>Show, hide and reorder these stations in the Features tab.</p><ol>'
   +parts.map(p=>'<li>'+T(p.title)+'</li>').join('')+'</ol></div>'
@@ -486,7 +491,8 @@ function makeScene(P,inst){
     const label=this.add.text(0,-16,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
       {fontFamily:'Pixelify Sans, monospace',fontSize:'16px',fontStyle:'bold',color:'#4c382b',align:'center',wordWrap:{width:156}}).setOrigin(.5,0);
     const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
-    this.tweens.add({targets:dot,alpha:.4,duration:800,yoyo:true,repeat:-1});
+    if(!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)
+     this.tweens.add({targets:dot,alpha:.4,duration:800,yoyo:true,repeat:-1});
     board.setInteractive({useHandCursor:true}).on('pointerdown',()=>openStation(inst.root,cp.id));
     sign.add([shadow,pole,board,inner,label,dot]);
    });
