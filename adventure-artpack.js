@@ -201,12 +201,14 @@ function cover(world,characterId,variant){
    +box(18,16,106,45,'#fff0c7')+box(26,25,91,5,'#d1ab7a')
    +box(31,38,80,5,'#9d7656')+box(35,48,72,3,'#d7b185')
    +flowers(3,11)+flowers(122,11)+'</g>';
- let ground=box(0,307,600,53,p.earth)+box(0,296,600,14,p.dark)+box(0,296,600,6,p.grass);
- for(let i=0;i<55;i++){
-  const x=i*12,yy=323+(i%3)*10;
-  ground+=box(x,yy,7,2,i%3===0?'#ccaa78':'#6e503d');
-  if(i%4===0)ground+=box(x,286,4,14,p.dark)+box(x-3,280,10,8,p.grass);
- }
+ // Reuse the SAME imported 16x16 PNG ground tiles as the playable world,
+ // so the dashboard thumbnail no longer depicts procedural placeholder soil.
+ const tileSrc='adventure-assets/pixel-frog/terrain.png';
+ const tile=(x,y,top)=>'<svg x="'+x+'" y="'+y+'" width="48" height="48" viewBox="96 '+(top?0:16)+' 16 16" overflow="hidden" shape-rendering="crispEdges">'
+  +'<image href="'+tileSrc+'" x="0" y="0" width="352" height="176" preserveAspectRatio="none" /></svg>';
+ let ground='';
+ for(let i=0;i<13;i++)ground+=tile(i*48,298,true)+tile(i*48,346,false);
+ for(let i=0;i<9;i++)ground+=flowers(i*70+5,287);
  return '<svg class="uri-adventure-cover-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Pixel-art wedding adventure world">'
   +box(0,0,600,300,p.sky)
   +box(0,142,600,155,p.far)
