@@ -126,7 +126,8 @@ const server=http.createServer((req,res)=>{
     scene.player.setVelocityX(0);
   });
   await page.waitForFunction(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.near==='details');
-  await page.locator('#wbLivePreview [data-adventure-action="interact"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-stage canvas').focus();
+  await page.keyboard.press('e');
   await page.locator('#wbLivePreview .uri-adventure-stage[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-room-body').innerText(),/Garden Pavilion/);
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-hud').isVisible(),false,
@@ -159,7 +160,8 @@ const server=http.createServer((req,res)=>{
     scene.player.setVelocityX(0);
   });
   await page.waitForFunction(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.near==='rsvp');
-  await page.locator('#wbLivePreview [data-adventure-action="interact"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-stage canvas').focus();
+  await page.keyboard.press('e');
   await page.locator('#wbLivePreview .uri-adventure-inline-rsvp form').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-inline-rsvp').innerText(),/Guest Explorer/);
   await page.locator('#wbLivePreview .uri-adventure-inline-rsvp input[value="attending"]').check();
