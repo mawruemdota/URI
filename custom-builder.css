@@ -120,13 +120,15 @@
 .uri-builder-site.wb-theme-nightfall .wb-flow>.wb-custom[data-layout-pair="single"]{border-top:2px solid var(--wb-accent)}
 
 /* Preview-only visual editing controls. Never injected on public invitations. */
-#wbLivePreview .wb-section-editable{position:relative;cursor:default}
+#wbLivePreview .wb-section-editable{position:relative;cursor:default;isolation:isolate}
+#wbLivePreview .wb-section-editable:hover,
+#wbLivePreview .wb-section-editable:focus-within{z-index:35}
 #wbLivePreview .wb-section-editable:hover{
   outline:2px solid color-mix(in srgb,var(--wb-accent) 65%,transparent);
   outline-offset:-2px;
 }
 #wbLivePreview .wb-visual-toolbar{
-  position:absolute;z-index:17;right:9px;top:10px;
+  position:absolute;z-index:50;right:9px;top:10px;
   display:flex;gap:3px;padding:4px;
   background:rgba(255,255,255,.97);
   border:1px solid #d9e5dc;border-radius:8px;
