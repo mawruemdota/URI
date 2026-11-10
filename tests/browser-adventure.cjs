@@ -84,6 +84,18 @@ const server=http.createServer((req,res)=>{
       keyboard:s.input.keyboard?.enabled,keys:Object.fromEntries(Object.entries(s.keys||{}).map(([k,v])=>[k,!!v?.isDown]))};
   }));
   assert.ok(posAfter>posBefore+40,'Keyboard input moves the Phaser player: '+posBefore+' => '+posAfter);
+  // Switching avatars mid-journey recolors the live Phaser sprites without
+  // resetting movement progress or collected memories.
+  await page.locator('#wbLivePreview [data-adventure-action="character"]').click();
+  await page.locator('#wbLivePreview .uri-character-select').waitFor({state:'visible'});
+  await page.locator('#wbLivePreview [data-adventure-role="royal"]').click();
+  await page.locator('#wbLivePreview [data-adventure-action="confirm-character"]').click();
+  const liveAvatar=await page.evaluate(()=>{
+   const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
+   return {role:inst.playingCharacter,x:inst.scene?.player?.x,started:!!inst.game};
+  });
+  assert.equal(liveAvatar.role,'royal','Character selection updates the playable sprite');
+  assert.ok(liveAvatar.started&&Math.abs(liveAvatar.x-posAfter)<15,'Switching character keeps world progress');
   // The map and every checkpoint must be INSIDE the Phaser viewport, with no dialog.
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site dialog').count(),0,
     'Checkpoint experience must not use popups or modal dialogs');
