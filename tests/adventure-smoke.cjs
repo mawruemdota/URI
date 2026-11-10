@@ -14,9 +14,12 @@ const window={};const document={readyState:'loading',addEventListener(){},queryS
 const ctx={window,document,esc,fmt:x=>x,state,KEY:'adventure-test',render(){},
  localStorage:{setItem(){saved++}},alert(){},eventPage(){},current:()=>event,Date,Number,setTimeout};
 vm.createContext(ctx);
-for(const path of ['builder-core.js','adventure-pixels.js','adventure.js'])vm.runInContext(fs.readFileSync(path,'utf8'),ctx,{filename:path});
+for(const path of ['builder-core.js','adventure-pixels.js','adventure-artpack.js','adventure.js'])vm.runInContext(fs.readFileSync(path,'utf8'),ctx,{filename:path});
 const U=window.URIBuilder,A=window.URIAdventure;
 assert.ok(A,'Adventure module exports its manager');
+assert.equal(window.URIAdventureArtPack.version,'1.0');
+assert.equal(window.URIAdventureArtPack.states.length,5);
+assert.match(fs.readFileSync('adventure.js','utf8'),/artPack\\.decorate/);
 assert.ok(U.presets.adventure,'Adventure is a real template base');
 assert.equal(U.baseTemplate(event),'adventure');
 assert.equal(A.normalize({world:'arbitrary',character:'hacker',touch:'bad'}).world,'meadow');
