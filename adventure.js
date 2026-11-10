@@ -196,6 +196,9 @@ function exitRoom(root){
   inst.view='world';inst.currentStation=null;
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
   if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
+  // Phaser can pause the global game loop when focus changes between the
+  // canvas and an HTML invitation room. Resume only while the tab is visible.
+  if(inst.game?.isPaused&&document.visibilityState!=='hidden')inst.game.resume();
   inst.scene?.input?.keyboard?.resetKeys?.();
   const preferred=inst.game?.canvas||inst.returnFocus;
   preferred?.focus?.({preventScroll:true});
@@ -292,6 +295,7 @@ function hideCharacterSelection(inst){
  if(panel)panel.hidden=true;if(stage)stage.classList.remove('uri-adventure-choosing');
  inst.view='world';
  if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
+ if(inst.game?.isPaused&&document.visibilityState!=='hidden')inst.game.resume();
  if(inst.game?.canvas)inst.game.canvas.focus({preventScroll:true});
  else inst.returnFocus?.focus?.({preventScroll:true});
 }
