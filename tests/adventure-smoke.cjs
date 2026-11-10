@@ -32,11 +32,13 @@ assert.match(html,/data-adventure-action="interact"/);
 assert.match(html,/uri-adventure-stage/);
 assert.match(html,/uri-pixel-banner/,'Pixel-style invitation header is rendered');
 assert.match(html,/uri-pixel-topnav/,'Pixel-themed HUD is rendered');
-assert.match(html,/uri-character-select/,'Character selection is part of the playable page');
-assert.match(html,/data-adventure-guest-choice="true"/,'Guests may choose an avatar by default');
-assert.match(html,/data-adventure-action="confirm-character"/,'Character choice can be confirmed');
-assert.equal((html.match(/class="uri-char-card(?: selected)?"/g)||[]).length,6,'All six playable roles are shown');
-assert.equal((html.match(/uri-pixel-avatar-svg/g)||[]).length,7,'Six thumbnail sprites plus a large live preview');
+assert.doesNotMatch(html,/uri-character-select|data-adventure-role|confirm-character/,
+ 'Guests never see character-selection UI; the owner defines the main character');
+assert.doesNotMatch(html,/data-adventure-guest-choice/,
+ 'Legacy guest character selection must not be published');
+assert.equal((A.manager(event).match(/uri-adventure-owner-card/g)||[]).length,6,
+ 'Six avatars are selectable only in the owner editor');
+assert.match(A.manager(event),/Every guest will play as this character/);
 assert.ok(window.URIAdventurePixels.ROLES.floral,'Floral playable role exists');
 assert.match(html,/class="uri-adventure-interior" hidden/,'Invitation details open inside the actual game viewport');
 assert.match(html,/data-adventure-action="room-exit"/,'Guests can return from an explored area');
@@ -57,7 +59,9 @@ const initial=JSON.stringify({names:[event.name1,event.name2],photos:event.photo
 window.uriAdventureSet('world','sunset');
 window.uriAdventureSet('character','dreamer');
 window.uriAdventureSet('characterVariant','2');
-window.uriAdventureSet('guestChoice',false);
+// Older draft settings cannot re-enable guest character selection.
+window.uriAdventureSet('guestChoice',true);
+assert.equal(A.normalize({guestChoice:true}).guestChoice,false);
 window.uriAdventureSet('touch','joystick');
 window.uriAdventureSet('pace','brisk');
 window.uriAdventureSet('collectibles',false);
@@ -70,7 +74,9 @@ assert.match(A.manager(event),/Active checkpoints/);
 assert.equal(U.payload(event).adventure.character,'dreamer');
 assert.equal(U.payload(event).adventure.characterVariant,2);
 assert.equal(U.payload(event).adventure.guestChoice,false);
-assert.match(U.render(event),/data-adventure-guest-choice="false"/);
+assert.doesNotMatch(U.render(event),/data-adventure-guest-choice/);
+assert.match(A.manager(event),/data-uri-character="dreamer"/);
+assert.match(A.manager(event),/aria-pressed="true"/);
 assert.equal(U.payload(event).adventure.collectibles,false);
 window.uriAdventureSet('world','invalid');
 assert.equal(event.adventure.world,'sunset','Disallow unknown scene presets');
