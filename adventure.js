@@ -479,12 +479,12 @@ function makeScene(P,inst){
    this.checkpoints=checkpoints;
    checkpoints.forEach((cp,i)=>{
     const sign=this.add.container(cp.x,groundY-67);
-    const shadow=this.add.rectangle(4,5,155,66,0x3b3033);
+    const shadow=this.add.rectangle(4,5,178,72,0x3b3033);
     const pole=this.add.rectangle(0,41,10,78,0x63483b);
-    const board=this.add.rectangle(0,0,155,66,0xffe8bc).setStrokeStyle(5,0x7a543c);
-    const inner=this.add.rectangle(0,0,139,50).setStrokeStyle(2,0xe4b97f);
-    const label=this.add.text(0,-15,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
-      {fontFamily:'monospace',fontSize:'12px',fontStyle:'bold',color:'#644b38',align:'center',wordWrap:{width:130}}).setOrigin(.5,0);
+    const board=this.add.rectangle(0,0,178,72,0xffe8bc).setStrokeStyle(5,0x7a543c);
+    const inner=this.add.rectangle(0,0,162,56).setStrokeStyle(2,0xe4b97f);
+    const label=this.add.text(0,-16,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
+      {fontFamily:'Pixelify Sans, monospace',fontSize:'16px',fontStyle:'bold',color:'#4c382b',align:'center',wordWrap:{width:156}}).setOrigin(.5,0);
     const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
     this.tweens.add({targets:dot,alpha:.4,duration:800,yoyo:true,repeat:-1});
     board.setInteractive({useHandCursor:true}).on('pointerdown',()=>openStation(inst.root,cp.id));
@@ -534,7 +534,7 @@ function makeScene(P,inst){
    if(!this.player.body.blocked.down)this.player.setTexture('uri-player-jump');
    const cp=this.checkpoints.reduce((best,c)=>{
     const dist=Math.abs(c.x-this.player.x);
-    return dist<110&&(!best||dist<best.dist)?{...c,dist}:best;
+    return dist<145&&(!best||dist<best.dist)?{...c,dist}:best;
    },null);
    inst.near=cp?.id||null;
    const prompt=inst.root.querySelector('.uri-adventure-prompt');
