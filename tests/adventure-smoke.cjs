@@ -19,7 +19,7 @@ const U=window.URIBuilder,A=window.URIAdventure;
 assert.ok(A,'Adventure module exports its manager');
 assert.equal(window.URIAdventureArtPack.version,'1.0');
 assert.equal(window.URIAdventureArtPack.states.length,5);
-assert.match(fs.readFileSync('adventure.js','utf8'),/artPack\\.decorate/);
+assert.ok(fs.readFileSync('adventure.js','utf8').includes('artPack.decorate'),'Art Pack is integrated into Phaser scene');
 assert.ok(U.presets.adventure,'Adventure is a real template base');
 assert.equal(U.baseTemplate(event),'adventure');
 assert.equal(A.normalize({world:'arbitrary',character:'hacker',touch:'bad'}).world,'meadow');
