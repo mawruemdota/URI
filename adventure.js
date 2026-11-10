@@ -97,13 +97,13 @@ function ownerCharacterChooser(a){
   +'<div class="uri-adventure-owner-roster" role="group" aria-label="Choose the main playable character">'
   +Object.entries(CHARACTERS).map(([id,label])=>
    '<button type="button" class="uri-adventure-owner-card'+(id===a.character?' selected':'')+
-   '" aria-pressed="'+(id===a.character)+'" onclick="uriAdventureSet(\\'character\\',\\''+id+'\\')">'
+   '" aria-pressed="'+(id===a.character)+'" onclick="uriAdventureSet(\'character\',\''+id+'\')">'
    +'<span class="uri-adventure-owner-avatar">'+(PX?.svg(id,a.characterVariant)||'✿')+'</span>'
    +'<strong>'+T(label)+'</strong></button>'
   ).join('')
   +'</div><div class="uri-adventure-variant-row"><strong>Outfit palette</strong>'
   +[0,1,2].map(i=>'<button type="button" class="'+(a.characterVariant===i?'selected':'')+
-   '" aria-pressed="'+(a.characterVariant===i)+'" onclick="uriAdventureSet(\\'characterVariant\\','+i+')">'
+   '" aria-pressed="'+(a.characterVariant===i)+'" onclick="uriAdventureSet(\'characterVariant\','+i+')">'
    +T(PX?.VARIANTS[i]?.name||'Original')+'</button>').join('')
   +'</div></fieldset>';
 }
@@ -121,7 +121,7 @@ function manager(e){
   +'<div class="uri-adventure-default-avatar">'+(PX?.svg(a.character,a.characterVariant)||'✿')+'</div>'
   +'<div><strong>'+T(CHARACTERS[a.character])+'</strong><p>'+T(PX?.ROLES[a.character]?.tag||'Your invitation main character')+'</p>'
   +'<small>'+T(PX?.VARIANTS[a.characterVariant]?.name||'Original')+' outfit · Shown to all guests</small></div></div>'
-  +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\\'collectibles\\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
+  +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'collectibles\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
   +'<div class="uri-adventure-stations"><strong>Active checkpoints ('+parts.length+')</strong><p>Show, hide and reorder these stations in the Features tab.</p><ol>'
   +parts.map(p=>'<li>'+T(p.title)+'</li>').join('')+'</ol></div>'
   +'<p class="uri-adventure-editor-help">Press <b>Play adventure</b> to preview the client-selected main character. Guests enter the game directly.</p></section>';
