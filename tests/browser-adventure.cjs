@@ -65,6 +65,18 @@ const server=http.createServer((req,res)=>{
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site').getAttribute('data-adventure-character'),'floral');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site').getAttribute('data-adventure-variant'),'1');
   await page.waitForFunction(()=>!!document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure?.scene?.player,{timeout:15000});
+  const art=await page.evaluate(()=>{
+   const scene=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene;
+   return {character:scene.uriArtCharacter?.key||null,
+    sky:scene.textures.exists('uri-artpack-sky-sunset'),
+    tree:scene.textures.exists('uri-artpack-tree-sunset'),
+    cottage:scene.textures.exists('uri-artpack-cottage-sunset'),
+    sign:scene.textures.exists('uri-artpack-sign-sunset'),
+    frames:scene.uriArtCharacter?scene.textures.get(scene.uriArtCharacter.key).frameTotal:0};
+  });
+  assert.ok(art.character&&art.frames>=5,'Phaser uses the generated multi-frame character sprite sheet: '+JSON.stringify(art));
+  assert.ok(art.sky&&art.tree&&art.cottage&&art.sign,'Art Pack generated real scene textures: '+JSON.stringify(art));
+
   try{
     await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-load'),{timeout:8000});
   }catch(err){
