@@ -96,7 +96,7 @@ const server=http.createServer((req,res)=>{
     const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
     return inst.view==='station'&&inst.scene.player.body.allowGravity===false&&inst.scene.scene.isActive();
   }),true,'Player controls and gravity are safely frozen inside a room, while the Phaser scene continues');
-  await page.screenshot({path:path.join(screens,'01b-in-game-venue.png'),fullPage:true,animations:'disabled'});
+  await page.locator('#wbLivePreview .uri-adventure-stage').screenshot({path:path.join(screens,'01b-in-game-venue.png'),animations:'disabled'});
   // Checkpoint navigation stays inside the stage; even personalized RSVP is inline.
   const token='a'.repeat(64);
   await page.evaluate(t=>{
@@ -145,7 +145,7 @@ const server=http.createServer((req,res)=>{
   });
   await page.keyboard.up('ArrowLeft');
   const afterRestartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
-  if(!(afterRestartX<restartX-20))console.log('Room exit movement diagnostics',JSON.stringify({restartX,afterRestartX,whileHeld}));
+  if(!(afterRestartX<restartX-20))console.log('Room exit movement diagnostics',JSON.stringify({restartX,afterRestartX,whileHeld,errors}));
   assert.ok(afterRestartX<restartX-20,'The character can move again after exiting the in-game room');
   await page.locator('#wbLivePreview [data-adventure-action="details"]').click();
   assert.ok(await page.locator('#wbLivePreview .uri-adventure-directory').evaluate(el=>el.open));
