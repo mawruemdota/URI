@@ -642,3 +642,27 @@
 @media(prefers-reduced-motion:reduce){
  .uri-adventure-site .uri-char-card{transition:none!important}
 }
+
+
+/* Adventure Art Pack 2.0 — actual PNG character portraits, not SVG stand-ins.
+   Each horizontal PNG atlas is cropped to its first 32x32 idle frame. */
+.uri-adventure-manager .uri-real-avatar{
+ display:block;width:82px;height:82px;flex:0 0 82px;
+ background-repeat:no-repeat;
+ background-size:auto 82px;background-position:left top;
+ image-rendering:pixelated;
+}
+.uri-adventure-manager .uri-adventure-default-avatar .uri-real-avatar{
+ width:90px;height:90px;flex-basis:90px;
+ background-size:auto 90px;
+}
+.uri-adventure-manager .uri-adventure-owner-card.selected .uri-real-avatar{
+ filter:drop-shadow(0 2px 0 #352e2660)
+}
+.uri-adventure-site .uri-adventure-controls [data-adventure-control],
+.uri-adventure-site .uri-adventure-joystick{
+ touch-action:none;
+ -webkit-user-select:none;
+ user-select:none;
+ -webkit-touch-callout:none;
+}
