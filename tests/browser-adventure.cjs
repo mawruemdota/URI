@@ -101,6 +101,10 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview .uri-adventure-room-body [data-adventure-station="details"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-room-body').innerText(),/Garden Pavilion/);
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content > h2').count(),0,
+    'In-game rooms should not duplicate their own headings from the source directory');
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content .wb-visual-toolbar').count(),0,
+    'In-game rooms should not contain editor-only toolbars');
   assert.equal(await page.evaluate(()=>{
     const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
     return inst.view==='station'&&inst.scene.player.body.allowGravity===false&&inst.scene.scene.isActive();
@@ -168,6 +172,13 @@ const server=http.createServer((req,res)=>{
   await page.screenshot({path:path.join(screens,'01-adventure-desktop.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Full-page preview/}).click();
   await page.locator('.wf-full-content .uri-adventure-site').waitFor();
+  await page.locator('.wf-full-content .uri-character-select').waitFor({state:'visible'});
+  await page.locator('.wf-full-content [data-adventure-action="map"]').click();
+  await page.locator('.wf-full-content .uri-adventure-stage[data-interior-type="map"]').waitFor({state:'visible'});
+  assert.equal(await page.locator('.wf-full-content .uri-character-select').isVisible(),false,
+    'Map works before character selection and does not sit behind the selection overlay');
+  await page.locator('.wf-full-content [data-adventure-action="room-exit"]').click();
+  await page.locator('.wf-full-content [data-adventure-action="play"]').click();
   await page.locator('.wf-full-content .uri-character-select').waitFor({state:'visible'});
   await page.locator('.wf-full-content [data-adventure-role="explorer"]').click();
   await page.locator('.wf-full-content [data-adventure-action="confirm-character"]').click();
