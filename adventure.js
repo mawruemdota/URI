@@ -83,11 +83,11 @@ U.render=e=>active(e)?preview(e):originalRender(e);
 U.cover=e=>{
  if(!active(e))return originalCover(e);
  const d=U.design(e),a=normalize(e.adventure);
- return '<div class="wb-cover-mini uri-adventure-mini" data-adventure-world="'+a.world+'" style="--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+'">'
-  +'<div class="uri-adventure-mini-cloud"></div><div class="uri-adventure-mini-hills"></div>'
-  +'<div class="uri-adventure-mini-sign">THE ADVENTURE BEGINS</div><div class="uri-adventure-mini-hero" aria-hidden="true"><i></i></div>'
-  +'<div class="uri-adventure-mini-title">'+T(e.name1||'Maya')+' <em>&amp;</em> '+T(e.name2||'Emir')+'</div>'
-  +'<div class="uri-adventure-mini-floor"></div></div>';
+ const illustration=window.URIAdventureArtPack?.cover?.(a.world,a.character,a.characterVariant)||'';
+ return '<div class="wb-cover-mini uri-adventure-mini uri-adventure-cover-v2" data-adventure-world="'+a.world+'" style="--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+'">'
+  +illustration
+  +'<div class="uri-adventure-cover-label"><small>URI · ADVENTURE INVITATION</small><strong>'+T(e.name1||'Maya')+' <em>&amp;</em> '+T(e.name2||'Emir')+'</strong><span>THE ADVENTURE BEGINS</span></div>'
+  +'</div>';
 };
 U.payload=e=>({...originalPayload(e),adventure:normalize(e.adventure)});
 const controls=(key,label,options,a)=>'<label class="wb-field uri-adventure-setting"><span>'+label+'</span><select onchange="uriAdventureSet(\''+key+'\',this.value)">'+options.map(([id,title])=>'<option value="'+id+'"'+(String(a[key])===String(id)?' selected':'')+'>'+title+'</option>').join('')+'</select></label>';
