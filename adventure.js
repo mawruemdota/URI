@@ -122,10 +122,12 @@ function manager(e){
   +'<p>Design a playable invitation. All checkpoints use your existing Content and Features settings.</p>'
   +'<div class="uri-adventure-setting-grid">'
   +controls('world','World appearance',Object.entries(WORLDS).map(([id,v])=>[id,v.name]),a)
-  +controls('character','Playable character',Object.entries(CHARACTERS).map(([id,label])=>[id,label]),a)
+  +controls('character','Default playable character',Object.entries(CHARACTERS).map(([id,label])=>[id,label]),a)
+  +controls('characterVariant','Default outfit color', [['0','Original'],['1','Pastel'],['2','Evening']],a)
   +controls('touch','Mobile movement', [['buttons','Left / Right buttons'],['joystick','Virtual joystick']],a)
   +controls('pace','Movement speed',[['gentle','Gentle'],['normal','Normal'],['brisk','Brisk']],a)
-  +'</div><label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'collectibles\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
+  +'</div><label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'guestChoice\',this.checked)"'+(a.guestChoice?' checked':'')+'> Let guests choose their own character before starting</label>'
+  +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'collectibles\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
   +'<div class="uri-adventure-stations"><strong>Active checkpoints ('+parts.length+')</strong><p>Show, hide and reorder these stations in the Features tab.</p><ol>'
   +parts.map(p=>'<li>'+T(p.title)+'</li>').join('')+'</ol></div>'
   +'<p class="uri-adventure-editor-help">Use <b>Play adventure</b> in the preview to test movement. Guests can always skip to event details and RSVP.</p></section>';
@@ -133,9 +135,9 @@ function manager(e){
 window.uriAdventureSet=(key,value)=>{
  const e=current();if(!active(e))return;
  const next=normalize({...normalize(e.adventure),[key]:value});
- if(!['world','character','touch','pace','collectibles'].includes(key))return;
- if(key==='collectibles'&&typeof value!=='boolean')return;
- if(key!=='collectibles'&&next[key]!==value)return;
+ if(!['world','character','characterVariant','guestChoice','touch','pace','collectibles'].includes(key))return;
+ if(['collectibles','guestChoice'].includes(key)&&typeof value!=='boolean')return;
+ if(!['collectibles','guestChoice','characterVariant'].includes(key)&&next[key]!==value)return;
  const previous=e.adventure;e.adventure=next;
  if(!U.persist()){e.adventure=previous;eventPage();return}
  eventPage();
@@ -251,14 +253,74 @@ function moveRoom(root,direction){
  travelTo(root,next.dataset.adventureId);
  openStation(root,next.dataset.adventureId);
 }
+function refreshCharacterSelect(inst){
+ const root=inst.root,select=root.querySelector('.uri-character-select');
+ if(!select)return;
+ const id=Object.hasOwn(CHARACTERS,inst.selectedCharacter)?inst.selectedCharacter:'explorer';
+ const variant=Math.max(0,Math.min(2,inst.selectedVariant||0));
+ const role=PX?.ROLES?.[id];
+ select.querySelectorAll('[data-adventure-role]').forEach(button=>{
+  const chosen=button.dataset.adventureRole===id;
+  button.classList.toggle('selected',chosen);
+  button.setAttribute('aria-pressed',String(chosen));
+  const art=button.querySelector('.uri-char-card-art');
+  if(art&&PX?.svg)art.innerHTML=PX.svg(button.dataset.adventureRole,variant);
+ });
+ const p=select.querySelector('.uri-char-large-avatar');
+ if(p&&PX?.svg)p.innerHTML=PX.svg(id,variant);
+ const name=select.querySelector('.uri-char-active-name');if(name)name.textContent=CHARACTERS[id];
+ const tag=select.querySelector('.uri-char-active-tag');if(tag)tag.textContent=role?.tag||'Your story begins here';
+ const detail=select.querySelector('.uri-char-style-value');if(detail)detail.textContent=role?.detail||'Wedding adventure';
+ const change=select.querySelector('.uri-char-variation-label');if(change)change.textContent='Variation '+(variant+1)+'/3';
+ const colorName=select.querySelector('.uri-char-variant-name');
+ if(colorName)colorName.textContent=(PX?.VARIANTS?.[variant]?.name||'Original')+' colors';
+}
+function showCharacterSelection(inst){
+ if(!inst||inst.destroyed)return;
+ const root=inst.root,stage=root.querySelector('.uri-adventure-stage'),panel=root.querySelector('.uri-character-select');
+ if(!panel)return;
+ if(inst.view!=='character')inst.returnFocus=document.activeElement;
+ inst.view='character';
+ inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
+ if(inst.scene?.scene&&!inst.scene.scene.isPaused())inst.scene.scene.pause();
+ panel.hidden=false;stage.classList.add('uri-adventure-choosing');
+ refreshCharacterSelect(inst);
+ panel.querySelector('h2')?.focus?.({preventScroll:true});
+}
+function hideCharacterSelection(inst){
+ const root=inst.root,stage=root.querySelector('.uri-adventure-stage'),panel=root.querySelector('.uri-character-select');
+ if(panel)panel.hidden=true;if(stage)stage.classList.remove('uri-adventure-choosing');
+ inst.view='world';
+ if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
+ if(inst.game?.canvas)inst.game.canvas.focus({preventScroll:true});
+ else inst.returnFocus?.focus?.({preventScroll:true});
+}
+function confirmCharacter(inst){
+ if(inst.destroyed)return;
+ const changed=inst.game&&(inst.playingCharacter!==inst.selectedCharacter||inst.playingVariant!==inst.selectedVariant);
+ hideCharacterSelection(inst);
+ inst.root.dataset.adventureCharacter=inst.selectedCharacter;
+ inst.root.dataset.adventureVariant=String(inst.selectedVariant);
+ if(changed){
+  inst.game.destroy(true);
+  inst.game=null;inst.scene=null;inst.near=null;
+ }
+ if(!inst.game)startGame(inst);
+ else inst.game.canvas?.focus?.({preventScroll:true});
+}
 function setupUi(root){
  if(root.dataset.adventureWired)return;
  root.dataset.adventureWired='yes';
- const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},near:null,view:'world',currentStation:null,destroyed:false};
+ const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},near:null,view:'world',currentStation:null,
+  selectedCharacter:root.dataset.adventureCharacter||'explorer',
+  selectedVariant:Math.max(0,Math.min(2,Number(root.dataset.adventureVariant)||0)),
+  playingCharacter:null,playingVariant:null,destroyed:false};
  root._uriAdventure=inst;instances.add(inst);
  root.addEventListener('click',ev=>{
   const button=ev.target.closest('button');
   if(!button||!root.contains(button))return;
+  const role=button.dataset.adventureRole;
+  if(role&&Object.hasOwn(CHARACTERS,role)){inst.selectedCharacter=role;refreshCharacterSelect(inst);return}
   const station=button.dataset.adventureStation;
   if(station){travelTo(root,station);openStation(root,station);return}
   const action=button.dataset.adventureAction;
@@ -269,7 +331,13 @@ function setupUi(root){
   else if(action==='room-exit')exitRoom(root);
   else if(action==='room-prev')moveRoom(root,-1);
   else if(action==='room-next')moveRoom(root,1);
-  else if(action==='play')startGame(inst);
+  else if(action==='play'||action==='character')showCharacterSelection(inst);
+  else if(action==='variant-prev'||action==='variant-next'){
+   inst.selectedVariant=(inst.selectedVariant+(action==='variant-next'?1:2))%3;
+   refreshCharacterSelect(inst);
+  }
+  else if(action==='character-back')hideCharacterSelection(inst);
+  else if(action==='confirm-character')confirmCharacter(inst);
  });
  root.addEventListener('keydown',ev=>{
   if(ev.key==='Escape'&&inst.view&&inst.view!=='world'){
@@ -296,8 +364,12 @@ function setupUi(root){
   for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,ev=>setControl(key,false,ev));
  });
 }
-function drawSprite(scene,key,variant,step){
+function drawSprite(scene,key,variant,step,colorVariant=0){
  const g=scene.make.graphics({x:0,y:0,add:false});
+ if(PX?.paint){
+  PX.paint(g,variant,colorVariant,key,step);
+  g.generateTexture('uri-player-'+key,44,50);g.destroy();return;
+ }
  const skin=0xf4ceaa,coat=variant==='dreamer'?0x9c80d0:variant==='partner'?0xb38475:0x3f8f9c;
  const hair=variant==='dreamer'?0x69547e:0x4a3a35;
  g.fillStyle(0x283752);g.fillRect(8,32+(step?1:0),7,7);g.fillRect(18,32-(step?1:0),7,7);
@@ -349,13 +421,15 @@ function makeScene(P,inst){
     const y=300+(x%3)*18;
     ground.create(x,y,'uri-platform').setDisplaySize(120,20).refreshBody();
    }
-   drawSprite(this,'idle',inst.root.dataset.adventureCharacter,0);
-   drawSprite(this,'walk0',inst.root.dataset.adventureCharacter,0);
-   drawSprite(this,'walk1',inst.root.dataset.adventureCharacter,1);
-   drawSprite(this,'jump',inst.root.dataset.adventureCharacter,0);
-   drawSprite(this,'interact',inst.root.dataset.adventureCharacter,0);
-   this.player=this.physics.add.sprite(88,groundY-40,'uri-player-idle');
-   this.player.setSize(25,36).setOffset(5,4).setCollideWorldBounds(true).setBounce(0);
+   const avatar=inst.selectedCharacter||inst.root.dataset.adventureCharacter,variation=inst.selectedVariant||0;
+   drawSprite(this,'idle',avatar,0,variation);
+   drawSprite(this,'walk0',avatar,0,variation);
+   drawSprite(this,'walk1',avatar,1,variation);
+   drawSprite(this,'jump',avatar,0,variation);
+   drawSprite(this,'interact',avatar,0,variation);
+   inst.playingCharacter=avatar;inst.playingVariant=variation;
+   this.player=this.physics.add.sprite(88,groundY-44,'uri-player-idle');
+   this.player.setSize(28,38).setOffset(8,10).setCollideWorldBounds(true).setBounce(0);
    this.physics.add.collider(this.player,ground);
    this.cameras.main.startFollow(this.player,true,.085,.085,-175,70);
    this.keys=this.input.keyboard?.addKeys('LEFT,RIGHT,UP,SPACE,A,D,W,E');
@@ -453,7 +527,10 @@ function mount(root=document){
  for(const el of nodes){
   if(el.closest('.template-preview,.wb-cover-mini'))continue;
   setupUi(el);
-  if(!el.closest('#wbLivePreview'))startGame(el._uriAdventure);
+  if(!el.closest('#wbLivePreview')){
+   if(el.dataset.adventureGuestChoice==='true')showCharacterSelection(el._uriAdventure);
+   else startGame(el._uriAdventure);
+  }
   else{
    const loader=el.querySelector('.uri-adventure-load');
    if(loader)loader.querySelector('span:last-of-type').textContent='Use Play adventure to test this level';
@@ -470,7 +547,7 @@ function init(){
   });observer.observe(app,{childList:true,subtree:true});
  }
 }
-window.URIAdventure={normalize,manager,features,render:preview,mount,openStation,openMap,exitRoom,start:root=>{
+window.URIAdventure={normalize,manager,features,render:preview,mount,openStation,openMap,exitRoom,showCharacterSelection,start:root=>{
  if(!root)return;setupUi(root);return startGame(root._uriAdventure)
 },worlds:Object.keys(WORLDS)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
