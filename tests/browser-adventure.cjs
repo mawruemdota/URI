@@ -92,8 +92,10 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview .uri-adventure-room-body [data-adventure-station="details"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-room-body').innerText(),/Garden Pavilion/);
-  assert.equal(await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused()),true,
-    'The overworld pauses while exploring an in-game location');
+  assert.equal(await page.evaluate(()=>{
+    const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
+    return inst.view==='station'&&inst.scene.player.body.allowGravity===false&&inst.scene.scene.isActive();
+  }),true,'Player controls and gravity are safely frozen inside a room, while the Phaser scene continues');
   await page.screenshot({path:path.join(screens,'01b-in-game-venue.png'),fullPage:true,animations:'disabled'});
   // Checkpoint navigation stays inside the stage; even personalized RSVP is inline.
   const token='a'.repeat(64);
@@ -119,7 +121,10 @@ const server=http.createServer((req,res)=>{
   await page.locator('#wbLivePreview [data-adventure-action="room-exit"]').click();
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-interior').evaluate(el=>el.hidden),true,
     'Back to world closes the in-game room, without navigating away');
-  await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused(),{timeout:5000});
+  await page.waitForFunction(()=>{
+    const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
+    return inst.view==='world'&&inst.scene.player.body.allowGravity&&inst.scene.scene.isActive();
+  },{timeout:5000});
   await page.locator('#wbLivePreview .uri-adventure-stage canvas').scrollIntoViewIfNeeded();
   await page.waitForFunction(()=>{
    const game=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.game;
