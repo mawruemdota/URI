@@ -301,9 +301,17 @@ function confirmCharacter(inst){
  hideCharacterSelection(inst);
  inst.root.dataset.adventureCharacter=inst.selectedCharacter;
  inst.root.dataset.adventureVariant=String(inst.selectedVariant);
- if(changed){
-  inst.game.destroy(true);
-  inst.game=null;inst.scene=null;inst.near=null;
+ // Repaint shared sprite textures in place, preserving the player's location,
+ // collected memories, room progress and live Phaser engine on avatar changes.
+ if(changed&&inst.scene?.player){
+  const scene=inst.scene;
+  scene.player.setTexture('__DEFAULT');
+  for(const key of ['idle','walk0','walk1','jump','interact']){
+   if(scene.textures.exists('uri-player-'+key))scene.textures.remove('uri-player-'+key);
+   drawSprite(scene,key,inst.selectedCharacter,key==='walk1'?1:0,inst.selectedVariant);
+  }
+  scene.player.setTexture('uri-player-idle');
+  inst.playingCharacter=inst.selectedCharacter;inst.playingVariant=inst.selectedVariant;
  }
  if(!inst.game)startGame(inst);
  else inst.game.canvas?.focus?.({preventScroll:true});
