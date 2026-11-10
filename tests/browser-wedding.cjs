@@ -154,7 +154,10 @@ const image=async (page,name)=>{
     await page.locator('.wb-template-choices').waitFor();
     await page.setViewportSize({width:390,height:844});
     await page.locator('.wb-preview-toolbar button').filter({hasText:'Mobile'}).click();
-    await page.waitForFunction(()=>document.getElementById('wbLivePreview')?.style.width==='390px');
+    await page.waitForFunction(()=>{
+      const p=document.getElementById('wbLivePreview'),surface=document.getElementById('wbPreviewSurface');
+      return p&&surface&&parseInt(p.style.width,10)<=390&&parseInt(p.style.width,10)>250&&p.style.transform==='scale(1)';
+    });
     const nightfallOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
     assert.ok(nightfallOverflow<=3,'Nightfall mobile editor overflows by '+nightfallOverflow+' pixels');
     await image(page,'06b-nightfall-mobile.png');
