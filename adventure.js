@@ -157,6 +157,7 @@ function enterRoom(root,heading,view){
  if(inst){
   if(inst.view==='world'||!inst.view)inst.returnFocus=document.activeElement;
   inst.view=view;
+  inst.releaseControls?.();
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
   if(inst.scene?.player){
    inst.scene.player.setVelocity(0,0);
