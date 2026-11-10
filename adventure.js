@@ -192,6 +192,9 @@ function exitRoom(root){
  stage.classList.remove('uri-adventure-inside');
  stage.removeAttribute('data-interior-type');
  room.querySelector('.uri-adventure-room-body').replaceChildren();
+ // A room can be taller than the landscape viewport, especially on phones.
+ // Bring the canvas back into view after the room collapses.
+ stage.scrollIntoView?.({behavior:'auto',block:'nearest'});
  if(inst){
   inst.view='world';inst.currentStation=null;
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
@@ -287,12 +290,16 @@ function showCharacterSelection(inst){
  inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
  if(inst.scene?.scene&&!inst.scene.scene.isPaused())inst.scene.scene.pause();
  panel.hidden=false;stage.classList.add('uri-adventure-choosing');
+ stage.scrollIntoView?.({behavior:'auto',block:'nearest'});
  refreshCharacterSelect(inst);
  panel.querySelector('h2')?.focus?.({preventScroll:true});
 }
 function hideCharacterSelection(inst){
  const root=inst.root,stage=root.querySelector('.uri-adventure-stage'),panel=root.querySelector('.uri-character-select');
- if(panel)panel.hidden=true;if(stage)stage.classList.remove('uri-adventure-choosing');
+ if(panel)panel.hidden=true;if(stage){
+  stage.classList.remove('uri-adventure-choosing');
+  stage.scrollIntoView?.({behavior:'auto',block:'nearest'});
+ }
  inst.view='world';
  if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
  if(inst.game?.isPaused&&document.visibilityState!=='hidden')inst.game.resume();
