@@ -188,6 +188,7 @@ function enterRoom(root,heading,view){
  }
  room.hidden=false;
  stage.classList.add('uri-adventure-inside');
+ root.querySelector('.uri-adventure-world')?.classList.add('uri-adventure-room-open');
  const title=room.querySelector('.uri-adventure-room-title');
  if(title){title.textContent=heading;title.focus({preventScroll:true})}
  const body=room.querySelector('.uri-adventure-room-body');
@@ -200,6 +201,7 @@ function exitRoom(root){
  if(!room||room.hidden)return;
  room.hidden=true;
  stage.classList.remove('uri-adventure-inside');
+ root.querySelector('.uri-adventure-world')?.classList.remove('uri-adventure-room-open');
  stage.removeAttribute('data-interior-type');
  room.querySelector('.uri-adventure-room-body').replaceChildren();
  // A room can be taller than the landscape viewport, especially on phones.
@@ -239,6 +241,11 @@ function openStation(root,id){
  source.querySelector(':scope > h2')?.remove();
  source.querySelectorAll('.wb-visual-toolbar,.wb-inline-edit').forEach(el=>el.remove());
  while(source.firstChild)paper.appendChild(source.firstChild);
+ // The themed room header already shows the checkpoint name. Omit an identical
+ // heading inside the copied content, retaining differently named subheadings.
+ const firstHeading=paper.querySelector('h1,h2,h3');
+ if(firstHeading?.textContent?.trim().replace(/\\s+/g,' ').toLowerCase()===title.trim().replace(/\\s+/g,' ').toLowerCase())
+  firstHeading.remove();
  content.replaceChildren(paper);
  // The online guest form is rendered in the same game room via the existing
  // token-protected RSVP API; it never requires a dialog or a second website.
