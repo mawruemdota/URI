@@ -52,7 +52,7 @@ function preview(e){
   +'<header class="uri-adventure-heading">'
   +'<div class="uri-pixel-topbar"><div class="uri-pixel-brand"><span class="uri-pixel-brand-flower">✿</span><div><strong>URI ADVENTURE</strong><small>WEDDING INVITATION QUEST</small></div></div>'
   +'<div class="uri-pixel-topnav"><span class="uri-pixel-topmemories"><span class="uri-pixel-nav-icon">✧</span> <strong>Memories</strong><span class="uri-pixel-memory-count">0 / 0</span></span>'
-  +'<button type="button" data-adventure-action="map"><span class="uri-pixel-nav-icon">▤</span> World Map [M]</button>'
+  +'<button type="button" data-adventure-action="map"><span class="uri-pixel-nav-icon">▤</span> Journey [M]</button>'
   +'<a href="#home" class="uri-pixel-home"><span class="uri-pixel-nav-icon">⌂</span> URI Home</a></div></div>'
   +'<div class="uri-pixel-banner"><span class="uri-pixel-wedding-rings" aria-hidden="true">♡</span><span class="uri-adventure-eyebrow">THE ADVENTURE BEGINS</span>'
   +'<h1>'+T(e.name1||'Your Name')+' <em>&amp;</em> '+T(e.name2||'Partner Name')+'</h1>'
@@ -66,17 +66,17 @@ function preview(e){
   +'<div class="uri-adventure-interior-scenery" aria-hidden="true"><span class="uri-adventure-interior-window"></span><span class="uri-adventure-interior-banner"></span></div>'
   +'<header class="uri-adventure-room-head"><span class="uri-adventure-room-eyebrow">INSIDE THE ADVENTURE</span><h2 class="uri-adventure-room-title" tabindex="-1">Welcome</h2><button type="button" data-adventure-action="room-exit">← Return to world</button></header>'
   +'<div class="uri-adventure-room-body" tabindex="0"></div>'
-  +'<nav class="uri-adventure-room-nav" aria-label="Navigate adventure areas"><button type="button" data-adventure-action="room-prev">← Previous area</button><button type="button" data-adventure-action="room-map">World map</button><button type="button" data-adventure-action="room-next">Next area →</button></nav>'
+  +'<nav class="uri-adventure-room-nav" aria-label="Continue exploring"><span>Return to the path to discover the next checkpoint.</span><button type="button" data-adventure-action="room-map">Journey map</button></nav>'
   +'</section></div>'
   +'<div class="uri-adventure-hud"><span class="uri-adventure-position" aria-live="off">Starting meadow</span><span class="uri-adventure-stars" aria-live="polite">'+(a.collectibles?'Memories: 0':'A celebration awaits')+'</span><span class="uri-adventure-prompt">Approach a sign and press E or Interact</span></div>'
   +'<div class="uri-adventure-controls" aria-label="Game controls">'
   +(a.touch==='joystick'?'<div class="uri-adventure-joystick" data-adventure-control="joystick" role="group" aria-label="Movement joystick"><span class="uri-adventure-stick" aria-hidden="true"></span><small>Move</small></div>'
    :'<div class="uri-adventure-dpad"><button type="button" data-adventure-control="left" aria-label="Move left">◀</button><button type="button" data-adventure-control="right" aria-label="Move right">▶</button></div>')
   +'<div class="uri-adventure-actions"><button type="button" data-adventure-control="jump" aria-label="Jump">Jump</button><button type="button" data-adventure-action="interact" aria-label="Interact with nearby invitation sign">Interact</button></div></div>'
-  +'<div class="uri-adventure-tools"><button type="button" data-adventure-action="details">View all details / Skip game</button><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span class="uri-adventure-keyboard-hint">Move: ← → / A D · Jump: Space · Interact: E · Map: M</span><span class="uri-adventure-mobile-hint">Touch the movement pad, then Jump or Interact near a sign.</span></div>'
-  +'</div><details class="uri-adventure-directory"><summary>View all invitation information without playing</summary><div class="uri-adventure-pages">'
+  +'<div class="uri-adventure-tools"><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span class="uri-adventure-keyboard-hint">Move: ← → / A D · Jump: Space · Interact: E · Journey: M</span><span class="uri-adventure-mobile-hint">Walk toward a sign, then tap Interact to discover each part of the invitation.</span></div>'
+  +'</div><div class="uri-adventure-directory" hidden aria-hidden="true"><div class="uri-adventure-pages">'
   +parts.map(p=>'<div class="uri-adventure-page" data-adventure-id="'+p.id+'"><h2>'+T(p.title)+'</h2>'+p.html+'</div>').join('')
-  +(parts.length===0?'<p>Add invitation sections in the Features tab.</p>':'')+'</div></details></div>'
+  +(parts.length===0?'<p>Add invitation sections in the Features tab.</p>':'')+'</div></div></div>'
   +'<footer class="wb-footer">URI · Your celebration, your adventure</footer></article>';
 }
 U.render=e=>active(e)?preview(e):originalRender(e);
@@ -150,14 +150,6 @@ function loadPhaser(){
 function stationNodes(root){return [...root.querySelectorAll('.uri-adventure-page[data-adventure-id]')]}
 /* Each checkpoint is an explorable room within the game stage, never a modal.
  * Phaser pauses at the doorway. The native HTML content stays accessible and scrollable. */
-function travelTo(root,id){
- const inst=root._uriAdventure,scene=inst?.scene;
- const cp=scene?.checkpoints?.find?.(c=>c.id===id);
- if(cp&&scene.player){
-  scene.player.setX(Math.max(40,cp.x-65));
-  scene.player.setVelocityX(0);
- }
-}
 function enterRoom(root,heading,view){
  const inst=root._uriAdventure,stage=root.querySelector('.uri-adventure-stage');
  const room=stage?.querySelector('.uri-adventure-interior');
@@ -209,19 +201,19 @@ function exitRoom(root){
  }
 }
 function openStation(root,id){
+ const inst=root._uriAdventure,scene=inst?.scene;
+ const checkpoint=scene?.checkpoints?.find(c=>c.id===id);
+ // No remote sign clicks, direct map jumping, or out-of-order station access.
+ // The character must physically reach the checkpoint in the playable world.
+ if(!scene?.player||!checkpoint||Math.abs(scene.player.x-checkpoint.x)>150)return;
  const page=stationNodes(root).find(p=>p.dataset.adventureId===id);
  if(!page)return;
+ inst.visited?.add(id);
  const title=page.querySelector('h2')?.textContent||'Invitation details';
  const room=enterRoom(root,title,'station');if(!room)return;
  const stage=root.querySelector('.uri-adventure-stage');
  stage.dataset.interiorType=id;
- const inst=root._uriAdventure;
  if(inst)inst.currentStation=id;
- const stations=stationNodes(root),index=stations.indexOf(page);
- const prev=room.querySelector('[data-adventure-action="room-prev"]');
- const next=room.querySelector('[data-adventure-action="room-next"]');
- if(prev)prev.disabled=index<=0;
- if(next)next.disabled=index>=stations.length-1;
  room.querySelector('.uri-adventure-room-nav').hidden=false;
  const content=room.querySelector('.uri-adventure-room-body');
  // The room itself already supplies a title. Reusing the source heading makes
@@ -257,29 +249,20 @@ function openStation(root,id){
  }
 }
 function openMap(root){
- // Guests may open the map before choosing a character. Do not leave the
- // character selection overlay covering the map in that case.
  const inst=root._uriAdventure;
- const room=enterRoom(root,'World map','map');if(!room)return;
- const stage=root.querySelector('.uri-adventure-stage');
- stage.dataset.interiorType='map';
+ const room=enterRoom(root,'Your Journey','map');if(!room)return;
+ root.querySelector('.uri-adventure-stage').dataset.interiorType='map';
  room.querySelector('.uri-adventure-room-nav').hidden=true;
- const list=stationNodes(root).map((p,i)=>
-  '<button type="button" data-adventure-station="'+T(p.dataset.adventureId)+'"><span>'+String(i+1).padStart(2,'0')+'</span>'+T(p.querySelector('h2')?.textContent||'Invitation area')+'</button>'
- ).join('');
- room.querySelector('.uri-adventure-room-body').innerHTML='<div class="uri-adventure-map-sheet"><p>Select an area to visit it inside the game, or return to the path.</p><div class="uri-adventure-map-list">'+list+'</div></div>';
-}
-function moveRoom(root,direction){
- const stations=stationNodes(root),id=root._uriAdventure?.currentStation;
- const index=stations.findIndex(p=>p.dataset.adventureId===id);
- const next=stations[index+direction];if(!next)return;
- travelTo(root,next.dataset.adventureId);
- openStation(root,next.dataset.adventureId);
+ const list=stationNodes(root).map((p,i)=>{
+  const visited=inst?.visited?.has(p.dataset.adventureId)||false;
+  return '<div class="uri-adventure-map-stop" data-visited="'+visited+'"><span class="uri-adventure-map-index">'+String(i+1).padStart(2,'0')+'</span><span>'+T(p.querySelector('h2')?.textContent||'Invitation area')+'</span><small>'+(visited?'DISCOVERED':'UNEXPLORED')+'</small></div>';
+ }).join('');
+ room.querySelector('.uri-adventure-room-body').innerHTML='<div class="uri-adventure-map-sheet"><p>Discover each chapter by walking to its signpost. The journey map shows your progress but does not skip ahead.</p><div class="uri-adventure-map-list">'+list+'</div></div>';
 }
 function setupUi(root){
  if(root.dataset.adventureWired)return;
  root.dataset.adventureWired='yes';
- const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},near:null,view:'world',currentStation:null,
+ const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},near:null,view:'world',currentStation:null,visited:new Set(),
   selectedCharacter:root.dataset.adventureCharacter||'explorer',
   selectedVariant:Math.max(0,Math.min(2,Number(root.dataset.adventureVariant)||0)),
   playingCharacter:null,playingVariant:null,destroyed:false};
@@ -287,16 +270,10 @@ function setupUi(root){
  root.addEventListener('click',ev=>{
   const button=ev.target.closest('button');
   if(!button||!root.contains(button))return;
-  const station=button.dataset.adventureStation;
-  if(station){travelTo(root,station);openStation(root,station);return}
   const action=button.dataset.adventureAction;
-  if(action==='details'){
-   const d=root.querySelector('.uri-adventure-directory');if(d){d.open=true;d.scrollIntoView?.({behavior:'smooth',block:'start'})}
-  }else if(action==='interact'){if(inst.near)openStation(root,inst.near)}
+  if(action==='interact'){if(inst.near)openStation(root,inst.near)}
   else if(action==='map'||action==='room-map')openMap(root);
   else if(action==='room-exit')exitRoom(root);
-  else if(action==='room-prev')moveRoom(root,-1);
-  else if(action==='room-next')moveRoom(root,1);
   else if(action==='play')startGame(inst);
 
  });
@@ -417,7 +394,9 @@ function makeScene(P,inst){
     const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
     if(!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)
      this.tweens.add({targets:dot,alpha:.4,duration:800,yoyo:true,repeat:-1});
-    board.setInteractive({useHandCursor:true}).on('pointerdown',()=>openStation(inst.root,cp.id));
+    board.setInteractive({useHandCursor:true}).on('pointerdown',()=>{
+     if(this.player&&Math.abs(this.player.x-cp.x)<=145)openStation(inst.root,cp.id);
+    });
     sign.add([shadow,pole,board,inner,label,dot]);
     // The illustrated sign is placed behind the interactive text and hit target.
     if(illustrated)illustrated.setDepth(-.2);
