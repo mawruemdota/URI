@@ -465,6 +465,20 @@
  .uri-adventure-site .uri-adventure-room-head button{font-size:10px}
  .uri-adventure-site .uri-adventure-room-nav button{font-size:10px}
 }
+/* Mobile playable camera uses a 3:2 stage; desktop stays 2:1. */
+@container (max-width:690px){
+ .uri-adventure-site .uri-adventure-stage:not(.uri-adventure-inside):not(.uri-adventure-choosing){aspect-ratio:3/2;min-height:0}
+ .uri-adventure-site .uri-adventure-hud{gap:7px;padding:9px 10px}
+ .uri-adventure-site .uri-adventure-hud .uri-adventure-prompt{flex:1 1 100%;text-align:left;line-height:1.35}
+ .uri-adventure-site .uri-adventure-controls{padding:12px 11px;gap:10px}
+ .uri-adventure-site .uri-adventure-controls button{min-height:54px;min-width:54px}
+ .uri-adventure-site .uri-adventure-tools .uri-adventure-keyboard-hint{display:none}
+ .uri-adventure-site .uri-adventure-tools .uri-adventure-mobile-hint{display:block;width:100%;margin-top:4px;color:#5f5545;font-size:12px}
+ .uri-adventure-site .uri-pixel-banner{margin-top:9px}
+}
+@container (min-width:691px){
+ .uri-adventure-site .uri-adventure-tools .uri-adventure-mobile-hint{display:none}
+}
 @media(prefers-reduced-motion:reduce){
  .uri-adventure-site .uri-char-card{transition:none!important}
 }
