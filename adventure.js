@@ -274,7 +274,7 @@ function setupUi(root){
   if(action==='interact'){if(inst.near)openStation(root,inst.near)}
   else if(action==='map'||action==='room-map')openMap(root);
   else if(action==='room-exit')exitRoom(root);
-  else if(action==='play')startGame(inst);
+  else if(action==='play'||action==='retry')startGame(inst);
 
  });
  root.addEventListener('keydown',ev=>{
@@ -497,8 +497,8 @@ async function startGame(inst){
    inst.viewportObserver.observe(stage);
   }
  }catch(err){
-  if(loader){loader.innerHTML='<p>Playable mode is unavailable. All invitation details are accessible below.</p>'}
-  root.querySelector('.uri-adventure-directory')?.setAttribute('open','');
+  console.error('URI Adventure failed to load:',err);
+  if(loader){loader.innerHTML='<p role="alert">The adventure could not load on this device. Reload this invitation to retry.</p><button type="button" data-adventure-action="retry">Try again</button>';}
  }
 }
 function cleanup(){
