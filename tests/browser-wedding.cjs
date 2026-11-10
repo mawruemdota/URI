@@ -198,7 +198,10 @@ const image=async (page,name)=>{
     await page.locator('#wbLivePreview [data-feature="'+customId+'"] .wb-visual-toolbar [data-visual-action="duplicate"]').click();
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].customSections.length),2);
     await page.locator('#wbLivePreview [data-feature="'+customId+'"]').hover();
-    await page.locator('#wbLivePreview [data-feature="'+customId+'"] .wb-visual-toolbar [data-visual-action="hide"]').click();
+    // Keyboard activation also verifies toolbar accessibility and avoids
+    // hover-animation race conditions while neighboring sections reflow.
+    await page.locator('#wbLivePreview [data-feature="'+customId+'"] .wb-visual-toolbar [data-visual-action="hide"]').focus();
+    await page.keyboard.press('Enter');
     assert.equal(await page.locator('#wbLivePreview [data-feature="'+customId+'"]').count(),0);
     await page.locator('.uri-custom-hidden button').filter({hasText:'Show'}).first().click();
     assert.equal(await page.locator('#wbLivePreview [data-feature="'+customId+'"]').count(),1);
