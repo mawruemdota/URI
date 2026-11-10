@@ -96,24 +96,40 @@ const server=http.createServer((req,res)=>{
       keyboard:s.input.keyboard?.enabled,keys:Object.fromEntries(Object.entries(s.keys||{}).map(([k,v])=>[k,!!v?.isDown]))};
   }));
   assert.ok(posAfter>posBefore+40,'Keyboard input moves the Phaser player: '+posBefore+' => '+posAfter);
-  // The map and every checkpoint must be INSIDE the Phaser viewport, with no dialog.
-  assert.equal(await page.locator('#wbLivePreview .uri-adventure-site dialog').count(),0,
-    'Checkpoint experience must not use popups or modal dialogs');
+  // Walking is required: map items are status-only, and details have no skip button.
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-site dialog').count(),0);
+  assert.equal(await page.locator('#wbLivePreview [data-adventure-action="details"]').count(),0);
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-directory').isVisible(),false);
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-cover-label').count().then(String),/0/,
+    'Dashboard cover elements should never interfere with the playable viewport');
   await page.locator('#wbLivePreview [data-adventure-action="map"]').click();
-  await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside[data-interior-type="map"] .uri-adventure-map-list').waitFor({state:'visible'});
-  await page.locator('#wbLivePreview .uri-adventure-room-body [data-adventure-station="details"]').click();
-  await page.locator('#wbLivePreview .uri-adventure-stage.uri-adventure-inside[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
+  await page.locator('#wbLivePreview .uri-adventure-stage[data-interior-type="map"] .uri-adventure-map-list').waitFor({state:'visible'});
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-map-list button').count(),0,
+    'Journey map must not provide teleport buttons');
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-map-sheet').innerText(),/does not skip ahead/);
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-map-stop[data-visited="true"]').count(),0);
+  await page.locator('#wbLivePreview [data-adventure-action="room-exit"]').click();
+
+  // Browser test fast-forwards the physics player to the venue sign, exactly
+  // as a guest reaches it by walking; the UI itself has no teleport option.
+  await page.evaluate(()=>{
+    const scene=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene;
+    scene.player.setX(scene.checkpoints.find(x=>x.id==='details').x-30);
+    scene.player.setVelocityX(0);
+  });
+  await page.waitForFunction(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.near==='details');
+  await page.locator('#wbLivePreview [data-adventure-action="interact"]').click();
+  await page.locator('#wbLivePreview .uri-adventure-stage[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-room-body').innerText(),/Garden Pavilion/);
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-hud').isVisible(),false,
     'Overworld movement HUD should not clutter an open invitation room');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content > h2').count(),0,
-    'In-game rooms should not duplicate their own headings from the source directory');
-  assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content .wb-visual-toolbar').count(),0,
-    'In-game rooms should not contain editor-only toolbars');
+    'In-game rooms should not duplicate their headings');
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content .wb-visual-toolbar').count(),0);
   assert.equal(await page.evaluate(()=>{
     const inst=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
-    return inst.view==='station'&&inst.scene.player.body.allowGravity===false&&inst.scene.scene.isActive();
-  }),true,'Player controls and gravity are safely frozen inside a room, while the Phaser scene continues');
+    return inst.view==='station'&&inst.visited.has('details')&&inst.scene.player.body.allowGravity===false;
+  }),true,'Venue is marked visited only after a real in-world proximity interaction');
   await page.locator('#wbLivePreview .uri-adventure-stage').screenshot({path:path.join(screens,'01b-in-game-venue.png'),animations:'disabled'});
   // Checkpoint navigation stays inside the stage; even personalized RSVP is inline.
   const token='a'.repeat(64);
@@ -128,8 +144,14 @@ const server=http.createServer((req,res)=>{
       return {data:null,error:{message:'Unknown RPC'}};
     }})};
   },token);
-  await page.locator('#wbLivePreview [data-adventure-action="room-map"]').click();
-  await page.locator('#wbLivePreview .uri-adventure-room-body [data-adventure-station="rsvp"]').click();
+  await page.locator('#wbLivePreview [data-adventure-action="room-exit"]').click();
+  await page.evaluate(()=>{
+    const scene=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene;
+    scene.player.setX(scene.checkpoints.find(x=>x.id==='rsvp').x-30);
+    scene.player.setVelocityX(0);
+  });
+  await page.waitForFunction(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.near==='rsvp');
+  await page.locator('#wbLivePreview [data-adventure-action="interact"]').click();
   await page.locator('#wbLivePreview .uri-adventure-inline-rsvp form').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-inline-rsvp').innerText(),/Guest Explorer/);
   await page.locator('#wbLivePreview .uri-adventure-inline-rsvp input[value="attending"]').check();
@@ -174,8 +196,8 @@ const server=http.createServer((req,res)=>{
     console.log('Room exit movement diagnostics',JSON.stringify({restartX,diagnostic,errors}));
   }
   assert.ok(moved,'The character must respond to ArrowLeft again after exiting the in-game room');
-  await page.locator('#wbLivePreview [data-adventure-action="details"]').click();
-  assert.ok(await page.locator('#wbLivePreview .uri-adventure-directory').evaluate(el=>el.open));
+  assert.equal(await page.locator('#wbLivePreview [data-adventure-action="details"]').count(),0);
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-directory').isVisible(),false);
   await page.screenshot({path:path.join(screens,'01-adventure-desktop.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Full-page preview/}).click();
   await page.locator('.wf-full-content .uri-adventure-site').waitFor();
@@ -198,7 +220,14 @@ const server=http.createServer((req,res)=>{
   await page.screenshot({path:path.join(screens,'02-adventure-mobile.png'),fullPage:true,animations:'disabled'});
   await page.locator('.wf-full-content [data-adventure-action="map"]').click();
   await page.locator('.wf-full-content .uri-adventure-stage.uri-adventure-inside .uri-adventure-map-list').waitFor({state:'visible'});
-  await page.locator('.wf-full-content .uri-adventure-room-body [data-adventure-station="story"]').click();
+  assert.equal(await page.locator('.wf-full-content .uri-adventure-map-list button').count(),0);
+  await page.locator('.wf-full-content [data-adventure-action="room-exit"]').click();
+  await page.evaluate(()=>{
+   const scene=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.scene;
+   scene.player.setX(scene.checkpoints.find(x=>x.id==='story').x-30);
+  });
+  await page.waitForFunction(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.near==='story');
+  await page.locator('.wf-full-content [data-adventure-action="interact"]').click();
   await page.locator('.wf-full-content .uri-adventure-stage[data-interior-type="story"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('.wf-full-content .uri-adventure-room-body').innerText(),/Our own adventure/);
   assert.equal(await page.locator('.wf-full-content .uri-adventure-room-content h2').filter({hasText:'Our Story'}).count(),0,
