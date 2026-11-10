@@ -4,10 +4,10 @@
 - [x] Fourth selectable wedding template with the existing shared event model and section settings
 - [x] Original Phaser 3.90 Arcade Physics side-scroller with continuous non-punishing level
 - [x] Keyboard and responsive mobile controls, including virtual joystick option
-- [x] Original pixel-art character looks, world palettes and collectible memories
+- [x] Six original pixel-art playable characters, three outfit palettes, world themes and collectibles
 - [x] Interactive checkpoint signs, themed in-game interiors, scrollable native HTML, and in-viewport world map (no popup dialogs)
 - [x] All-section accessible fallback and skip-game navigation
-- [x] Game Template Manager for scene, character, control preference, speed and optional collectibles
+- [x] Game Template Manager for scene, default character, guest selection toggle, outfit colors, movement, control preference and collectibles
 - [x] Published invitation payloads retain Adventure Game Manager settings and custom checkpoint order
 - [x] Personalized game invitation URL loads a token-protected RSVP form directly within the in-game RSVP area
 - [x] Automated feature and safety regression tests
@@ -15,7 +15,8 @@
 - [x] Verify in-game interior transitions, guest RSVP submissions, return-to-game movement and mobile story readability in Chromium (run 42708536186)
 - [ ] Actual iOS/Android hardware performance, screen-reader and keyboard accessibility acceptance
 - [ ] Live cloud guest RSVP acceptance, rate limiting and public beta security review
-- [ ] Optional custom sprite uploads, additional world scenery and more advanced level editing
+- [x] Pixel-themed invitation HUD, wooden/parchment UI, original forest, cottage, waterfall, bridge and castle scenery
+- [ ] Optional custom sprites, additional levels, and advanced tile-by-tile editing
 
 ## Cross-device cloud drafts and secure online RSVP (2026-11-09)
 - [x] Owner-scoped private cloud drafts, email sign-in integration and explicit import of prior local-only drafts
