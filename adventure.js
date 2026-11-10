@@ -97,7 +97,7 @@ function preview(e){
   +(a.touch==='joystick'?'<div class="uri-adventure-joystick" data-adventure-control="joystick" role="group" aria-label="Movement joystick"><span class="uri-adventure-stick" aria-hidden="true"></span><small>Move</small></div>'
    :'<div class="uri-adventure-dpad"><button type="button" data-adventure-control="left" aria-label="Move left">◀</button><button type="button" data-adventure-control="right" aria-label="Move right">▶</button></div>')
   +'<div class="uri-adventure-actions"><button type="button" data-adventure-control="jump" aria-label="Jump">Jump</button><button type="button" data-adventure-action="interact" aria-label="Interact with nearby invitation sign">Interact</button></div></div>'
-  +'<div class="uri-adventure-tools"><button type="button" data-adventure-action="character">✿ Character</button><button type="button" data-adventure-action="details">View all details / Skip game</button><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span>Move: ← → / A D · Jump: Space · Interact: E</span></div>'
+  +'<div class="uri-adventure-tools"><button type="button" data-adventure-action="details">View all details / Skip game</button><a class="uri-adventure-rsvp-link" hidden href="#home">RSVP now</a><span>Move: ← → / A D · Jump: Space · Interact: E</span></div>'
   +'</div><details class="uri-adventure-directory"><summary>View all invitation information without playing</summary><div class="uri-adventure-pages">'
   +parts.map(p=>'<div class="uri-adventure-page" data-adventure-id="'+p.id+'"><h2>'+T(p.title)+'</h2>'+p.html+'</div>').join('')
   +(parts.length===0?'<p>Add invitation sections in the Features tab.</p>':'')+'</div></details></div>'
@@ -308,24 +308,13 @@ function hideCharacterSelection(inst){
 }
 function confirmCharacter(inst){
  if(inst.destroyed)return;
- const changed=inst.game&&(inst.playingCharacter!==inst.selectedCharacter||inst.playingVariant!==inst.selectedVariant);
+ // Character selection is an onboarding step before gameplay. Avoid changing
+ // Phaser textures while a live scene holds them.
+ if(inst.game)return;
  hideCharacterSelection(inst);
  inst.root.dataset.adventureCharacter=inst.selectedCharacter;
  inst.root.dataset.adventureVariant=String(inst.selectedVariant);
- // Repaint shared sprite textures in place, preserving the player's location,
- // collected memories, room progress and live Phaser engine on avatar changes.
- if(changed&&inst.scene?.player){
-  const scene=inst.scene;
-  scene.player.setTexture('__DEFAULT');
-  for(const key of ['idle','walk0','walk1','jump','interact']){
-   if(scene.textures.exists('uri-player-'+key))scene.textures.remove('uri-player-'+key);
-   drawSprite(scene,key,inst.selectedCharacter,key==='walk1'?1:0,inst.selectedVariant);
-  }
-  scene.player.setTexture('uri-player-idle');
-  inst.playingCharacter=inst.selectedCharacter;inst.playingVariant=inst.selectedVariant;
- }
- if(!inst.game)startGame(inst);
- else inst.game.canvas?.focus?.({preventScroll:true});
+ startGame(inst);
 }
 function setupUi(root){
  if(root.dataset.adventureWired)return;
@@ -350,7 +339,7 @@ function setupUi(root){
   else if(action==='room-exit')exitRoom(root);
   else if(action==='room-prev')moveRoom(root,-1);
   else if(action==='room-next')moveRoom(root,1);
-  else if(action==='play'||action==='character')showCharacterSelection(inst);
+  else if(action==='play')showCharacterSelection(inst);
   else if(action==='variant-prev'||action==='variant-next'){
    inst.selectedVariant=(inst.selectedVariant+(action==='variant-next'?1:2))%3;
    refreshCharacterSelect(inst);
