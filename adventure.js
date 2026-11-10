@@ -169,7 +169,9 @@ function enterRoom(root,heading,view){
   if(inst.scene?.player){
    inst.scene.player.setVelocity(0,0);
    inst.scene.player.body?.setAllowGravity?.(false);
-   if(inst.scene.textures?.exists?.('uri-player-interact'))
+   if(inst.scene.uriArtCharacter)
+    inst.scene.player.setTexture(inst.scene.uriArtCharacter.key,inst.scene.uriArtCharacter.frame('interact'));
+   else if(inst.scene.textures?.exists?.('uri-player-interact'))
     inst.scene.player.setTexture('uri-player-interact');
   }
   // Keep Phaser's global loop running; view-mode gating in update() freezes
@@ -351,6 +353,8 @@ function makeScene(P,inst){
    this.cameras.main.setBounds(0,0,width,480);
    this.physics.world.setBounds(0,0,width,480);
    this.cameras.main.setBackgroundColor(theme.sky);
+   const artPack=window.URIAdventureArtPack;
+   const hasArtPack=!!artPack?.decorate;
    const bg=this.add.graphics();bg.fillStyle(theme.sky);bg.fillRect(0,0,width,480);
    bg.fillStyle(theme.hill,1);
    for(let x=-150;x<width+300;x+=470){bg.fillEllipse(x+170,330,560,220)}
@@ -366,9 +370,12 @@ function makeScene(P,inst){
    }
    bg.fillStyle(theme.ground);bg.fillRect(0,groundY,width,62);
    bg.fillStyle(theme.grass);bg.fillRect(0,groundY-7,width,9);
-   bg.setDepth(-5);
-   // Procedural pixel cottage, castle, bridge, flowers, tree canopies and waterfall.
-   window.URIAdventureLandscape?.paint?.(this,worldName,width,groundY);
+   bg.setDepth(-15);
+   // Generated reusable sprite textures and parallax art replace the old shape scenery.
+   // Preserve the legacy painter as a fallback if canvas generation is unavailable.
+   let artwork=null;
+   try{if(hasArtPack)artwork=artPack.decorate(this,worldName,width,groundY)}catch(err){console.warn('Adventure art pack fallback:',err)}
+   if(!artwork)window.URIAdventureLandscape?.paint?.(this,worldName,width,groundY);
    const g=this.make.graphics({x:0,y:0,add:false});
    g.fillStyle(theme.ground);g.fillRect(0,0,64,20);g.fillStyle(theme.grass);g.fillRect(0,0,64,6);
    g.generateTexture('uri-platform',64,20);g.destroy();
@@ -379,13 +386,18 @@ function makeScene(P,inst){
     ground.create(x,y,'uri-platform').setDisplaySize(120,20).refreshBody();
    }
    const avatar=inst.selectedCharacter||inst.root.dataset.adventureCharacter,variation=inst.selectedVariant||0;
-   drawSprite(this,'idle',avatar,0,variation);
-   drawSprite(this,'walk0',avatar,0,variation);
-   drawSprite(this,'walk1',avatar,1,variation);
-   drawSprite(this,'jump',avatar,0,variation);
-   drawSprite(this,'interact',avatar,0,variation);
+   let artCharacter=null;
+   try{artCharacter=artPack?.character?.(this,avatar,variation,PX)}catch(err){console.warn('Adventure sprite sheet fallback:',err)}
+   if(!artCharacter){
+    drawSprite(this,'idle',avatar,0,variation);
+    drawSprite(this,'walk0',avatar,0,variation);
+    drawSprite(this,'walk1',avatar,1,variation);
+    drawSprite(this,'jump',avatar,0,variation);
+    drawSprite(this,'interact',avatar,0,variation);
+   }
+   this.uriArtCharacter=artCharacter;
    inst.playingCharacter=avatar;inst.playingVariant=variation;
-   this.player=this.physics.add.sprite(88,groundY-44,'uri-player-idle');
+   this.player=this.physics.add.sprite(88,groundY-44,artCharacter?.key||'uri-player-idle',0);
    this.player.setSize(28,38).setOffset(8,10).setCollideWorldBounds(true).setBounce(0);
    this.physics.add.collider(this.player,ground);
    this.cameras.main.startFollow(this.player,true,.085,.085,inst.viewportWidth===720?-90:-175,70);
@@ -395,10 +407,11 @@ function makeScene(P,inst){
    this.checkpoints=checkpoints;
    checkpoints.forEach((cp,i)=>{
     const sign=this.add.container(cp.x,groundY-67);
-    const shadow=this.add.rectangle(4,5,178,72,0x3b3033);
-    const pole=this.add.rectangle(0,41,10,78,0x63483b);
-    const board=this.add.rectangle(0,0,178,72,0xffe8bc).setStrokeStyle(5,0x7a543c);
-    const inner=this.add.rectangle(0,0,162,56).setStrokeStyle(2,0xe4b97f);
+    const shadow=this.add.rectangle(4,5,178,72,0x3b3033,artwork?.sign?0:.7);
+    const pole=this.add.rectangle(0,41,10,78,0x63483b,artwork?.sign?0:1);
+    const board=this.add.rectangle(0,0,178,72,0xffe8bc,artwork?.sign?0:1).setStrokeStyle(artwork?.sign?0:5,0x7a543c);
+    const inner=this.add.rectangle(0,0,162,56,0xffe8bc,artwork?.sign?0:1).setStrokeStyle(artwork?.sign?0:2,0xe4b97f);
+    const illustrated=artwork?.sign?.(cp.x,groundY-67);
     const label=this.add.text(0,-16,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
       {fontFamily:'Pixelify Sans, monospace',fontSize:'16px',fontStyle:'bold',color:'#4c382b',align:'center',wordWrap:{width:156}}).setOrigin(.5,0);
     const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
@@ -406,6 +419,8 @@ function makeScene(P,inst){
      this.tweens.add({targets:dot,alpha:.4,duration:800,yoyo:true,repeat:-1});
     board.setInteractive({useHandCursor:true}).on('pointerdown',()=>openStation(inst.root,cp.id));
     sign.add([shadow,pole,board,inner,label,dot]);
+    // The illustrated sign is placed behind the interactive text and hit target.
+    if(illustrated)illustrated.setDepth(-.2);
    });
    this.collected=0;
    if(inst.root.dataset.adventureCollectibles==='true'){
@@ -446,9 +461,11 @@ function makeScene(P,inst){
    if(this.player.body.blocked.down&&(keys.UP?.isDown||keys.SPACE?.isDown||keys.W?.isDown||mobile.jump)){
     this.player.setVelocityY(-445);mobile.jump=false;
    }
-   if(left!==right){this.player.setFlipX(!!left);this.player.setTexture('uri-player-walk'+(Math.floor(this.time.now/150)%2))}
-   else this.player.setTexture('uri-player-idle');
-   if(!this.player.body.blocked.down)this.player.setTexture('uri-player-jump');
+   const state=left!==right?'walk'+(Math.floor(this.time.now/150)%2):'idle';
+   this.player.setFlipX(!!left);
+   const pose=!this.player.body.blocked.down?'jump':state;
+   if(this.uriArtCharacter)this.player.setTexture(this.uriArtCharacter.key,this.uriArtCharacter.frame(pose));
+   else this.player.setTexture('uri-player-'+pose);
    const cp=this.checkpoints.reduce((best,c)=>{
     const dist=Math.abs(c.x-this.player.x);
     return dist<145&&(!best||dist<best.dist)?{...c,dist}:best;
