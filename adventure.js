@@ -172,9 +172,14 @@ function enterRoom(root,heading,view){
   if(inst.view==='world'||!inst.view)inst.returnFocus=document.activeElement;
   inst.view=view;
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
-  if(inst.scene?.player&&inst.scene.textures?.exists?.('uri-player-interact'))
-   inst.scene.player.setTexture('uri-player-interact');
-  if(inst.scene?.scene&&!inst.scene.scene.isPaused?.())inst.scene.scene.pause();
+  if(inst.scene?.player){
+   inst.scene.player.setVelocity(0,0);
+   inst.scene.player.body?.setAllowGravity?.(false);
+   if(inst.scene.textures?.exists?.('uri-player-interact'))
+    inst.scene.player.setTexture('uri-player-interact');
+  }
+  // Keep Phaser's global loop running; view-mode gating in update() freezes
+  // movement while the HTML area is being read without a fragile scene pause.
  }
  room.hidden=false;
  stage.classList.add('uri-adventure-inside');
@@ -198,10 +203,8 @@ function exitRoom(root){
  if(inst){
   inst.view='world';inst.currentStation=null;
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
-  if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
-  // Phaser can pause the global game loop when focus changes between the
-  // canvas and an HTML invitation room. Resume only while the tab is visible.
-  if(inst.game?.isPaused&&document.visibilityState!=='hidden')inst.game.resume();
+  inst.scene?.player?.body?.setAllowGravity?.(true);
+  inst.scene?.player?.setVelocity?.(0,0);
   inst.scene?.input?.keyboard?.resetKeys?.();
   const preferred=inst.game?.canvas||inst.returnFocus;
   preferred?.focus?.({preventScroll:true});
@@ -288,7 +291,10 @@ function showCharacterSelection(inst){
  if(inst.view!=='character')inst.returnFocus=document.activeElement;
  inst.view='character';
  inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
- if(inst.scene?.scene&&!inst.scene.scene.isPaused())inst.scene.scene.pause();
+ if(inst.scene?.player){
+  inst.scene.player.setVelocity(0,0);
+  inst.scene.player.body?.setAllowGravity?.(false);
+ }
  panel.hidden=false;stage.classList.add('uri-adventure-choosing');
  stage.scrollIntoView?.({behavior:'auto',block:'nearest'});
  refreshCharacterSelect(inst);
@@ -301,8 +307,7 @@ function hideCharacterSelection(inst){
   stage.scrollIntoView?.({behavior:'auto',block:'nearest'});
  }
  inst.view='world';
- if(inst.scene?.scene?.isPaused?.())inst.scene.scene.resume();
- if(inst.game?.isPaused&&document.visibilityState!=='hidden')inst.game.resume();
+ inst.scene?.player?.body?.setAllowGravity?.(true);
  if(inst.game?.canvas)inst.game.canvas.focus({preventScroll:true});
  else inst.returnFocus?.focus?.({preventScroll:true});
 }
@@ -483,6 +488,10 @@ function makeScene(P,inst){
   }
   update(){
    if(!this.player?.body)return;
+   if(inst.view!=='world'){
+    this.player.setVelocityX(0);
+    return;
+   }
    const keys=this.keys||{},mobile=inst.controls;
    const left=keys.LEFT?.isDown||keys.A?.isDown||mobile.left,right=keys.RIGHT?.isDown||keys.D?.isDown||mobile.right;
    const speed={gentle:175,normal:225,brisk:280}[inst.root.dataset.adventurePace]||225;
