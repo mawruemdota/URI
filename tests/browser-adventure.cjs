@@ -258,6 +258,10 @@ const server=http.createServer((req,res)=>{
   await page.locator('.wb-editor').waitFor();
   await page.getByRole('button',{name:/Full-page preview|Preview website/}).first().click();
   await page.locator('.wf-full-content .uri-adventure-site').waitFor();
+  await page.waitForFunction(()=>{
+    const p=document.getElementById('wfFullContent');
+    return p?.style.transform==='scale(1)';
+  },{timeout:10000});
   const mobileDefault=await page.evaluate(()=>{
     const c=document.getElementById('wfFullCanvas'),p=document.getElementById('wfFullContent');
     return {mode:c?.dataset.mode,preview:p?.getBoundingClientRect().width,
