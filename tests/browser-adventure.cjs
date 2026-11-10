@@ -96,6 +96,7 @@ const server=http.createServer((req,res)=>{
   });
   assert.equal(liveAvatar.role,'royal','Character selection updates the playable sprite');
   assert.ok(liveAvatar.started&&Math.abs(liveAvatar.x-posAfter)<15,'Switching character keeps world progress');
+  await page.locator('#wbLivePreview .uri-adventure-stage canvas').scrollIntoViewIfNeeded();
   const switchBefore=await page.evaluate(()=>{
     const g=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.game;
     return {frame:g.loop.frame,running:g.loop.running,paused:g.isPaused};
@@ -142,6 +143,11 @@ const server=http.createServer((req,res)=>{
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-interior').evaluate(el=>el.hidden),true,
     'Back to world closes the in-game room, without navigating away');
   await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.scene.isPaused(),{timeout:5000});
+  await page.locator('#wbLivePreview .uri-adventure-stage canvas').scrollIntoViewIfNeeded();
+  await page.waitForFunction(()=>{
+   const game=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.game;
+   return game&&game.loop.running&&!game.isPaused;
+  },{timeout:5000});
   await page.waitForTimeout(120);
   const restartX=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
   await page.keyboard.down('ArrowLeft');
