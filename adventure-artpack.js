@@ -194,7 +194,8 @@ function cover(world,characterId,variant){
   +box(130,79,13,22,p.dark)+'</g>';
  const px=window.URIAdventurePixels;
  const shapes=px?.shapes?.(characterId,Number(variant)||0,'idle',0)||[];
- const avatar='<g transform="translate(207 242) scale(1.7)">'+shapes.map(q=>box(q.x,q.y,q.w,q.h,q.c)).join('')+'</g>';
+ const avatar=window.URIAdventureRealAssets?.coverSprite?.(characterId,variant)
+  ||'<g transform="translate(207 242) scale(1.7)">'+shapes.map(q=>box(q.x,q.y,q.w,q.h,q.c)).join('')+'</g>';
  const sign='<g transform="translate(391 205)">'+box(59,57,12,93,'#48362f')
    +box(6,4,130,69,'#4d372d')+box(12,10,118,57,'#b9895c')
    +box(18,16,106,45,'#fff0c7')+box(26,25,91,5,'#d1ab7a')
