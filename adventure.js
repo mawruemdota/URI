@@ -19,7 +19,7 @@ const CHARACTERS=Object.fromEntries(Object.entries(PX?.ROLES||{
 }).map(([id,v])=>[id,v.name]));
 const TITLE={hero:'Welcome',story:'Our Story',gallery:'Photo Gallery',countdown:'Countdown',details:'Event Details',
  timeline:'Event Timeline',dress:'Dress Code',gifts:'Gifts',rsvp:'RSVP'};
-const DEFAULTS={world:'meadow',character:'explorer',characterVariant:0,guestChoice:true,touch:'buttons',pace:'normal',collectibles:true};
+const DEFAULTS={world:'meadow',character:'explorer',characterVariant:0,guestChoice:false,touch:'buttons',pace:'normal',collectibles:true};
 const instances=new Set();
 let enginePromise=null, scheduled=false;
 const T=v=>esc(v==null?'':String(v));
@@ -30,7 +30,7 @@ function normalize(v){
   world:Object.hasOwn(WORLDS,x.world)?x.world:DEFAULTS.world,
   character:Object.hasOwn(CHARACTERS,x.character)?x.character:DEFAULTS.character,
   characterVariant:Number.isInteger(Number(x.characterVariant))&&Number(x.characterVariant)>=0&&Number(x.characterVariant)<=2?Number(x.characterVariant):0,
-  guestChoice:typeof x.guestChoice==='boolean'?x.guestChoice:true,
+  guestChoice:false, // Legacy published drafts must not let guests change the owner's character.
   touch:['buttons','joystick'].includes(x.touch)?x.touch:DEFAULTS.touch,
   pace:['gentle','normal','brisk'].includes(x.pace)?x.pace:DEFAULTS.pace,
   collectibles:typeof x.collectibles==='boolean'?x.collectibles:DEFAULTS.collectibles
@@ -41,29 +41,6 @@ function features(e){return U.compose(e).map((x,i)=>({
  id:uid(x.id),title:TITLE[x.id]||(U.customItem(e,x.id)?.title||'Extra Information').slice(0,60),
  html:x.html,index:i
 })).filter(x=>x.id&&x.html)}
-function characterSelection(a){
- const options=Object.entries(CHARACTERS);
- return '<section class="uri-character-select" hidden aria-label="Choose your playable wedding adventure character">'
-  +'<div class="uri-character-select-top"><span class="uri-char-crest" aria-hidden="true">♡</span><h2 tabindex="-1">Choose Your Character</h2>'
-  +'<p>Pick your companion, then press Confirm Character to begin. Use Tab or arrow keys to browse.</p></div>'
-  +'<div class="uri-char-cards" role="group" aria-label="Available characters">'
-  +options.map(([id,label])=>'<button type="button" class="uri-char-card'+(id===a.character?' selected':'')+'" aria-pressed="'+(id===a.character)+'" data-adventure-role="'+id+'">'
-   +'<span class="uri-char-card-art">'+(PX?.svg(id,a.characterVariant)||'✿')+'</span>'
-   +'<span class="uri-char-card-label">'+T(label)+'</span></button>').join('')
-  +'</div>'
-  +'<div class="uri-char-detail"><div class="uri-char-large-avatar">'+(PX?.svg(a.character,a.characterVariant)||'✿')+'</div>'
-  +'<div class="uri-char-description"><div class="uri-char-name-row"><strong class="uri-char-active-name">'+T(CHARACTERS[a.character])+'</strong>'
-  +'<div class="uri-char-variations"><button type="button" data-adventure-action="variant-prev" aria-label="Previous outfit color">◀</button>'
-  +'<span class="uri-char-variation-label">Variation 1/3</span><button type="button" data-adventure-action="variant-next" aria-label="Next outfit color">▶</button></div></div>'
-  +'<p class="uri-char-active-tag">'+T(PX?.ROLES[a.character]?.tag||'Your story begins here')+'</p>'
-  +'<dl><div><dt>Style</dt><dd class="uri-char-style-value">'+T(PX?.ROLES[a.character]?.detail||'Wedding adventure')+'</dd></div>'
-  +'<div><dt>Vibe</dt><dd>Curious, warm, and ready to celebrate</dd></div>'
-  +'<div><dt>Special look</dt><dd class="uri-char-variant-name">Original colors</dd></div></dl>'
-  +'</div></div>'
-  +'<div class="uri-char-select-actions"><button type="button" data-adventure-action="character-back">← Back to invitation</button>'
-  +'<button type="button" data-adventure-action="confirm-character">Confirm Character →</button></div>'
-  +'</section>';
-}
 const originalModel=U.model;
 U.model=function(e){const result=originalModel(e);if(active(e))e.adventure=normalize(e.adventure);return result};
 const originalRender=U.render,originalCover=U.cover,originalPayload=U.payload;
@@ -71,7 +48,7 @@ function preview(e){
  const d=U.design(e),a=normalize(e.adventure),world=WORLDS[a.world],parts=features(e);
  const style='--wb-bg:'+d.bg+';--wb-ink:'+d.ink+';--wb-accent:'+d.accent+
   ';--wb-heading:'+U.fonts[d.heading]+';--wb-body:'+U.fonts[d.body]+';';
- return '<article class="uri-builder-site uri-adventure-site wb-theme-adventure wb-spacing-'+d.spacing+'" data-visible-features="'+parts.length+'" data-adventure-world="'+a.world+'" data-adventure-character="'+a.character+'" data-adventure-variant="'+a.characterVariant+'" data-adventure-guest-choice="'+a.guestChoice+'" data-adventure-touch="'+a.touch+'" data-adventure-pace="'+a.pace+'" data-adventure-collectibles="'+a.collectibles+'" style="'+style+'">'
+ return '<article class="uri-builder-site uri-adventure-site wb-theme-adventure wb-spacing-'+d.spacing+'" data-visible-features="'+parts.length+'" data-adventure-world="'+a.world+'" data-adventure-character="'+a.character+'" data-adventure-variant="'+a.characterVariant+'" data-adventure-touch="'+a.touch+'" data-adventure-pace="'+a.pace+'" data-adventure-collectibles="'+a.collectibles+'" style="'+style+'">'
   +'<header class="uri-adventure-heading">'
   +'<div class="uri-pixel-topbar"><div class="uri-pixel-brand"><span class="uri-pixel-brand-flower">✿</span><div><strong>URI ADVENTURE</strong><small>WEDDING INVITATION QUEST</small></div></div>'
   +'<div class="uri-pixel-topnav"><span class="uri-pixel-topmemories"><span class="uri-pixel-nav-icon">✧</span> <strong>Memories</strong><span class="uri-pixel-memory-count">0 / 0</span></span>'
@@ -85,7 +62,6 @@ function preview(e){
   +'<div class="uri-adventure-intro"><strong>✦ A CELEBRATION ADVENTURE ✦</strong><span>Move, jump and explore the signposts to uncover the invitation.</span></div>'
   +'<div class="uri-adventure-stage" role="group" aria-label="Playable platform game with explorable invitation areas">'
   +'<div class="uri-adventure-load"><span class="uri-adventure-loading-icon" aria-hidden="true">✦</span><span>Step into your story</span><button type="button" data-adventure-action="play">Play adventure</button></div>'
-  +characterSelection(a)
   +'<section class="uri-adventure-interior" hidden role="region" aria-label="Inside an adventure area">'
   +'<div class="uri-adventure-interior-scenery" aria-hidden="true"><span class="uri-adventure-interior-window"></span><span class="uri-adventure-interior-banner"></span></div>'
   +'<header class="uri-adventure-room-head"><span class="uri-adventure-room-eyebrow">INSIDE THE ADVENTURE</span><h2 class="uri-adventure-room-title" tabindex="-1">Welcome</h2><button type="button" data-adventure-action="room-exit">← Return to world</button></header>'
@@ -115,34 +91,47 @@ U.cover=e=>{
 };
 U.payload=e=>({...originalPayload(e),adventure:normalize(e.adventure)});
 const controls=(key,label,options,a)=>'<label class="wb-field uri-adventure-setting"><span>'+label+'</span><select onchange="uriAdventureSet(\''+key+'\',this.value)">'+options.map(([id,title])=>'<option value="'+id+'"'+(String(a[key])===String(id)?' selected':'')+'>'+title+'</option>').join('')+'</select></label>';
+function ownerCharacterChooser(a){
+ return '<fieldset class="uri-adventure-owner-chooser"><legend>Main character — selected by the invitation owner</legend>'
+  +'<p>Every guest will play as this character. Guests cannot change the character.</p>'
+  +'<div class="uri-adventure-owner-roster" role="group" aria-label="Choose the main playable character">'
+  +Object.entries(CHARACTERS).map(([id,label])=>
+   '<button type="button" class="uri-adventure-owner-card'+(id===a.character?' selected':'')+
+   '" aria-pressed="'+(id===a.character)+'" onclick="uriAdventureSet(\\'character\\',\\''+id+'\\')">'
+   +'<span class="uri-adventure-owner-avatar">'+(PX?.svg(id,a.characterVariant)||'✿')+'</span>'
+   +'<strong>'+T(label)+'</strong></button>'
+  ).join('')
+  +'</div><div class="uri-adventure-variant-row"><strong>Outfit palette</strong>'
+  +[0,1,2].map(i=>'<button type="button" class="'+(a.characterVariant===i?'selected':'')+
+   '" aria-pressed="'+(a.characterVariant===i)+'" onclick="uriAdventureSet(\\'characterVariant\\','+i+')">'
+   +T(PX?.VARIANTS[i]?.name||'Original')+'</button>').join('')
+  +'</div></fieldset>';
+}
 function manager(e){
  if(!active(e))return '';
  const a=normalize(e.adventure),parts=features(e);
  return '<section class="uri-adventure-manager" aria-labelledby="uriAdventureManagerTitle"><h3 id="uriAdventureManagerTitle">Game Template Manager</h3>'
-  +'<p>Design a playable invitation. All checkpoints use your existing Content and Features settings.</p>'
+  +'<p>Customize the playable invitation. The client chooses one main character for all guests.</p>'
+  +ownerCharacterChooser(a)
   +'<div class="uri-adventure-setting-grid">'
   +controls('world','World appearance',Object.entries(WORLDS).map(([id,v])=>[id,v.name]),a)
-  +controls('character','Default playable character',Object.entries(CHARACTERS).map(([id,label])=>[id,label]),a)
-  +controls('characterVariant','Default outfit color', [['0','Original'],['1','Pastel'],['2','Evening']],a)
-  +controls('touch','Mobile movement', [['buttons','Left / Right buttons'],['joystick','Virtual joystick']],a)
+  +controls('touch','Mobile movement',[['buttons','Left / Right buttons'],['joystick','Virtual joystick']],a)
   +controls('pace','Movement speed',[['gentle','Gentle'],['normal','Normal'],['brisk','Brisk']],a)
-  +'</div><div class="uri-adventure-default-preview" aria-label="Default character preview">'
+  +'</div><div class="uri-adventure-default-preview" aria-label="Main character preview">'
   +'<div class="uri-adventure-default-avatar">'+(PX?.svg(a.character,a.characterVariant)||'✿')+'</div>'
-  +'<div><strong>'+T(CHARACTERS[a.character])+'</strong><p>'
-  +T(PX?.ROLES[a.character]?.tag||'Your wedding-adventure avatar')+'</p>'
-  +'<small>'+T(PX?.VARIANTS[a.characterVariant]?.name||'Original')+' outfit · '+(a.guestChoice?'Guests may customize their avatar':'Owner-selected avatar')+'</small></div></div>'
-  +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'guestChoice\',this.checked)"'+(a.guestChoice?' checked':'')+'> Let guests choose their own character before starting</label>'
-  +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\'collectibles\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
+  +'<div><strong>'+T(CHARACTERS[a.character])+'</strong><p>'+T(PX?.ROLES[a.character]?.tag||'Your invitation main character')+'</p>'
+  +'<small>'+T(PX?.VARIANTS[a.characterVariant]?.name||'Original')+' outfit · Shown to all guests</small></div></div>'
+  +'<label class="uri-adventure-checkbox"><input type="checkbox" onchange="uriAdventureSet(\\'collectibles\\',this.checked)"'+(a.collectibles?' checked':'')+'> Collectible memories (optional)</label>'
   +'<div class="uri-adventure-stations"><strong>Active checkpoints ('+parts.length+')</strong><p>Show, hide and reorder these stations in the Features tab.</p><ol>'
   +parts.map(p=>'<li>'+T(p.title)+'</li>').join('')+'</ol></div>'
-  +'<p class="uri-adventure-editor-help">Use <b>Play adventure</b> in the preview to test movement. Guests can always skip to event details and RSVP.</p></section>';
+  +'<p class="uri-adventure-editor-help">Press <b>Play adventure</b> to preview the client-selected main character. Guests enter the game directly.</p></section>';
 }
 window.uriAdventureSet=(key,value)=>{
  const e=current();if(!active(e))return;
  const next=normalize({...normalize(e.adventure),[key]:value});
- if(!['world','character','characterVariant','guestChoice','touch','pace','collectibles'].includes(key))return;
- if(['collectibles','guestChoice'].includes(key)&&typeof value!=='boolean')return;
- if(!['collectibles','guestChoice','characterVariant'].includes(key)&&next[key]!==value)return;
+ if(!['world','character','characterVariant','touch','pace','collectibles'].includes(key))return;
+ if(key==='collectibles'&&typeof value!=='boolean')return;
+ if(!['collectibles','characterVariant'].includes(key)&&next[key]!==value)return;
  const previous=e.adventure;e.adventure=next;
  if(!U.persist()){e.adventure=previous;eventPage();return}
  eventPage();
@@ -269,7 +258,6 @@ function openMap(root){
  // Guests may open the map before choosing a character. Do not leave the
  // character selection overlay covering the map in that case.
  const inst=root._uriAdventure;
- if(inst?.view==='character')hideCharacterSelection(inst);
  const room=enterRoom(root,'World map','map');if(!room)return;
  const stage=root.querySelector('.uri-adventure-stage');
  stage.dataset.interiorType='map';
@@ -286,65 +274,6 @@ function moveRoom(root,direction){
  travelTo(root,next.dataset.adventureId);
  openStation(root,next.dataset.adventureId);
 }
-function refreshCharacterSelect(inst){
- const root=inst.root,select=root.querySelector('.uri-character-select');
- if(!select)return;
- const id=Object.hasOwn(CHARACTERS,inst.selectedCharacter)?inst.selectedCharacter:'explorer';
- const variant=Math.max(0,Math.min(2,inst.selectedVariant||0));
- const role=PX?.ROLES?.[id];
- select.querySelectorAll('[data-adventure-role]').forEach(button=>{
-  const chosen=button.dataset.adventureRole===id;
-  button.classList.toggle('selected',chosen);
-  button.setAttribute('aria-pressed',String(chosen));
-  const art=button.querySelector('.uri-char-card-art');
-  if(art&&PX?.svg)art.innerHTML=PX.svg(button.dataset.adventureRole,variant);
- });
- const p=select.querySelector('.uri-char-large-avatar');
- if(p&&PX?.svg)p.innerHTML=PX.svg(id,variant);
- const name=select.querySelector('.uri-char-active-name');if(name)name.textContent=CHARACTERS[id];
- const tag=select.querySelector('.uri-char-active-tag');if(tag)tag.textContent=role?.tag||'Your story begins here';
- const detail=select.querySelector('.uri-char-style-value');if(detail)detail.textContent=role?.detail||'Wedding adventure';
- const change=select.querySelector('.uri-char-variation-label');if(change)change.textContent='Variation '+(variant+1)+'/3';
- const colorName=select.querySelector('.uri-char-variant-name');
- if(colorName)colorName.textContent=(PX?.VARIANTS?.[variant]?.name||'Original')+' colors';
-}
-function showCharacterSelection(inst){
- if(!inst||inst.destroyed)return;
- const root=inst.root,stage=root.querySelector('.uri-adventure-stage'),panel=root.querySelector('.uri-character-select');
- if(!panel)return;
- if(inst.view!=='character')inst.returnFocus=document.activeElement;
- inst.view='character';
- inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
- if(inst.scene?.player){
-  inst.scene.player.setVelocity(0,0);
-  inst.scene.player.body?.setAllowGravity?.(false);
- }
- panel.hidden=false;stage.classList.add('uri-adventure-choosing');
- stage.scrollIntoView?.({behavior:'auto',block:'nearest'});
- refreshCharacterSelect(inst);
- panel.querySelector('h2')?.focus?.({preventScroll:true});
-}
-function hideCharacterSelection(inst){
- const root=inst.root,stage=root.querySelector('.uri-adventure-stage'),panel=root.querySelector('.uri-character-select');
- if(panel)panel.hidden=true;if(stage){
-  stage.classList.remove('uri-adventure-choosing');
-  stage.scrollIntoView?.({behavior:'auto',block:'nearest'});
- }
- inst.view='world';
- inst.scene?.player?.body?.setAllowGravity?.(true);
- if(inst.game?.canvas)inst.game.canvas.focus({preventScroll:true});
- else inst.returnFocus?.focus?.({preventScroll:true});
-}
-function confirmCharacter(inst){
- if(inst.destroyed)return;
- // Character selection is an onboarding step before gameplay. Avoid changing
- // Phaser textures while a live scene holds them.
- if(inst.game)return;
- hideCharacterSelection(inst);
- inst.root.dataset.adventureCharacter=inst.selectedCharacter;
- inst.root.dataset.adventureVariant=String(inst.selectedVariant);
- startGame(inst);
-}
 function setupUi(root){
  if(root.dataset.adventureWired)return;
  root.dataset.adventureWired='yes';
@@ -356,8 +285,6 @@ function setupUi(root){
  root.addEventListener('click',ev=>{
   const button=ev.target.closest('button');
   if(!button||!root.contains(button))return;
-  const role=button.dataset.adventureRole;
-  if(role&&Object.hasOwn(CHARACTERS,role)){inst.selectedCharacter=role;refreshCharacterSelect(inst);return}
   const station=button.dataset.adventureStation;
   if(station){travelTo(root,station);openStation(root,station);return}
   const action=button.dataset.adventureAction;
@@ -368,35 +295,12 @@ function setupUi(root){
   else if(action==='room-exit')exitRoom(root);
   else if(action==='room-prev')moveRoom(root,-1);
   else if(action==='room-next')moveRoom(root,1);
-  else if(action==='play')showCharacterSelection(inst);
-  else if(action==='variant-prev'||action==='variant-next'){
-   inst.selectedVariant=(inst.selectedVariant+(action==='variant-next'?1:2))%3;
-   refreshCharacterSelect(inst);
-  }
-  else if(action==='character-back')hideCharacterSelection(inst);
-  else if(action==='confirm-character')confirmCharacter(inst);
+  else if(action==='play')startGame(inst);
+
  });
  root.addEventListener('keydown',ev=>{
   if(ev.key==='Escape'&&inst.view&&inst.view!=='world'){
-   ev.preventDefault();ev.stopPropagation();
-   if(inst.view==='character')hideCharacterSelection(inst);
-   else exitRoom(root);
-   return;
-  }
-  if(inst.view==='character'){
-   const focused=document.activeElement;
-   const options=[...root.querySelectorAll('.uri-char-card[data-adventure-role]')];
-   const index=options.findIndex(el=>el===focused);
-   if(index<0)return;
-   const delta=ev.key==='ArrowRight'?1:ev.key==='ArrowLeft'?-1:
-     ev.key==='ArrowDown'?3:ev.key==='ArrowUp'?-3:0;
-   if(delta){
-    ev.preventDefault();
-    const next=options[(index+delta+options.length)%options.length];
-    inst.selectedCharacter=next.dataset.adventureRole;
-    refreshCharacterSelect(inst);
-    next.focus({preventScroll:true});
-   }
+   ev.preventDefault();ev.stopPropagation();exitRoom(root);
   }
  });
  function setControl(control,pressed,ev){
@@ -614,10 +518,7 @@ function mount(root=document){
   setupUi(el);
   if(el.dataset.adventureBootstrapped==='yes')continue;
   el.dataset.adventureBootstrapped='yes';
-  if(!el.closest('#wbLivePreview')){
-   if(el.dataset.adventureGuestChoice==='true')showCharacterSelection(el._uriAdventure);
-   else startGame(el._uriAdventure);
-  }
+  if(!el.closest('#wbLivePreview'))startGame(el._uriAdventure);
   else{
    const loader=el.querySelector('.uri-adventure-load');
    if(loader)loader.querySelector('span:last-of-type').textContent='Use Play adventure to test this level';
@@ -634,7 +535,7 @@ function init(){
   });observer.observe(app,{childList:true,subtree:true});
  }
 }
-window.URIAdventure={normalize,manager,features,render:preview,mount,openStation,openMap,exitRoom,showCharacterSelection,start:root=>{
+window.URIAdventure={normalize,manager,features,render:preview,mount,openStation,openMap,exitRoom,start:root=>{
  if(!root)return;setupUi(root);return startGame(root._uriAdventure)
 },worlds:Object.keys(WORLDS)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
