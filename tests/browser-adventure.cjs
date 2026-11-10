@@ -46,14 +46,24 @@ const server=http.createServer((req,res)=>{
   await page.locator('.uri-adventure-setting select').first().selectOption('sunset');
   await page.locator('#wbLivePreview [data-adventure-world="sunset"]').waitFor();
   await page.locator('.uri-adventure-setting select').nth(1).selectOption('dreamer');
-  await page.locator('.uri-adventure-setting select').nth(2).selectOption('joystick');
+  await page.locator('.uri-adventure-setting').filter({hasText:'Mobile movement'}).locator('select').selectOption('joystick');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-joystick').count(),1,'Mobile joystick option is rendered in the editor preview');
   const settings=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].adventure);
   assert.equal(settings.world,'sunset');
   assert.equal(settings.character,'dreamer');
   assert.equal(settings.touch,'joystick');
   await page.locator('#wbLivePreview [data-adventure-action="play"]').click();
+  await page.locator('#wbLivePreview .uri-character-select').waitFor({state:'visible'});
+  assert.equal(await page.locator('#wbLivePreview .uri-char-card').count(),6,'Six pixel-art characters are selectable');
+  assert.equal(await page.locator('#wbLivePreview .uri-char-card .uri-pixel-avatar-svg').count(),6,'Character images render as functional vector pixel sprites');
+  await page.screenshot({path:path.join(screens,'00-character-select-desktop.png'),fullPage:true,animations:'disabled'});
+  await page.locator('#wbLivePreview [data-adventure-role="floral"]').click();
+  assert.equal(await page.locator('#wbLivePreview [data-adventure-role="floral"]').getAttribute('aria-pressed'),'true');
+  await page.locator('#wbLivePreview [data-adventure-action="variant-next"]').click();
+  await page.locator('#wbLivePreview [data-adventure-action="confirm-character"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage canvas').waitFor({timeout:25000});
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-site').getAttribute('data-adventure-character'),'floral');
+  assert.equal(await page.locator('#wbLivePreview .uri-adventure-site').getAttribute('data-adventure-variant'),'1');
   await page.waitForFunction(()=>!!document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure?.scene?.player,{timeout:15000});
   try{
     await page.waitForFunction(()=>!document.querySelector('#wbLivePreview .uri-adventure-load'),{timeout:8000});
@@ -131,6 +141,9 @@ const server=http.createServer((req,res)=>{
   await page.screenshot({path:path.join(screens,'01-adventure-desktop.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Full-page preview/}).click();
   await page.locator('.wf-full-content .uri-adventure-site').waitFor();
+  await page.locator('.wf-full-content .uri-character-select').waitFor({state:'visible'});
+  await page.locator('.wf-full-content [data-adventure-role="explorer"]').click();
+  await page.locator('.wf-full-content [data-adventure-action="confirm-character"]').click();
   await page.locator('.wf-full-content .uri-adventure-stage canvas').waitFor({timeout:25000});
   await page.getByRole('button',{name:'Mobile'}).click();
   await page.waitForFunction(()=>document.getElementById('wfFullContent')?.style.width==='390px');
@@ -159,6 +172,6 @@ const server=http.createServer((req,res)=>{
   assert.ok(overflow<=4,'Mobile site overflows by '+overflow+' pixels');
   await page.screenshot({path:path.join(screens,'03-adventure-mobile-editor.png'),fullPage:true,animations:'disabled'});
   assert.deepEqual(errors,[],'Browser exceptions: '+errors.join('; '));
-  console.log('Adventure Phaser QA passed: movement, in-game rooms without dialogs, mobile story, venue, inline RSVP submission, and world resuming.');
+  console.log('Adventure Phaser pixel QA passed: six avatar choices, color variations, playable movement, in-game rooms, inline RSVP, mobile controls and world resuming.');
  }finally{await browser.close();server.close()}
 })().catch(err=>{console.error(err);process.exitCode=1;server.close()});
