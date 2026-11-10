@@ -553,6 +553,12 @@
  .uri-adventure-site .uri-adventure-room-head button{font-size:10px}
  .uri-adventure-site .uri-adventure-room-nav button{font-size:10px}
 }
+/* RSVP links must not appear outside the final checkpoint, even when the
+   invitation URL carries a valid personal token. The in-room form reads this
+   hidden source anchor after the player reaches the RSVP sign. */
+.uri-adventure-site .uri-adventure-tools .uri-adventure-rsvp-link{
+ display:none!important
+}
 /* The invitation is an actual walk-through: source HTML is only the private
    content store for a nearby sign. It cannot be expanded below the game. */
 .uri-adventure-site .uri-adventure-directory[hidden],
