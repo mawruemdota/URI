@@ -244,7 +244,7 @@ function openStation(root,id){
  // The themed room header already shows the checkpoint name. Omit an identical
  // heading inside the copied content, retaining differently named subheadings.
  const firstHeading=paper.querySelector('h1,h2,h3');
- if(firstHeading?.textContent?.trim().replace(/\\s+/g,' ').toLowerCase()===title.trim().replace(/\\s+/g,' ').toLowerCase())
+ if(firstHeading?.textContent?.trim().replace(/\s+/g,' ').toLowerCase()===title.trim().replace(/\s+/g,' ').toLowerCase())
   firstHeading.remove();
  content.replaceChildren(paper);
  // The online guest form is rendered in the same game room via the existing
