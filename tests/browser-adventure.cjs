@@ -45,35 +45,22 @@ const server=http.createServer((req,res)=>{
   assert.match(await page.locator('.uri-adventure-stations').innerText(),/RSVP/);
   await page.locator('.uri-adventure-setting select').first().selectOption('sunset');
   await page.locator('#wbLivePreview [data-adventure-world="sunset"]').waitFor();
-  await page.locator('.uri-adventure-setting select').nth(1).selectOption('dreamer');
-  assert.equal(await page.locator('.uri-adventure-default-preview .uri-pixel-avatar-svg').count(),1,
-    'Owner can see the actual pixel avatar without launching the game');
-  assert.match(await page.locator('.uri-adventure-default-preview').innerText(),/Dreamer/,
-    'Default avatar preview updates when selected');
+  assert.equal(await page.locator('.uri-adventure-owner-card').count(),6,
+    'Only the invitation owner has the six-character selection panel');
+  await page.locator('.uri-adventure-owner-card[data-uri-character="floral"]').click();
+  await page.locator('.uri-adventure-variant-row button').filter({hasText:'Pastel'}).click();
+  assert.equal(await page.locator('.uri-adventure-owner-card[data-uri-character="floral"]').getAttribute('aria-pressed'),'true');
+  assert.match(await page.locator('.uri-adventure-default-preview').innerText(),/Floral Traveler/);
   await page.locator('.uri-adventure-setting').filter({hasText:'Mobile movement'}).locator('select').selectOption('joystick');
-  assert.equal(await page.locator('#wbLivePreview .uri-adventure-joystick').count(),1,'Mobile joystick option is rendered in the editor preview');
   const settings=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].adventure);
   assert.equal(settings.world,'sunset');
-  assert.equal(settings.character,'dreamer');
+  assert.equal(settings.character,'floral');
+  assert.equal(settings.characterVariant,1);
+  assert.equal(settings.guestChoice,false);
   assert.equal(settings.touch,'joystick');
+  assert.equal(await page.locator('#wbLivePreview .uri-character-select').count(),0,
+    'Viewers and previews must not receive the client-only character picker');
   await page.locator('#wbLivePreview [data-adventure-action="play"]').click();
-  await page.locator('#wbLivePreview .uri-character-select').waitFor({state:'visible'});
-  assert.equal(await page.locator('#wbLivePreview .uri-char-card').count(),6,'Six pixel-art characters are selectable');
-  assert.equal(await page.locator('#wbLivePreview .uri-char-card .uri-pixel-avatar-svg').count(),6,'Character images render as functional vector pixel sprites');
-  await page.locator('#wbLivePreview [data-adventure-role="explorer"]').focus();
-  await page.keyboard.press('ArrowRight');
-  assert.equal(await page.locator('#wbLivePreview [data-adventure-role="partner"]').getAttribute('aria-pressed'),'true',
-    'Arrow keys select the next character without requiring a mouse');
-  await page.keyboard.press('Escape');
-  assert.equal(await page.locator('#wbLivePreview .uri-character-select').isVisible(),false,
-    'Escape returns from character selection to the invitation');
-  await page.locator('#wbLivePreview [data-adventure-action="play"]').click();
-  await page.locator('#wbLivePreview .uri-character-select').waitFor({state:'visible'});
-  await page.screenshot({path:path.join(screens,'00-character-select-desktop.png'),fullPage:true,animations:'disabled'});
-  await page.locator('#wbLivePreview [data-adventure-role="floral"]').click();
-  assert.equal(await page.locator('#wbLivePreview [data-adventure-role="floral"]').getAttribute('aria-pressed'),'true');
-  await page.locator('#wbLivePreview [data-adventure-action="variant-next"]').click();
-  await page.locator('#wbLivePreview [data-adventure-action="confirm-character"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage canvas').waitFor({timeout:25000});
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site').getAttribute('data-adventure-character'),'floral');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site').getAttribute('data-adventure-variant'),'1');
@@ -180,17 +167,11 @@ const server=http.createServer((req,res)=>{
   await page.screenshot({path:path.join(screens,'01-adventure-desktop.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:/Full-page preview/}).click();
   await page.locator('.wf-full-content .uri-adventure-site').waitFor();
-  await page.locator('.wf-full-content .uri-character-select').waitFor({state:'visible'});
-  await page.locator('.wf-full-content [data-adventure-action="map"]').click();
-  await page.locator('.wf-full-content .uri-adventure-stage[data-interior-type="map"]').waitFor({state:'visible'});
-  assert.equal(await page.locator('.wf-full-content .uri-character-select').isVisible(),false,
-    'Map works before character selection and does not sit behind the selection overlay');
-  await page.locator('.wf-full-content [data-adventure-action="room-exit"]').click();
-  await page.locator('.wf-full-content [data-adventure-action="play"]').click();
-  await page.locator('.wf-full-content .uri-character-select').waitFor({state:'visible'});
-  await page.locator('.wf-full-content [data-adventure-role="explorer"]').click();
-  await page.locator('.wf-full-content [data-adventure-action="confirm-character"]').click();
+  assert.equal(await page.locator('.wf-full-content .uri-character-select').count(),0,
+    'Published invitation preview never exposes a character-selection screen');
   await page.locator('.wf-full-content .uri-adventure-stage canvas').waitFor({timeout:25000});
+  assert.equal(await page.locator('.wf-full-content .uri-adventure-site').getAttribute('data-adventure-character'),'floral');
+
   await page.getByRole('button',{name:'Mobile'}).click();
   await page.waitForFunction(()=>document.getElementById('wfFullContent')?.style.width==='390px');
   await page.locator('.wf-full-content .uri-adventure-joystick').waitFor({state:'visible'});
@@ -228,6 +209,6 @@ const server=http.createServer((req,res)=>{
   assert.ok(overflow<=4,'Mobile site overflows by '+overflow+' pixels');
   await page.screenshot({path:path.join(screens,'03-adventure-mobile-editor.png'),fullPage:true,animations:'disabled'});
   assert.deepEqual(errors,[],'Browser exceptions: '+errors.join('; '));
-  console.log('Adventure Phaser pixel QA passed: six avatar choices, color variations, playable movement, in-game rooms, inline RSVP, mobile controls and world resuming.');
+  console.log('Adventure Phaser pixel QA passed: owner-only avatar selection, saved costume, playable movement, in-game rooms, inline RSVP, mobile controls and world resuming.');
  }finally{await browser.close();server.close()}
 })().catch(err=>{console.error(err);process.exitCode=1;server.close()});
