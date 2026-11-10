@@ -316,6 +316,13 @@
  visibility:visible!important;opacity:0!important;pointer-events:none!important
 }
 
+/* An information room is a full in-game scene. Remove overworld HUD,
+   movement buttons and duplicate skip controls until the guest leaves. */
+.uri-adventure-site .uri-adventure-world.uri-adventure-room-open > .uri-adventure-hud,
+.uri-adventure-site .uri-adventure-world.uri-adventure-room-open > .uri-adventure-controls,
+.uri-adventure-site .uri-adventure-world.uri-adventure-room-open > .uri-adventure-tools{
+ display:none!important
+}
 /* The visual editor decorates source sections with owner-only controls.
    Those buttons should not appear inside the game's read-only room copies. */
 .uri-adventure-site .uri-adventure-room-content .wb-visual-toolbar,
