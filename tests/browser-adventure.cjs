@@ -297,6 +297,8 @@ const server=http.createServer((req,res)=>{
   await page.getByRole('button',{name:/Back to editor/}).click();
   await page.setViewportSize({width:390,height:844});
   await page.locator('.wb-editor').waitFor();
+  // Test default left/right button controls separately from virtual joystick.
+  await page.locator('.uri-adventure-setting').filter({hasText:'Mobile movement'}).locator('select').selectOption('buttons');
   await page.getByRole('button',{name:/Full-page preview|Preview website/}).first().click();
   await page.locator('.wf-full-content .uri-adventure-site').waitFor();
   await page.waitForFunction(()=>{
@@ -311,6 +313,36 @@ const server=http.createServer((req,res)=>{
   assert.equal(mobileDefault.mode,'mobile','Phone opens the real mobile preview by default');
   assert.equal(mobileDefault.scale,'scale(1)','Mobile preview renders at native size, not 33%');
   assert.ok(mobileDefault.preview<=mobileDefault.available+1,'Mobile preview fits the phone without horizontal scrolling');
+  await page.locator('.wf-full-content [data-adventure-control="right"]').waitFor({state:'visible'});
+  await page.locator('.wf-full-content [data-adventure-control="right"]').evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   el.dispatchEvent(new PointerEvent('pointerdown',{
+    bubbles:true,cancelable:true,pointerId:973,pointerType:'touch',
+    clientX:r.left+r.width/2,clientY:r.top+r.height/2,button:0,buttons:1
+   }));
+  });
+  await page.waitForFunction(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.controls.right===true);
+  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{
+   bubbles:true,cancelable:true,pointerId:973,pointerType:'touch',buttons:0
+  })));
+  await page.waitForFunction(()=>{
+   const i=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure;
+   return i.controls.right===false&&i.scene?.player?.body?.velocity.x===0;
+  });
+  await page.locator('.wf-full-content [data-adventure-control="left"]').evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   el.dispatchEvent(new PointerEvent('pointerdown',{
+    bubbles:true,cancelable:true,pointerId:974,pointerType:'touch',
+    clientX:r.left+r.width/2,clientY:r.top+r.height/2,button:0,buttons:1
+   }));
+  });
+  await page.waitForFunction(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.controls.left===true);
+  await page.evaluate(()=>window.dispatchEvent(new Event('touchcancel')));
+  await page.waitForFunction(()=>{
+   const i=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure;
+   return !i.controls.left&&!i.controls.right&&i.scene?.player?.body?.velocity.x===0;
+  });
+
   await page.getByRole('button',{name:/Back to editor/}).click();
   await page.locator('.wb-editor').waitFor();
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
