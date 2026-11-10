@@ -19,6 +19,12 @@ Four wedding styles:
 
 All four styles use the **same underlying event data and the same nine built-in features**. Switching templates does not delete the entered content. Adventure also supports custom sections as additional checkpoints.
 
+## Adventure Art Pack 1.0 (November 2026)
+
+The playable Adventure now uses a **self-contained, original pixel-art asset generator** in `adventure-artpack.js`. It creates real transparent **Phaser canvas textures** and a **five-frame sprite sheet** for the client's selected character (idle, two walk frames, jump, interact). Character selection and costume colors remain owner-only. The scene now loads a reusable illustrated tree, cottage, flower/shrub, wooden sign, pixel-path tiles and a tiled distant landscape with camera parallax. There are three cohesive color palettes: Meadow, Sunset and Starlight. Assets are generated locally in the browser: **no image-generation subscription, external sprite API, paid license, or additional download** is required. Legacy Phaser-drawn sprites and scenery remain a fallback if art generation fails.
+
+This is a **first-stage original procedural art pack**, not a paid AI-generated commercial illustration pack. Its tiles and textures can be replaced later by artist-approved PNG atlases without rewriting movement, collisions, map stations or RSVP. A full professional character animation set, independently illustrated interiors and advanced tilemap editing are still future upgrades.
+
 ## Adventure Invitation 1.0 (November 2026)
 
 Adventure Invitation is a fourth selectable design in the wedding wizard and editor. It is an **original 2D platformer** rather than a copy of a Nintendo game. It contains no Mario characters, Nintendo assets or copyrighted game music.
