@@ -403,6 +403,62 @@
  color:#503e31;padding:17px
 }
 .uri-adventure-manager h3{color:#684732;font:850 22px var(--px-type)}
+/* Client-only main-character selector inside the Game Template Manager.
+   Guests receive a single finalized character in published invitation data. */
+.uri-adventure-manager .uri-adventure-owner-chooser{
+ padding:14px 12px;margin:12px 0 18px;
+ border:3px solid #a98a61;min-width:0;background:#fff1d0
+}
+.uri-adventure-manager .uri-adventure-owner-chooser legend{
+ font:850 17px var(--px-type);padding:0 7px;color:#62412d
+}
+.uri-adventure-manager .uri-adventure-owner-chooser>p{
+ font:650 12px/1.45 var(--px-type);margin:4px 0 14px;color:#625343
+}
+.uri-adventure-manager .uri-adventure-owner-roster{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px
+}
+.uri-adventure-manager .uri-adventure-owner-card{
+ display:flex;flex-direction:column;align-items:center;gap:7px;
+ min-width:0;min-height:128px;padding:8px 5px;
+ border:3px solid #926f4d;background:#f5e1b6;
+ box-shadow:3px 3px 0 #7b6049;color:#604735;cursor:pointer;
+ font:750 12px var(--px-type)
+}
+.uri-adventure-manager .uri-adventure-owner-card.selected{
+ background:#fff2c6;outline:3px solid #3f805d;
+ border-color:#5b7b4e;box-shadow:3px 3px 0 #375b45
+}
+.uri-adventure-manager .uri-adventure-owner-card:focus-visible{
+ outline:3px solid #214f40;outline-offset:3px
+}
+.uri-adventure-manager .uri-adventure-owner-card strong{
+ font:750 12px/1.15 var(--px-type);text-align:center
+}
+.uri-adventure-manager .uri-adventure-owner-avatar{
+ height:88px;width:100%;display:flex;align-items:center;justify-content:center;
+ background:linear-gradient(#b8d5d1 0 72%,#83a46c 72%);border:2px solid #ad9467
+}
+.uri-adventure-manager .uri-adventure-owner-avatar svg{
+ height:82px;width:82px;image-rendering:pixelated
+}
+.uri-adventure-manager .uri-adventure-variant-row{
+ display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px
+}
+.uri-adventure-manager .uri-adventure-variant-row>strong{
+ width:100%;font:750 13px var(--px-type)
+}
+.uri-adventure-manager .uri-adventure-variant-row>button{
+ min-height:37px;padding:7px 11px;background:#f7e2b9;
+ border:2px solid #9e7856;color:#5d4634;
+ font:750 12px var(--px-type);cursor:pointer
+}
+.uri-adventure-manager .uri-adventure-variant-row>button.selected{
+ background:#517f61;color:#fff2cf;border-color:#345e49
+}
+@media(max-width:580px){
+ .uri-adventure-manager .uri-adventure-owner-roster{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 /* Show the actual selected sprite in the owner's Game Template Manager,
    without needing to launch the playable Phaser preview. */
 .uri-adventure-manager .uri-adventure-default-preview{
