@@ -1,12 +1,14 @@
 # URI Product Roadmap
 
 ## Adventure Invitation 1.0 — Light Platformer (2026-11-09)
+- [x] Mobile previews default to native-width phone mode instead of 33% desktop scaling
+- [x] Illustrated dashboard/wizard covers reflect the selected world and main character
 - [x] Fourth selectable wedding template with the existing shared event model and section settings
 - [x] Original Phaser 3.90 Arcade Physics side-scroller with continuous non-punishing level
 - [x] Keyboard and responsive mobile controls, including virtual joystick option
 - [x] Six original pixel-art playable characters, three outfit palettes, world themes and collectibles
-- [x] Interactive checkpoint signs, themed in-game interiors, scrollable native HTML, and in-viewport world map (no popup dialogs)
-- [x] All-section accessible fallback and skip-game navigation
+- [x] Proximity-gated checkpoint signs, in-game HTML interiors, and read-only Journey progress map
+- [x] Walking-only checkpoint discovery, no skip-game or direct teleports (intentional accessibility tradeoff)
 - [x] Game Template Manager for client-only main-character selection, three outfit colors, scene, movement, control preference and collectibles
 - [x] Published invitation payloads retain Adventure Game Manager settings and custom checkpoint order
 - [x] Personalized game invitation URL loads a token-protected RSVP form directly within the in-game RSVP area
