@@ -101,10 +101,33 @@ async function mobileJourney(engine,name,device){
     bubbles:true,cancelable:true,pointerId:345,pointerType:'touch',clientX:r.left+r.width/2,clientY:r.top+r.height/2,buttons:1,button:0
    }));
   });
-  await page.waitForTimeout(750);
-  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,pointerId:345,pointerType:'touch',buttons:0})));
-  const after=await page.evaluate(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene.player.x);
-  assert.ok(after>before+8,name+' gameplay right movement did not respond: '+before+' => '+after);
+  const pressed=await page.evaluate(()=>{
+   const i=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
+   return {right:i.controls.right,sceneActive:i.scene.scene.isActive(),
+    gameRunning:i.game.loop.running,gamePaused:i.game.isPaused,frame:i.game.loop.frame,
+    gameVisible:document.visibilityState,playerX:i.scene.player.x};
+  });
+  console.log(name+' input accepted diagnostic:',JSON.stringify(pressed));
+  assert.ok(pressed.right,name+' right touch was not accepted');
+  let moved=false;
+  try{
+   await page.waitForFunction(x=>{
+    const i=document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure;
+    return i?.scene?.player?.x>x+8;
+   },before,{timeout:12000,polling:150});
+   moved=true;
+  }catch(_){}
+  finally{
+   await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,pointerId:345,pointerType:'touch',buttons:0})));
+  }
+  const after=await page.evaluate(()=>{
+   const i=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure;
+   return {playerX:i.scene.player.x,gameFrame:i.game.loop.frame,sceneActive:i.scene.scene.isActive(),
+    velocity:i.scene.player.body.velocity.x,gameRunning:i.game.loop.running,
+    gamePaused:i.game.isPaused,right:i.controls.right,visibility:document.visibilityState};
+  });
+  console.log(name+' input release diagnostic:',JSON.stringify(after));
+  assert.ok(moved,name+' gameplay right movement did not respond: '+before+' => '+JSON.stringify(after));
   await page.waitForFunction(()=>document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.controls.right===false);
   assert.match(await page.locator('#wbLivePreview .uri-adventure-guide-text').innerText(),/Step 2 of 3/);
   await shot(page,name,'06-adventure');
