@@ -74,7 +74,7 @@ function panel(e){
  setTimeout(filterGuestRows,0);
  return '<div class="uri-guests"><div class="uri-guests-heading"><h2>Guests & RSVP</h2><p>Add names, publish the invitation, and send each person their private link. URI does not send messages automatically.</p></div>'
   +'<div class="uri-guest-onboarding" aria-label="Guest invitation steps"><span><strong>1</strong> Add a guest</span><span><strong>2</strong> Publish your invitation</span><span><strong>3</strong> Copy their online RSVP link</span></div>'
-  +'<div class="uri-guest-fast-add">'+guestForm(e,edit)+'</div>'
+  +'<div class="uri-guest-fast-add"><section class="uri-guest-panel">'+guestForm(e,edit)+'</section></div>'
   +(!e.cloudPublished?'<div class="uri-guest-publish-tip" role="status">Your invitation is not live yet. Add guests now, then <button type="button" class="btn small" onclick="tab=\'edit\';eventPage();uriBPanel(\'publish\')">go to Publish</button> to enable their online links.</div>':'')
   +'<div class="uri-guests-warning"><strong>Privacy:</strong> Only copy online RSVP links after publishing. Local test URLs work on this browser only and should never be sent to guests.</div>'
   +(notice?'<p class="uri-guest-notice" role="status">'+T(notice)+'</p>':'')
