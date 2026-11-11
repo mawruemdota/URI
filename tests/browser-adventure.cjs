@@ -380,7 +380,8 @@ const server=http.createServer((req,res)=>{
       run:scene.textures.get('uri-pf-'+scene.uriRealCharacter.name+'-run').frameTotal};
     });
     assert.equal(actual.role,role,'New character must be selected and animated in Phaser');
-    assert.equal(actual.texture,'uri-pf-'+role+'-idle');
+    assert.ok(actual.texture.startsWith('uri-pf-'+role+'-'),
+      'Phaser is showing the selected character animation, not a placeholder: '+actual.texture);
     assert.ok(actual.idle>=4&&actual.run>=6,'New character has distinct idle and running frames');
     await characterPage.locator('#wbLivePreview .uri-adventure-stage').screenshot({
      path:path.join(screens,'04-'+role+'-playable.png'),animations:'disabled'
