@@ -45,14 +45,20 @@ const server=http.createServer((req,res)=>{
   assert.match(await page.locator('.uri-adventure-stations').innerText(),/RSVP/);
   await page.locator('.uri-adventure-setting select').first().selectOption('sunset');
   await page.locator('#wbLivePreview [data-adventure-world="sunset"]').waitFor();
-  assert.equal(await page.locator('.uri-adventure-owner-card').count(),6,
-    'Only the invitation owner has the six-character selection panel');
+  assert.equal(await page.locator('.uri-adventure-owner-card').count(),8,
+    'Only the invitation owner has the eight-character selection panel');
+  await page.locator('.uri-adventure-owner-card[data-uri-character="gown"]').click();
+  assert.match(await page.locator('.uri-adventure-default-preview').innerText(),/Female in Gown/);
+  assert.match(await page.locator('.uri-adventure-default-preview .uri-real-avatar').getAttribute('style'),/gown-idle\.png/);
+  await page.locator('.uri-adventure-owner-card[data-uri-character="barong"]').click();
+  assert.match(await page.locator('.uri-adventure-default-preview').innerText(),/Male in Barong/);
+  assert.match(await page.locator('.uri-adventure-default-preview .uri-real-avatar').getAttribute('style'),/barong-idle\.png/);
   await page.locator('.uri-adventure-owner-card[data-uri-character="floral"]').click();
   await page.locator('.uri-adventure-variant-row button').filter({hasText:'Pastel'}).click();
   assert.equal(await page.locator('.uri-adventure-owner-card[data-uri-character="floral"]').getAttribute('aria-pressed'),'true');
   assert.match(await page.locator('.uri-adventure-default-preview').innerText(),/Floral Traveler/);
-  assert.equal(await page.locator('.uri-adventure-owner-card .uri-real-avatar').count(),6,
-    'Owner picker uses actual PNG character portraits rather than generated SVG shapes');
+  assert.equal(await page.locator('.uri-adventure-owner-card .uri-real-avatar').count(),8,
+    'Owner picker uses real PNG portraits for all eight characters');
   await page.locator('.uri-adventure-setting').filter({hasText:'Mobile movement'}).locator('select').selectOption('joystick');
   const settings=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0].adventure);
   assert.equal(settings.world,'sunset');
@@ -348,6 +354,39 @@ const server=http.createServer((req,res)=>{
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
   assert.ok(overflow<=4,'Mobile site overflows by '+overflow+' pixels');
   await page.screenshot({path:path.join(screens,'03-adventure-mobile-editor.png'),fullPage:true,animations:'disabled'});
+  // Both new characters must actually play in Phaser, not merely appear
+  // in the client's editor. Each has independent transparent PNG animations.
+  for(const role of ['gown','barong']){
+   const characterPage=await context.newPage();
+   characterPage.on('pageerror',err=>errors.push(err.message));
+   try{
+    await characterPage.goto(url,{waitUntil:'domcontentloaded'});
+    await characterPage.evaluate(role=>{
+     const invitation={...defaults(),id:'custom-'+role,type:'Wedding',template:'adventure',
+      name1:'Maya',name2:'Emir',date:'2032-09-18',time:'16:00',venue:'Garden Pavilion',
+      adventure:{world:'meadow',character:role,characterVariant:0,touch:'buttons'}};
+     state.events=[invitation];state.current=invitation.id;tab='edit';save();location.hash='#event';render();
+    },role);
+    await characterPage.locator('#wbLivePreview .uri-adventure-site').waitFor();
+    await characterPage.locator('#wbLivePreview [data-adventure-action="play"]').click();
+    await characterPage.waitForFunction(role=>{
+     const scene=document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure?.scene;
+     return scene?.uriRealCharacter?.name===role&&scene?.player?.anims?.currentAnim;
+    },role,{timeout:20000});
+    const actual=await characterPage.evaluate(()=>{
+     const scene=document.querySelector('#wbLivePreview .uri-adventure-site')._uriAdventure.scene;
+     return {role:scene.uriRealCharacter?.name,texture:scene.player.texture.key,
+      idle:scene.textures.get('uri-pf-'+scene.uriRealCharacter.name+'-idle').frameTotal,
+      run:scene.textures.get('uri-pf-'+scene.uriRealCharacter.name+'-run').frameTotal};
+    });
+    assert.equal(actual.role,role,'New character must be selected and animated in Phaser');
+    assert.equal(actual.texture,'uri-pf-'+role+'-idle');
+    assert.ok(actual.idle>=4&&actual.run>=6,'New character has distinct idle and running frames');
+    await characterPage.locator('#wbLivePreview .uri-adventure-stage').screenshot({
+     path:path.join(screens,'04-'+role+'-playable.png'),animations:'disabled'
+    });
+   }finally{await characterPage.close()}
+  }
   assert.deepEqual(errors,[],'Browser exceptions: '+errors.join('; '));
   console.log('Adventure Phaser pixel QA passed: owner-only avatar selection, saved costume, playable movement, in-game rooms, inline RSVP, mobile controls and world resuming.');
  }finally{await browser.close();server.close()}
