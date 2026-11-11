@@ -84,3 +84,42 @@ jobs:
             artifacts/adventure-browser/
           if-no-files-found: ignore
           retention-days: 14
+
+  mobile-release-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-mobile-1.56.1-${{ runner.os }}-ubuntu24
+      - name: Install Safari-engine and Android-engine browser test drivers
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1 phaser@3.90.0
+          npx playwright install --with-deps webkit chromium
+      - name: Exercise URI at iPhone and Android emulated viewports
+        run: node tests/mobile-release-qa.cjs
+      - name: Preserve iPhone/Android emulation screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: uri-mobile-release-screenshots
+          path: artifacts/mobile-release/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  live-pages-qa:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm public GitHub Pages deployment serves the current main assets
+        run: node tests/live-pages-qa.cjs
