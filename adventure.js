@@ -59,7 +59,8 @@ function preview(e){
   +'<p class="uri-pixel-event-meta"><span>▣ '+T(e.date?fmt(e.date):'Save the date')+'</span><span>⌖ '+T(e.venue||'Venue to be announced')+'</span></p></div>'
   +'</header>'
   +'<div class="wb-flow"><div class="uri-adventure-world" role="region" aria-label="Playable wedding invitation">'
-  +'<div class="uri-adventure-intro"><strong>✦ A CELEBRATION ADVENTURE ✦</strong><span>Move, jump and explore the signposts to uncover the invitation.</span></div>'
+  +'<div class="uri-adventure-intro"><strong>✦ A CELEBRATION ADVENTURE ✦</strong><span>Find the heart signposts to uncover your invitation.</span></div>'
+  +'<div class="uri-adventure-guide" aria-label="How to play"><div><strong>HOW TO EXPLORE</strong><span class="uri-adventure-chapters" aria-live="polite">0 of '+parts.length+' chapters discovered</span></div><p class="uri-adventure-guide-text">Step 1 of 3 · Use the left / right buttons or arrow keys to walk toward the first heart sign.</p></div>'
   +'<div class="uri-adventure-stage" role="group" aria-label="Playable platform game with explorable invitation areas">'
   +'<div class="uri-adventure-load"><span class="uri-adventure-loading-icon" aria-hidden="true">✦</span><span>Step into your story</span><button type="button" data-adventure-action="play">Play adventure</button></div>'
   +'<section class="uri-adventure-interior" hidden role="region" aria-label="Inside an adventure area">'
@@ -213,6 +214,9 @@ function openStation(root,id){
  const page=stationNodes(root).find(p=>p.dataset.adventureId===id);
  if(!page)return;
  inst.visited?.add(id);
+ const chapterCount=stationNodes(root).length;
+ const progress=root.querySelector('.uri-adventure-chapters');
+ if(progress)progress.textContent=inst.visited.size+' of '+chapterCount+' chapters discovered';
  const title=page.querySelector('h2')?.textContent||'Invitation details';
  const room=enterRoom(root,title,'station');if(!room)return;
  const stage=root.querySelector('.uri-adventure-stage');
@@ -269,7 +273,7 @@ function setupUi(root){
  const inst={root,scene:null,game:null,controls:{left:false,right:false,jump:false},inputAbort:new AbortController(),near:null,view:'world',currentStation:null,visited:new Set(),
   selectedCharacter:root.dataset.adventureCharacter||'explorer',
   selectedVariant:Math.max(0,Math.min(2,Number(root.dataset.adventureVariant)||0)),
-  playingCharacter:null,playingVariant:null,destroyed:false};
+  playingCharacter:null,playingVariant:null,hasWalked:false,destroyed:false};
  root._uriAdventure=inst;instances.add(inst);
  root.addEventListener('click',ev=>{
   const button=ev.target.closest('button');
@@ -558,8 +562,15 @@ function makeScene(P,inst){
     return dist<145&&(!best||dist<best.dist)?{...c,dist}:best;
    },null);
    inst.near=cp?.id||null;
+   if(Math.abs(this.player.x-88)>25)inst.hasWalked=true;
+   const touchView=inst.root.clientWidth<=690||window.matchMedia?.('(pointer:coarse)')?.matches;
+   const coach=inst.root.querySelector('.uri-adventure-guide-text');
+   const lesson=!inst.hasWalked?'Step 1 of 3 · '+(touchView?'Hold ◀ or ▶ to walk toward the first heart sign.':'Use the arrow keys or A / D to walk toward the first heart sign.')
+    :cp?'Step 2 of 3 · You reached a heart sign. '+(touchView?'Tap Interact to read it.':'Press E or Interact to read it.')
+    :inst.visited.size?'Step 3 of 3 · Keep walking to discover the remaining chapters.':'Step 2 of 3 · Walk toward a heart sign, then choose Interact.';
+   if(coach&&coach.textContent!==lesson)coach.textContent=lesson;
    const prompt=inst.root.querySelector('.uri-adventure-prompt');
-   if(prompt){const label=cp?'Near '+cp.title+' · Press E or Interact':'Move toward a glowing sign to read its details';
+   if(prompt){const label=cp?'Near '+cp.title+' · '+(touchView?'Tap Interact':'Press E or Interact'):'Walk to a heart sign to read the invitation';
     if(prompt.textContent!==label)prompt.textContent=label}
    const locationLabel=inst.root.querySelector('.uri-adventure-position');
    if(locationLabel){

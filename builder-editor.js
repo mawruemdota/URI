@@ -5,6 +5,14 @@ const U=window.URIBuilder;
 let panel='content',viewport=(window.matchMedia?.('(max-width: 700px)')?.matches??window.innerWidth<=700)?'mobile':'desktop',dragging='';
 const T=v=>esc(v==null?'':String(v));
 const LABELS={content:'Content',features:'Features',design:'Design',photos:'Photos',music:'Music',review:'Review',publish:'Publish'};
+const BASIC_STEPS=['content','design','photos','review','publish'];
+let advancedMode=false;
+const visibleSteps=()=>advancedMode?BUILDER_STEPS:BASIC_STEPS;
+window.uriBAdvanced=()=>{
+ advancedMode=!advancedMode;
+ if(!advancedMode&&!BASIC_STEPS.includes(panel))panel='design';
+ rerender({scrollTop:true});
+};
 function event(){let e=current();return e&&e.type==='Wedding'?U.model(e):null}
 function rerender(opts={}){
   const y=typeof window.scrollY==='number'?window.scrollY:0;
@@ -23,7 +31,7 @@ function rerender(opts={}){
     if(window.scrollTo)window.scrollTo(0,y);
   },0);
 }
-window.uriBPanel=p=>{if(LABELS[p]){if(panel!==p&&window.uriPhotoClose)window.uriPhotoClose(true);panel=p;rerender({scrollTop:true})}};
+window.uriBPanel=p=>{if(LABELS[p]){if(panel!==p&&window.uriPhotoClose)window.uriPhotoClose(true);if(!BASIC_STEPS.includes(p))advancedMode=true;panel=p;rerender({scrollTop:true})}};
 function fitLivePreview(){
   if(window.uriPhotoDecoratePreview)window.uriPhotoDecoratePreview();
   if(window.uriBDecorateSections)window.uriBDecorateSections();
@@ -211,18 +219,31 @@ function design(e){let d=U.design(e),options=(key,name,choices)=>'<label class="
 function photos(e){return window.uriBuilderPhotosPanel?window.uriBuilderPhotosPanel(e):'<p>The photo manager is loading.</p>'}
 function publishing(e){return '<h3>Publishing</h3>'+(window.URICloud?window.URICloud.panel(e):'<div class="banner notice">Cloud publishing is not configured. This event is saved in your browser.</div>')+'<div class="banner notice">Guest lists are not included in public invitations. Cross-device RSVP collection requires a separately secured guest system.</div>'}
 const BUILDER_STEPS=['content','features','design','photos','music','review','publish'];
-window.uriBNext=function(delta){let i=BUILDER_STEPS.indexOf(panel),next=Math.min(BUILDER_STEPS.length-1,Math.max(0,i+delta));window.uriBPanel(BUILDER_STEPS[next]);let h=document.querySelector('.wb-editor');if(h&&h.scrollIntoView)h.scrollIntoView({behavior:'smooth',block:'start'})};
+window.uriBNext=function(delta){const steps=visibleSteps();let i=steps.indexOf(panel),next=Math.min(steps.length-1,Math.max(0,i+delta));window.uriBPanel(steps[next]);let h=document.querySelector('.wb-editor');if(h&&h.scrollIntoView)h.scrollIntoView({behavior:'smooth',block:'start'})};
 window.uriBuilderEditor=function(e){
   U.model(e);
   scheduleFit();
   let active=({content,features,design,photos,music:e=>window.URIMusic?window.URIMusic.manager(e):'<p>Music is unavailable.</p>',review:e=>window.URIReadiness?window.URIReadiness.panel(e):readinessMarkup(e),publish:publishing}[panel]||content)(e);
-  let index=BUILDER_STEPS.indexOf(panel),next=BUILDER_STEPS[index+1],previous=BUILDER_STEPS[index-1];
+  const steps=visibleSteps();
+  let index=steps.indexOf(panel),next=steps[index+1],previous=steps[index-1];
+  const liveState=window.URICloud?.publicationState?.(e)||(e.cloudPublished?'legacy':'draft');
+  const liveLabel=liveState==='draft'?'Draft — not published':liveState==='changed'?'Changes not published':liveState==='legacy'?'Live — check updates':'Published and live';
+  const guidance={
+   content:'Start with the names, date and venue. Everything else can be added later.',
+   design:'Choose how the invitation looks. Your content stays intact when you switch designs.',
+   photos:'Photos are optional. Skip this step if you do not have them yet.',
+   review:'Check any missing details, then preview the full invitation.',
+   publish:'Publish the invitation to get a real shareable link. Saving a draft is not publishing.',
+   features:'Advanced: choose the sections guests will see and change their order.',
+   music:'Advanced: add music only if you have the rights to share it.'
+  };
   let nextButton=next?'<button type="button" class="btn primary" onclick="uriBNext(1)">Next: '+LABELS[next]+' </button>':'<button type="button" class="btn primary" onclick="uriFlowOpenPreview(\'event\')">Preview full website </button>';
-  return '<div class="wb-editor"><div class="wb-builder-heading"><div><h2>Edit invitation</h2></div><div class="wb-builder-status"><span class="chip">'+(e.cloudPublished?'Published snapshot':'Draft')+'</span><span class="wb-save-label" id="wbSaveState" role="status">'+(U.lastSaveFailed?'Changes not saved':'Saved on this device')+'</span><button type="button" class="btn small wb-preview-shortcut" onclick="uriFlowOpenPreview(\'event\')">Preview website </button></div></div>'
+  return '<div class="wb-editor"><div class="wb-builder-heading"><div><h2>Edit invitation</h2></div><div class="wb-builder-status"><span class="chip">'+T(liveLabel)+'</span><span class="wb-save-label" id="wbSaveState" role="status">'+(U.lastSaveFailed?'Changes not saved':'Saved on this device')+'</span><button type="button" class="btn small wb-preview-shortcut" onclick="uriFlowOpenPreview(\'event\')">Preview website </button></div></div>'
+    +'<section class="uri-creator-guide" aria-label="Invitation creation guide"><div class="uri-creator-guide-head"><div><strong>Your invitation, one step at a time</strong><p>'+T(guidance[panel]||guidance.content)+'</p></div><button type="button" class="btn small" aria-expanded="'+advancedMode+'" aria-controls="wbAdvancedNote" onclick="uriBAdvanced()">'+(advancedMode?'Show essential steps':'Show advanced tools')+'</button></div><div class="uri-creator-route" aria-label="Essential creation steps"><span>Details</span><span>Design</span><span>Photos (optional)</span><span>Review</span><span>Publish & share</span></div><p id="wbAdvancedNote" class="uri-advanced-note"'+(advancedMode?'':' hidden')+'>Advanced tools include Features and Music. You can switch back to the essential steps anytime.</p></section>'
     +'<div id="wbReadiness" class="wb-readiness-wrap">'+(panel==='review'?'':readinessMarkup(e))+'</div>'
     +''
-    +'<nav class="wb-tabs" aria-label="Wedding builder tabs">'+Object.entries(LABELS).map(([key,label],i)=>'<button type="button" class="'+(panel===key?'active':'')+'" aria-current="'+(panel===key?'page':'false')+'" onclick="uriBPanel(\''+key+'\')">'+label+'</button>').join('')+'</nav>'
-    +'<div class="wb-editor-grid"><div class="wb-editor-controls">'+active+'<div class="wb-builder-footer"><span>Step '+(index+1)+' of '+BUILDER_STEPS.length+'</span><div class="wb-builder-footer-actions">'+(previous?'<button type="button" class="btn" onclick="uriBNext(-1)"> '+LABELS[previous]+'</button>':'')+nextButton+'</div></div></div>'
+    +'<nav class="wb-tabs" aria-label="Wedding builder tabs">'+Object.entries(LABELS).filter(([key])=>advancedMode||BASIC_STEPS.includes(key)).map(([key,label],i)=>'<button type="button" class="'+(panel===key?'active':'')+'" aria-current="'+(panel===key?'page':'false')+'" onclick="uriBPanel(\''+key+'\')">'+label+'</button>').join('')+'</nav>'
+    +'<div class="wb-editor-grid"><div class="wb-editor-controls">'+active+'<div class="wb-builder-footer"><span>Step '+(index+1)+' of '+steps.length+'</span><div class="wb-builder-footer-actions">'+(previous?'<button type="button" class="btn" onclick="uriBNext(-1)"> '+LABELS[previous]+'</button>':'')+nextButton+'</div></div></div>'
     +'<div class="wb-editor-preview"><div class="wb-preview-toolbar"><strong>Preview</strong><div><button type="button" class="uri-preview-play" onclick="uriAnimationReplay()" aria-label="Play invitation animations">Play animation</button><button type="button" data-viewport-choice="desktop" aria-pressed="'+(viewport==='desktop')+'" onclick="uriBViewport(\'desktop\')">Desktop</button><button type="button" data-viewport-choice="mobile" aria-pressed="'+(viewport==='mobile')+'" onclick="uriBViewport(\'mobile\')">Mobile</button></div></div>'
     +'<div id="wbPreviewSurface" class="wb-preview-surface" data-viewport="'+viewport+'"><div id="wbPreviewStage" class="wb-preview-stage"><div id="wbLivePreview">'+U.render(e)+'</div></div></div>'
     +'<div class="wb-preview-scale" id="wbPreviewScale" aria-live="off">'+(viewport==='mobile'?'390px mobile layout':'1024px desktop layout')+'</div>'

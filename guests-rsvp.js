@@ -6,7 +6,7 @@ const T=x=>esc(x==null?'':String(x));
 const token=prefix=>prefix+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
 const number=(v,max=500)=>Math.max(0,Math.min(max,Math.floor(Number(v)||0)));
 const statusSet=['pending','attending','declined'];
-let filter='all',search='',editing='',notice='';
+let filter='all',search='',editing='',notice='',advancedGuestOptions=false;
 function getEvent(){const e=current();return e&&e.type==='Wedding'?ensure(e):null}
 function ensure(e){
  if(!e||e.type!=='Wedding')return e;
@@ -46,14 +46,15 @@ function persist(fn){
 }
 function stats(e){const u=usage(e);return '<div class="uri-guest-stats">'+[['Invited',u.people],['Accepted',u.attending],['Seats confirmed',u.confirmed],['Pending',u.pending],['Declined',u.declined]].map(([k,v])=>'<div><strong>'+v+'</strong><span>'+k+'</span></div>').join('')+'</div>'}
 function options(items,selected,empty){return (empty?'<option value="">'+T(empty)+'</option>':'')+items.map(item=>'<option value="'+T(item.id)+'" '+(item.id===selected?'selected':'')+'>'+T(item.name)+'</option>').join('')}
+window.uriGuestsAdvanced=value=>{advancedGuestOptions=Boolean(value)};
 function guestForm(e,guest){
  const g=guest||{},edit=!!guest;
  return '<form class="uri-guest-form" onsubmit="'+(edit?'uriGuestsUpdate(event)':'uriGuestsAdd(event)')+'"><h3>'+(edit?'Edit guest':'Add a guest')+'</h3>'
   +'<div class="uri-guest-form-grid"><label>Full name<input name="name" maxlength="120" required value="'+T(g.name||'')+'" placeholder="e.g. Sofia Cruz"></label>'
-  +'<label>Email (optional)<input name="email" type="email" maxlength="160" value="'+T(g.email||'')+'" placeholder="Only for local planning"></label>'
+  +'<details class="uri-guest-extras"'+(edit?' open':'')+'><summary>Optional guest details (email, household, extra seats)</summary><label>Email (optional)<input name="email" type="email" maxlength="160" value="'+T(g.email||'')+'" placeholder="Only for local planning"></label>'
   +'<label>Household<select name="householdId">'+options(e.households,g.householdId||'','No household')+'</select></label>'
   +'<label>Category<select name="category">'+['General','Family','Friends','Entourage','VIP','Colleagues'].map(x=>'<option '+(g.category===x?'selected':'')+'>'+x+'</option>').join('')+'</select></label>'
-  +'<label>Extra seats / plus-ones<input name="plusOnesAllowed" type="number" min="0" max="5" value="'+number(g.plusOnesAllowed||0,5)+'"></label></div>'
+  +'<label>Extra seats / plus-ones<input name="plusOnesAllowed" type="number" min="0" max="5" value="'+number(g.plusOnesAllowed||0,5)+'"></label></details></div>'
   +'<div class="uri-guest-form-actions"><button type="submit" class="btn primary">'+(edit?'Save guest':'Add guest')+'</button>'+(edit?'<button type="button" class="btn" onclick="uriGuestsCancel()">Cancel</button>':'')+'</div></form>';
 }
 function guestRows(e){
@@ -61,7 +62,7 @@ function guestRows(e){
  return guests.length?guests.map(g=>'<article class="uri-guest-row" data-guest-id="'+T(g.id)+'" data-guest-status="'+T(g.status)+'" data-guest-search="'+T((g.name+' '+(g.email||'')+' '+(household(e,g.householdId)?.name||'')+' '+(g.category||'')).toLowerCase())+'">'
   +'<div class="uri-guest-main"><strong>'+T(g.name)+'</strong><small>'+T(household(e,g.householdId)?.name||'Individual')+' · '+T(g.category||'General')+(g.plusOnesAllowed?' · +'+number(g.plusOnesAllowed,5)+' allowed':'')+'</small></div>'
   +'<span class="uri-guest-status uri-guest-status-'+T(g.status)+'">'+T(g.status)+'</span>'
-  +'<div class="uri-guest-row-actions"><button type="button" onclick="uriGuestsTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Test RSVP</button><button type="button" onclick="uriGuestsCopyTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Copy test URL</button><button type="button" class="uri-online-link" onclick="uriCloudGuestCopy(this.closest(\'[data-guest-id]\').dataset.guestId)">Copy online RSVP link</button><button type="button" onclick="uriGuestsEdit(this.closest(\'[data-guest-id]\').dataset.guestId)">Edit</button><button type="button" onclick="uriGuestsRemove(this.closest(\'[data-guest-id]\').dataset.guestId)">Remove</button></div></article>').join(''):'<div class="uri-guests-blank">No guests match. Add someone or clear the filters.</div>';
+  +'<div class="uri-guest-row-actions"><button type="button" class="uri-online-link btn primary" title="Copy a personal invitation link for this guest"'+(e.cloudPublished?'':' disabled aria-label="Publish invitation to enable online RSVP links"')+' onclick="uriCloudGuestCopy(this.closest(\'[data-guest-id]\').dataset.guestId)">Copy online RSVP link</button><button type="button" onclick="uriGuestsEdit(this.closest(\'[data-guest-id]\').dataset.guestId)">Edit</button><details class="uri-guest-test-tools"><summary>Testing options</summary><button type="button" onclick="uriGuestsTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Test RSVP</button><button type="button" onclick="uriGuestsCopyTest(this.closest(\'[data-guest-id]\').dataset.guestId)">Copy test URL</button></details><button type="button" onclick="uriGuestsRemove(this.closest(\'[data-guest-id]\').dataset.guestId)">Remove</button></div></article>').join(''):'<div class="uri-guests-blank">No guests match. Add someone or clear the filters.</div>';
 }
 function questionRows(e){
  return e.rsvpSettings.questions.map((q,i)=>'<div class="uri-question-row"><div><strong>'+T(q.label)+'</strong><small>'+T(q.type==='choice'?'Multiple choice: '+(Array.isArray(q.options)?q.options.join(', '):''):'Short answer')+(q.required?' · Required':'')+'</small></div><button type="button" onclick="uriGuestsRemoveQuestion('+i+')">Remove</button></div>').join('');
@@ -71,21 +72,24 @@ function panel(e){
  const u=usage(e);
  const edit=e.guests.find(g=>g.id===editing);
  setTimeout(filterGuestRows,0);
- return '<div class="uri-guests"><div class="uri-guests-heading"><h2>Guests & RSVP</h2></div>'
-  +'<div class="uri-guests-warning"><strong>Guest links:</strong> Local test links still work only in this browser. Copy online RSVP links after signing in and publishing to collect private cross-device replies.</div>'
+ return '<div class="uri-guests"><div class="uri-guests-heading"><h2>Guests & RSVP</h2><p>Add names, publish the invitation, and send each person their private link. URI does not send messages automatically.</p></div>'
+  +'<div class="uri-guest-onboarding" aria-label="Guest invitation steps"><span><strong>1</strong> Add a guest</span><span><strong>2</strong> Publish your invitation</span><span><strong>3</strong> Copy their online RSVP link</span></div>'
+  +'<div class="uri-guest-fast-add"><section class="uri-guest-panel">'+guestForm(e,edit)+'</section></div>'
+  +(!e.cloudPublished?'<div class="uri-guest-publish-tip" role="status">Your invitation is not live yet. Add guests now, then <button type="button" class="btn small" onclick="tab=\'edit\';eventPage();uriBPanel(\'publish\')">go to Publish</button> to enable their online links.</div>':'')
+  +'<div class="uri-guests-warning"><strong>Privacy:</strong> Only copy online RSVP links after publishing. Local test URLs work on this browser only and should never be sent to guests.</div>'
   +(notice?'<p class="uri-guest-notice" role="status">'+T(notice)+'</p>':'')
   +stats(e)
-  +'<div class="uri-guest-online-actions"><button class="btn small" type="button" onclick="uriCloudRefreshGuests()">Refresh online responses</button><span>Online changes appear here after refresh or cloud restore.</span></div>'+'<div class="uri-guest-layout"><section class="uri-guest-panel">'+guestForm(e,edit)+'</section>'
-  +'<section class="uri-guest-panel"><h3>Households</h3>'
+  +'<div class="uri-guest-online-actions"><button class="btn small" type="button" onclick="uriCloudRefreshGuests()">Refresh online responses</button><span>Online changes appear here after refresh or cloud restore.</span></div>'+'<div class="uri-guest-layout">'
+  +'<details class="uri-guest-advanced"'+(advancedGuestOptions?' open':'')+' ontoggle="uriGuestsAdvanced(this.open)"><summary>Advanced: households and seat limits</summary><section class="uri-guest-panel"><h3>Households</h3>'
   +'<form class="uri-household-form" onsubmit="uriHouseholdAdd(event)"><label>Household name<input required name="household" maxlength="100" placeholder="e.g. Cruz Family"></label><label>Seats (0 = unlimited)<input name="seats" type="number" value="0" min="0" max="50"></label><button class="btn" type="submit">Add</button></form>'
-  +'<div class="uri-household-list">'+(e.households.length?e.households.map(h=>'<div class="uri-household-row" data-household-id="'+T(h.id)+'"><span><strong>'+T(h.name)+'</strong><small>'+e.guests.filter(g=>g.householdId===h.id).length+' guests</small></span><label>Seat limit<input type="number" min="0" max="50" aria-label="Seat limit for '+T(h.name)+'" value="'+number(h.seatLimit,50)+'" onchange="uriHouseholdSeats(this.closest(\'[data-household-id]\').dataset.householdId,this.value)"></label><button type="button" onclick="uriHouseholdRemove(this.closest(\'[data-household-id]\').dataset.householdId)">Remove</button></div>').join(''):'<small>No households added.</small>')+'</div></section></div>'
+  +'<div class="uri-household-list">'+(e.households.length?e.households.map(h=>'<div class="uri-household-row" data-household-id="'+T(h.id)+'"><span><strong>'+T(h.name)+'</strong><small>'+e.guests.filter(g=>g.householdId===h.id).length+' guests</small></span><label>Seat limit<input type="number" min="0" max="50" aria-label="Seat limit for '+T(h.name)+'" value="'+number(h.seatLimit,50)+'" onchange="uriHouseholdSeats(this.closest(\'[data-household-id]\').dataset.householdId,this.value)"></label><button type="button" onclick="uriHouseholdRemove(this.closest(\'[data-household-id]\').dataset.householdId)">Remove</button></div>').join(''):'<small>No households added.</small>')+'</div></section></details></div>'
   +'<section class="uri-guest-panel"><div class="uri-guest-tools"><div><h3>Guest list</h3><small>'+u.people+' invited · '+u.reserved+' allocated seats · '+u.confirmed+' confirmed</small></div><div class="uri-guest-import"><button type="button" class="btn small" onclick="uriGuestsExport()">Export CSV</button><label class="uri-import-label">Import CSV<input type="file" accept=".csv,text/csv" onchange="uriGuestsImport(event)"></label></div></div>'
   +'<div class="uri-guest-toolbar"><label>Find guests<input type="search" placeholder="Search name, household, category" value="'+T(search)+'" oninput="uriGuestsSearch(this.value)"></label><label>Status<select onchange="uriGuestsFilter(this.value)">'+['all','pending','attending','declined'].map(x=>'<option value="'+x+'" '+(x===filter?'selected':'')+'>'+x+'</option>').join('')+'</select></label></div>'
   +'<div class="uri-guest-rows">'+guestRows(e)+'</div><div id="uriGuestNoMatches" class="uri-guests-blank" hidden>No guests match your search.</div></section>'
-  +'<section class="uri-guest-panel"><h3>RSVP questions</h3>'
+  +'<details class="uri-guest-advanced"><summary>Advanced: RSVP questions and event capacity</summary><section class="uri-guest-panel"><h3>RSVP questions</h3>'
   +'<label class="uri-guest-capacity">Maximum confirmed seats<input type="number" min="0" max="10000" value="'+(u.capacity||'')+'" placeholder="No overall limit" onchange="uriGuestsCapacity(this.value)"></label>'
   +'<div class="uri-questions">'+questionRows(e)+'</div>'
-  +'<form class="uri-question-form" onsubmit="uriGuestsAddQuestion(event)"><label>New question<input required name="label" maxlength="120" placeholder="e.g. Which meal would you prefer?"></label><label>Answer type<select name="type"><option value="text">Short answer</option><option value="choice">Choose one</option></select></label><label>Choices (separate with |)<input name="options" placeholder="Chicken | Fish | Vegetarian"></label><label class="uri-checkline"><input type="checkbox" name="required"> Required</label><button type="submit" class="btn">Add question</button></form></section></div>';
+  +'<form class="uri-question-form" onsubmit="uriGuestsAddQuestion(event)"><label>New question<input required name="label" maxlength="120" placeholder="e.g. Which meal would you prefer?"></label><label>Answer type<select name="type"><option value="text">Short answer</option><option value="choice">Choose one</option></select></label><label>Choices (separate with |)<input name="options" placeholder="Chicken | Fish | Vegetarian"></label><label class="uri-checkline"><input type="checkbox" name="required"> Required</label><button type="submit" class="btn">Add question</button></form></section></details></div>';
 }
 window.uriGuestsAdd=ev=>{ev.preventDefault();const form=new FormData(ev.target),name=String(form.get('name')||'').trim().slice(0,120);if(!name)return;
  if(persist(e=>e.guests.push({id:token('g'),name,email:String(form.get('email')||'').trim().slice(0,160),householdId:String(form.get('householdId')||''),category:String(form.get('category')||'General'),plusOnesAllowed:number(form.get('plusOnesAllowed'),5),plusOnesConfirmed:0,status:'pending',answers:{}})))success('Guest added.')};

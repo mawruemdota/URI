@@ -59,6 +59,10 @@ const image=async (page,name)=>{
     await image(page,'03-review.png');
     await clickNext(page);
     await page.locator('.wb-editor').waitFor();
+    assert.equal(await page.locator('.uri-creator-guide').count(),1,'First-time creator has step-by-step guidance');
+    assert.equal(await page.locator('.wb-tabs button').count(),5,'Essential editing shows five steps by default');
+    await page.getByRole('button',{name:'Show advanced tools'}).click();
+    assert.equal(await page.locator('.wb-tabs button').count(),7,'Advanced features remain available on demand');
     assert.match(await page.locator('#wbLivePreview').innerText(),/Maya/);
     assert.match(await page.locator('#wbLivePreview').innerText(),/Emir/);
     const original=await page.evaluate(()=>JSON.parse(localStorage.getItem('uri-prototype-v1')).events[0]);
@@ -343,15 +347,20 @@ const image=async (page,name)=>{
     await page.locator('.uri-dash-card').first().getByRole('button',{name:'Edit'}).click();
     await page.locator('.sidebar button').filter({hasText:'Guests & RSVP'}).click();
     await page.locator('.uri-guests').waitFor();
+    assert.match(await page.locator('.uri-guest-onboarding').innerText(),/Add a guest/);
+    await page.locator('.uri-guest-advanced').first().locator('summary').click();
     await page.locator('.uri-household-form input[name="household"]').fill('Cruz Family');
     await page.locator('.uri-household-form input[name="seats"]').fill('2');
     await page.locator('.uri-household-form button').click();
     await page.locator('.uri-guest-form input[name="name"]').fill('Sofia Cruz');
+    await page.locator('.uri-guest-extras > summary').click();
     await page.locator('.uri-guest-form select[name="householdId"]').selectOption({label:'Cruz Family'});
     await page.locator('.uri-guest-form input[name="plusOnesAllowed"]').fill('1');
     await page.locator('.uri-guest-form button[type="submit"]').click();
     assert.equal(await page.locator('.uri-guest-row').count(),1);
     await image(page,'15-guest-management.png');
+    assert.equal(await page.locator('.uri-guest-row .uri-online-link').count(),1);
+    await page.locator('.uri-guest-test-tools > summary').first().click();
     await page.locator('.uri-guest-row').first().getByRole('button',{name:'Test RSVP'}).click();
     await page.locator('.uri-rsvp-paper').waitFor();
     await page.locator('input[name="response"][value="attending"]').check();
@@ -374,7 +383,14 @@ const image=async (page,name)=>{
     await page.goto(url+'#rsvp/invalid',{waitUntil:'domcontentloaded'});
     await page.getByRole('heading',{name:'Invitation unavailable'}).waitFor();
     assert.equal(await page.locator('input[name="response"]').count(),0);
+    await page.waitForFunction(()=>document.body.classList.contains('uri-guest-view'));
+    assert.equal(await page.locator('body > header.top').isVisible(),false,
+      'RSVP pages must not show the invitation creator navigation');
     await image(page,'19-invalid-online-rsvp.png');
+    await page.goto(url+'#dashboard',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>!document.body.classList.contains('uri-guest-view'));
+    assert.equal(await page.locator('body > header.top').isVisible(),true,
+      'Creator navigation returns on the dashboard');
     assert.deepEqual(errors,[],'Unexpected JavaScript exceptions: '+errors.join('; '));
     console.log('Real Chromium QA passed: wizard, cover photo, saved content, template switching, feature order, gallery, desktop/mobile previews.');
   }finally{await browser.close()}

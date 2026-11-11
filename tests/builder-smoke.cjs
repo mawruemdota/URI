@@ -33,7 +33,7 @@ const scenario=function(){
  window.uriBPanel('photos');
  const photosOk=root.innerHTML.includes('wb-photo-manager');
  window.uriBPanel('publish');
- const cloudOk=root.innerHTML.includes('Cloud setup required')||root.innerHTML.includes('Supabase library could not be loaded');
+ const cloudOk=root.innerHTML.includes('Publishing is not available on this site yet')||root.innerHTML.includes('Online publishing could not connect');
  sample.photos=[{id:'sample-gallery',src:'https://example.test/gallery.jpg',alt:'Gallery test photo',crop:'landscape'}];
  sample.layoutByTemplate.classic={gallery:'grid'};
  const variantOk=U.render(sample).includes('wb-gallery-grid');
