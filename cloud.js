@@ -4,6 +4,18 @@
 const config=window.URI_CLOUD_CONFIG||{};
 const U=window.URIBuilder;
 const T=v=>esc(v==null?'':String(v));
+const SITE_BASE=new URL('.',document.currentScript?.src||location.href).href;
+const RESERVED_NAMES=new Set(['home','dashboard','create','cloud','event','events','invite','invites','public','rsvp','admin','login','logout','signup','settings','account','api','assets','static','preview','pricing','features','templates','about','terms','privacy','help','contact','support','www','uri','index','404']);
+const normalizeUsername=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,'-');
+const isValidUsername=s=>/^[a-z0-9](?:[a-z0-9-]{1,30})[a-z0-9]$/.test(s)&&!s.includes('--')&&!RESERVED_NAMES.has(s);
+const suggestedUsername=e=>{
+ const text=[e.name1,e.name2].filter(Boolean).join('-and-').toLowerCase()
+  .normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32).replace(/-$/,'');
+ return isValidUsername(text)?text:'our-wedding-'+String(e.id||'event').replace(/[^a-z0-9]/gi,'').slice(-8).toLowerCase();
+};
+const draftUsername=e=>String(e.publicUsername||suggestedUsername(e));
+const prettyPublicLink=slug=>SITE_BASE+encodeURIComponent(slug);
+
 const configured=()=>/^https:\/\/[a-z0-9.-]+\/?$/.test(config.url||'')&&!!config.publishableKey;
 let client=null,session=null,initialized=false,working=false,message='';
 function db(){if(!configured()||!window.supabase?.createClient)return null;if(!client){client=window.supabase.createClient(config.url.replace(/\/$/,''),config.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}if(!initialized){initialized=true;client.auth.onAuthStateChange((_event,s)=>{session=s;setTimeout(refresh,0)});client.auth.getSession().then(({data})=>{session=data.session;refresh()}).catch(()=>{})}return client}
@@ -18,6 +30,7 @@ function publicationFingerprint(e){
 }
 function publicationState(e){
  if(!e?.cloudPublished||!e.cloudSlug)return 'draft';
+ if(e.publicUsername&&e.publicUsername!==e.cloudSlug)return 'changed';
  if(!e.uriPublishFingerprint)return 'legacy';
  return e.uriPublishFingerprint===publicationFingerprint(e)?'current':'changed';
 }
@@ -31,6 +44,7 @@ function markup(e){
  return '<div class="wb-cloud-auth uri-publish-steps">'
   +'<div class="uri-publish-state" data-publish-state="'+state+'" role="status"><strong>'+status[0]+'</strong><p>'+status[1]+'</p></div>'
   +'<p class="uri-publish-account">Signed in as '+T(session.user.email||'your account')+'</p>'
+  +'<div class="uri-publish-username"><label for="uriPublicUsername"><strong>Public event username</strong></label><div class="uri-publish-username-row"><span>'+T(SITE_BASE)+'</span><input id="uriPublicUsername" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="32" value="'+T(draftUsername(e))+'" oninput="uriCloudUsernameChanged(this.value)" aria-describedby="uriUsernameNote" placeholder="maya-and-emir"></div><small id="uriUsernameNote" role="status">'+(e.cloudPublished&&e.cloudSlug!==draftUsername(e)?'The old link remains active until you publish the new username. After publishing, the old link will stop working.':'Use 3–32 lowercase letters, numbers or single hyphens. Each username must be unique.')+'</small></div>'
   +'<p><strong>2. '+(isLive?'Update your invitation':'Publish your invitation')+'</strong></p><p>Publishing makes your wedding details and selected media publicly viewable. Your private guest list stays private.</p>'
   +'<div class="uri-publish-actions"><button type="button" class="btn primary" onclick="uriCloudPublish()" '+(working?'disabled':'')+'>'+(working?'Publishing…':state==='draft'?'Publish invitation':'Publish updates')+'</button>'
   +(isLive?'<button type="button" class="btn" onclick="uriCloudUnpublish()" '+(working?'disabled':'')+'>Unpublish</button>':'')+'</div>'
@@ -38,7 +52,7 @@ function markup(e){
   +'<details class="uri-publish-account-tools"><summary>Account and advanced options</summary><button class="btn small" type="button" onclick="uriCloudSignOut()">Sign out</button><p>Editing your saved draft does not automatically update the public invitation. Publish updates when you are ready.</p></details>'
   +(message?'<p role="status" class="uri-publish-message">'+T(message)+'</p>':'')+'</div>';
 }
-function publicLink(slug){return location.origin+location.pathname+'#public/'+encodeURIComponent(slug)}
+function publicLink(slug){return prettyPublicLink(slug)}
 async function uploadAudio(file,eventId){
  const types={mp3:'audio/mpeg',m4a:'audio/mp4',ogg:'audio/ogg',wav:'audio/wav',webm:'audio/webm'};
  const ext=String(file?.name||'').split('.').pop().toLowerCase(),mime=types[ext];
@@ -52,18 +66,33 @@ async function uploadAudio(file,eventId){
  if(uploadError)throw new Error('Audio upload failed: '+uploadError.message);
  return c.storage.from('uri-wedding-audio').getPublicUrl(name).data.publicUrl;
 }
-window.URICloud={panel:e=>'<div id="uriCloudRoot">'+markup(e)+'</div>'+(window.URICloudDrafts?'<p class="uri-cloud-sync-link"><a href="#cloud">Manage cloud drafts and guest sync</a></p>':''),configured,uploadAudio,client:db,publicationState};
-window.uriCloudSignIn=async()=>{let c=db(),email=document.getElementById('uriCloudEmail')?.value.trim();if(!c||!email){stateMessage('Enter a valid email address.');return}let {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});stateMessage(error?error.message:'Check your email for a sign-in link. Return to URI after signing in.')};
+window.URICloud={panel:e=>'<div id="uriCloudRoot">'+markup(e)+'</div>'+(window.URICloudDrafts?'<p class="uri-cloud-sync-link"><a href="#cloud">Manage cloud drafts and guest sync</a></p>':''),configured,uploadAudio,client:db,publicationState,publicLink,baseUrl:SITE_BASE,isValidUsername,draftUsername};
+window.uriCloudUsernameChanged=value=>{
+ const e=current();if(!e)return;
+ e.publicUsername=normalizeUsername(value);
+ U.persist();
+ const note=document.getElementById('uriUsernameNote');
+ if(note)note.textContent=isValidUsername(e.publicUsername)
+  ?(e.cloudPublished&&e.cloudSlug!==e.publicUsername?'Publish updates to activate this new address. The previous link will then stop working.':'Username will be checked for uniqueness when you publish.')
+  :'Use 3–32 lowercase letters, numbers or single hyphens, without reserved names.';
+ const input=document.getElementById('uriPublicUsername');
+ if(input)input.setAttribute('aria-invalid',String(!isValidUsername(e.publicUsername)));
+};
+window.uriCloudSignIn=async()=>{let c=db(),email=document.getElementById('uriCloudEmail')?.value.trim();if(!c||!email){stateMessage('Enter a valid email address.');return}let {error}=await c.auth.signInWithOtp({email,options:{emailRedirectTo:SITE_BASE}});stateMessage(error?error.message:'Check your email for a sign-in link. Return to URI after signing in.')};
 window.uriCloudSignOut=async()=>{let c=db();if(c)await c.auth.signOut();session=null;stateMessage('Signed out.')};
 function slug(){if(typeof crypto!=='undefined'&&crypto.randomUUID)return 'uri-'+crypto.randomUUID();let a=new Uint8Array(20);crypto.getRandomValues(a);return 'uri-'+Array.from(a,x=>x.toString(16).padStart(2,'0')).join('')}
 async function imageToCloud(source,uid,id){if(!source||!source.startsWith('data:image/'))return source||'';let c=db(),blob=await (await fetch(source)).blob(),filename=uid+'/'+id+'/'+slug()+'.jpg';let {error}=await c.storage.from('uri-wedding-public').upload(filename,blob,{contentType:'image/jpeg',upsert:false});if(error)throw error;return c.storage.from('uri-wedding-public').getPublicUrl(filename).data.publicUrl}
-window.uriCloudPublish=async()=>{let e=current(),c=db();if(!e||!c||working)return;const check=window.URIReadiness?.status(e);if(check&&!check.ready){stateMessage('Complete the required invitation details before publishing. Open the Review tab to fix '+check.blockers.map(x=>x.label).join(', ')+'.');return}working=true;stateMessage('Uploading media and publishing…');const publishFingerprint=publicationFingerprint(e);try{let {data,error}=await c.auth.getUser();if(error||!data.user)throw new Error('Sign in again.');if(window.URICloudDrafts?.flushCurrent)await window.URICloudDrafts.flushCurrent();let payload=U.payload(e),id=data.user.id;payload.heroPhoto=await imageToCloud(payload.heroPhoto,id,e.id);payload.photos=await Promise.all((payload.photos||[]).map(async p=>({...p,src:await imageToCloud(p.src,id,e.id)})));if(payload.backgroundByTemplate&&typeof payload.backgroundByTemplate==='object'){
+window.uriCloudPublish=async()=>{let e=current(),c=db();if(!e||!c||working)return;
+ const username=normalizeUsername(draftUsername(e));
+ if(!isValidUsername(username)){stateMessage('Choose a valid event username: 3–32 lowercase letters, numbers, or single hyphens.');return}
+ if(e.cloudPublished&&e.cloudSlug&&e.cloudSlug!==username&&!confirm('Change this event URL from /'+e.cloudSlug+' to /'+username+'? The old public link will stop working, including links already sent to guests.'))return;
+ const check=window.URIReadiness?.status(e);if(check&&!check.ready){stateMessage('Complete the required invitation details before publishing. Open the Review tab to fix '+check.blockers.map(x=>x.label).join(', ')+'.');return}working=true;stateMessage('Uploading media and publishing…');const publishFingerprint=publicationFingerprint(e);try{let {data,error}=await c.auth.getUser();if(error||!data.user)throw new Error('Sign in again.');if(window.URICloudDrafts?.flushCurrent)await window.URICloudDrafts.flushCurrent();let payload=U.payload(e),id=data.user.id;payload.heroPhoto=await imageToCloud(payload.heroPhoto,id,e.id);payload.photos=await Promise.all((payload.photos||[]).map(async p=>({...p,src:await imageToCloud(p.src,id,e.id)})));if(payload.backgroundByTemplate&&typeof payload.backgroundByTemplate==='object'){
   for(const background of Object.values(payload.backgroundByTemplate)){
    if(background&&typeof background==='object'&&typeof background.source==='string'){
     background.source=await imageToCloud(background.source,id,e.id);
    }
   }
-}let newSlug=e.cloudSlug||slug();let {error:writeError}=await c.from('uri_publications').upsert({owner_id:id,local_event_id:e.id,slug:newSlug,title:[e.name1,e.name2].filter(Boolean).join(' & ')||'Wedding Invitation',payload,published:true},{onConflict:'owner_id,local_event_id'});if(writeError)throw writeError;e.cloudSlug=newSlug;e.cloudPublished=true;e.uriPublishFingerprint=publishFingerprint;e.uriPublishedAt=Date.now();U.persist();stateMessage('Published successfully. Copy the public link below, or open Guests & RSVP to send personal invitations.')}catch(err){stateMessage('Publishing failed: '+(err.message||'Unknown error'))}finally{working=false;refresh()}};
+}let newSlug=username;let {error:writeError}=await c.from('uri_publications').upsert({owner_id:id,local_event_id:e.id,slug:newSlug,title:[e.name1,e.name2].filter(Boolean).join(' & ')||'Wedding Invitation',payload,published:true},{onConflict:'owner_id,local_event_id'});if(writeError){if(writeError.code==='23505')throw new Error('This username is already taken. Choose a different username.');throw writeError}e.cloudSlug=newSlug;e.publicUsername=newSlug;e.cloudPublished=true;e.uriPublishFingerprint=publishFingerprint;e.uriPublishedAt=Date.now();U.persist();stateMessage('Published successfully. Copy the public link below, or open Guests & RSVP to send personal invitations.')}catch(err){stateMessage('Publishing failed: '+(err.message||'Unknown error'))}finally{working=false;refresh()}};
 window.uriCloudCopyLink=async()=>{
  const e=current();if(!e?.cloudPublished||!e.cloudSlug){stateMessage('Publish your invitation before copying a public link.');return}
  const url=publicLink(e.cloudSlug);
@@ -74,7 +103,7 @@ window.uriCloudUnpublish=async()=>{let e=current(),c=db();if(!e||!c||working||!e
 window.uriCloudOpenPublished=async slugValue=>{
  const raw=String(slugValue||''),sep=raw.indexOf('?'),publicSlug=sep<0?raw:raw.slice(0,sep);
  const params=new URLSearchParams(sep<0?'':raw.slice(sep+1));
- const personalToken=String(params.get('rsvp')||'').toLowerCase();app.innerHTML='<div class="wrap center"><h2>Opening invitation</h2><p>Loading the wedding website…</p></div>';let c=db();if(!c){app.innerHTML='<div class="wrap center"><h2>Invitation unavailable</h2><p>Cloud publishing is not configured on this website.</p></div>';return}try{let {data,error}=await c.from('uri_publications').select('payload,title').eq('slug',publicSlug).eq('published',true).maybeSingle();if(error)throw error;if(!data)throw new Error('This invitation is private, unpublished, or no longer available.');if(location.hash!=='#public/'+slugValue)return;let e=Object.assign({type:'Wedding'},data.payload);app.innerHTML='<div class="wrap" style="max-width:1100px;padding-top:25px"><div class="uri-public-back" style="margin-bottom:17px"><a href="#home"> URI</a></div>'+U.render(e)+'</div>';
+ const personalToken=String(params.get('rsvp')||'').toLowerCase();app.innerHTML='<div class="wrap center"><h2>Opening invitation</h2><p>Loading the wedding website…</p></div>';let c=db();if(!c){app.innerHTML='<div class="wrap center"><h2>Invitation unavailable</h2><p>Cloud publishing is not configured on this website.</p></div>';return}try{let {data,error}=await c.from('uri_publications').select('payload,title').eq('slug',publicSlug).eq('published',true).maybeSingle();if(error)throw error;if(!data)throw new Error('This invitation is private, unpublished, or no longer available.');if(location.hash!=='#public/'+slugValue&&!(window.URI_PUBLIC_ROUTE===publicSlug&&location.search===(sep<0?'':raw.slice(sep))))return;let e=Object.assign({type:'Wedding'},data.payload);app.innerHTML='<div class="wrap" style="max-width:1100px;padding-top:25px"><div class="uri-public-back" style="margin-bottom:17px"><a href="#home"> URI</a></div>'+U.render(e)+'</div>';
  if(U.baseTemplate(e)==='adventure'&&/^[a-f0-9]{64}$/.test(personalToken)){
   const link=app.querySelector('.uri-adventure-rsvp-link');
   if(link){link.href='#rsvp/'+personalToken;link.hidden=false}
