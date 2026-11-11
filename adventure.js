@@ -304,6 +304,9 @@ function setupUi(root){
    if(input.key==='joystick')joystick=input;
   }
   inst.controls.left=left;inst.controls.right=right;
+  // In low-frame-rate mobile WebKit a release may happen well before the next
+  // physics update; stop horizontal motion at pointer release, not one frame later.
+  if(!left&&!right)inst.scene?.player?.setVelocityX?.(0);
   // Jump is a one-shot press, not an automatic repeat on every landing.
   if(!jumpHeld)inst.controls.jump=false;
   root.querySelectorAll('[data-adventure-control]').forEach(el=>{
@@ -562,7 +565,8 @@ function makeScene(P,inst){
     return dist<145&&(!best||dist<best.dist)?{...c,dist}:best;
    },null);
    inst.near=cp?.id||null;
-   if(Math.abs(this.player.x-88)>25)inst.hasWalked=true;
+   // A brief, successful touch movement is enough to complete the tutorial.
+   if(Math.abs(this.player.x-88)>8)inst.hasWalked=true;
    const touchView=inst.root.clientWidth<=690||window.matchMedia?.('(pointer:coarse)')?.matches;
    const coach=inst.root.querySelector('.uri-adventure-guide-text');
    const lesson=!inst.hasWalked?'Step 1 of 3 · '+(touchView?'Hold ◀ or ▶ to walk toward the first heart sign.':'Use the arrow keys or A / D to walk toward the first heart sign.')
