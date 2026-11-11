@@ -8,28 +8,32 @@
 (function(){
 'use strict';
 const BASE='adventure-assets/pixel-frog/';
-const ROLE={explorer:'frog',partner:'pink',dreamer:'virtual',formal:'mask',floral:'pink',royal:'mask'};
+const ROLE={explorer:'frog',partner:'pink',dreamer:'virtual',formal:'mask',floral:'pink',royal:'mask',gown:'gown',barong:'barong'};
 const ROLE_FILTER={explorer:'none',partner:'none',dreamer:'none',formal:'none',floral:'hue-rotate(72deg)',royal:'hue-rotate(240deg)'};
 const PALETTE=['none','saturate(.85) brightness(1.1)','saturate(1.35)'];
 const STATES={idle:11,run:12,jump:1,fall:1};
+const WEDDING_STATES={idle:4,run:6,jump:1,fall:1};
+const CUSTOM_WEDDING=new Set(['gown','barong']);
+const WEDDING_BASE='adventure-assets/wedding-characters/';
 const TERRAIN_TILE=16;
 function role(character){return ROLE[character]||'frog'}
-function path(key,state){return BASE+key+'-'+state+'.png'}
+function path(key,state){return (CUSTOM_WEDDING.has(key)?WEDDING_BASE:BASE)+key+'-'+state+'.png'}
+function frameCounts(key){return CUSTOM_WEDDING.has(key)?WEDDING_STATES:STATES}
 function portrait(character,variant){
  const p=path(role(character),'idle');
  const filter=[ROLE_FILTER[character]||'none',PALETTE[Number(variant)||0]||'none'].filter(x=>x!=='none').join(' ');
  return '<span class="uri-real-avatar" aria-hidden="true" style="background-image:url(&quot;'+p+'&quot;);filter:'+filter+'"></span>';
 }
 function coverSprite(character,variant){
- const p=path(role(character),'idle'),filter=ROLE_FILTER[character]||'none';
- // SVG crops only the first 32x32 frame of the 11-frame authored PNG sheet.
+ const key=role(character),p=path(key,'idle'),filter=ROLE_FILTER[character]||'none';
+ // Crop the first 32px of either the original 11-frame or new 4-frame PNG sheet.
  return '<svg x="200" y="231" width="82" height="82" viewBox="0 0 32 32" overflow="hidden" shape-rendering="crispEdges">'
-  +'<image href="'+p+'" x="0" y="0" width="352" height="32" preserveAspectRatio="none"'
+  +'<image href="'+p+'" x="0" y="0" width="'+(32*frameCounts(key).idle)+'" height="32" preserveAspectRatio="none"'
   +(filter!=='none'?' style="filter:'+filter+'"':'')+' /></svg>';
 }
 function preload(scene,character){
  const key=role(character);
- for(const state of Object.keys(STATES))
+ for(const state of Object.keys(frameCounts(key)))
   scene.load.spritesheet('uri-pf-'+key+'-'+state,path(key,state),{frameWidth:32,frameHeight:32});
  scene.load.spritesheet('uri-pf-terrain',BASE+'terrain.png',{frameWidth:TERRAIN_TILE,frameHeight:TERRAIN_TILE});
  scene.load.spritesheet('uri-pf-checkpoint',BASE+'checkpoint.png',{frameWidth:64,frameHeight:64});
@@ -38,9 +42,9 @@ function preload(scene,character){
 }
 function character(scene,characterId,variant){
  const name=role(characterId),prefix='uri-pf-'+name+'-';
- for(const state of Object.keys(STATES))if(!scene.textures.exists(prefix+state))return null;
+ for(const state of Object.keys(frameCounts(name)))if(!scene.textures.exists(prefix+state))return null;
  const keys={};
- for(const [state,count] of Object.entries(STATES)){
+ for(const [state,count] of Object.entries(frameCounts(name))){
   const texture=prefix+state,key='uri-pf-animation-'+name+'-'+state;
   if(!scene.anims.exists(key)){
    scene.anims.create({key,frames:scene.anims.generateFrameNumbers(texture,{start:0,end:count-1}),
