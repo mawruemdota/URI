@@ -289,36 +289,54 @@ function setupUi(root){
  // Mobile in-app browsers may drop pointerup after an address-bar gesture,
  // lost capture, scroll, navigation or focus change. Never latch movement.
  const pointerControls=new Map();
+ // Recompute direction from every active finger; releasing Jump or one of
+ // two movement pointers cannot cancel another finger's held direction.
+ const syncControls=()=>{
+  let left=false,right=false,jumpHeld=false,joystick=null;
+  for(const input of pointerControls.values()){
+   if(input.key==='left'||input.direction==='left')left=true;
+   if(input.key==='right'||input.direction==='right')right=true;
+   if(input.key==='jump')jumpHeld=true;
+   if(input.key==='joystick')joystick=input;
+  }
+  inst.controls.left=left;inst.controls.right=right;
+  // Jump is a one-shot press, not an automatic repeat on every landing.
+  if(!jumpHeld)inst.controls.jump=false;
+  root.querySelectorAll('[data-adventure-control]').forEach(el=>{
+   el.classList.toggle('uri-adventure-held',
+    [...pointerControls.values()].some(input=>input.element===el));
+  });
+  const thumb=root.querySelector('.uri-adventure-stick');
+  if(thumb){
+   if(joystick)thumb.style.transform='translateX('+joystick.dx+'px)';
+   else thumb.style.removeProperty('transform');
+  }
+ };
  const resetMovement=()=>{
   pointerControls.clear();
   inst.controls.left=false;inst.controls.right=false;inst.controls.jump=false;
-  root.querySelector('.uri-adventure-stick')?.style.removeProperty('transform');
+  syncControls();
   inst.scene?.player?.setVelocityX?.(0);
   inst.scene?.input?.keyboard?.resetKeys?.();
  };
  inst.releaseControls=resetMovement;
  const updateControl=(key,pressed,ev,element)=>{
   if(ev?.cancelable)ev.preventDefault();
-  if(key==='joystick'){
-   if(!pressed){
-    inst.controls.left=false;inst.controls.right=false;
-    root.querySelector('.uri-adventure-stick')?.style.removeProperty('transform');
-    return;
-   }
+  const input=pressed?pointerControls.get(ev?.pointerId):null;
+  if(key==='joystick'&&input){
    const bounds=element.getBoundingClientRect();
    const dx=ev.clientX-(bounds.left+bounds.width/2);
-   inst.controls.left=dx < -10;inst.controls.right=dx > 10;
-   const thumb=root.querySelector('.uri-adventure-stick');
-   if(thumb)thumb.style.transform='translateX('+Math.max(-23,Math.min(23,dx))+'px)';
-   return;
+   input.dx=Math.max(-23,Math.min(23,dx));
+   input.direction=dx < -10?'left':dx > 10?'right':null;
   }
-  inst.controls[key]=pressed;
+  if(key==='jump'&&pressed&&ev?.type==='pointerdown')inst.controls.jump=true;
+  syncControls();
  };
  root.querySelectorAll('[data-adventure-control]').forEach(element=>{
   const key=element.dataset.adventureControl;
   element.addEventListener('pointerdown',ev=>{
    if(ev.pointerType==='mouse'&&ev.button!==0)return;
-   pointerControls.set(ev.pointerId,{element,key});
+   pointerControls.set(ev.pointerId,{element,key,direction:null,dx:0});
    try{element.setPointerCapture?.(ev.pointerId)}catch(_){}
    updateControl(key,true,ev,element);
   });
@@ -358,6 +376,7 @@ function setupUi(root){
  window.addEventListener('touchcancel',resetMovement,options);
  window.addEventListener('blur',resetMovement,{signal:inst.inputAbort.signal});
  window.addEventListener('pagehide',resetMovement,{signal:inst.inputAbort.signal});
+ window.addEventListener('orientationchange',resetMovement,{signal:inst.inputAbort.signal});
  document.addEventListener('visibilitychange',()=>{
   if(document.hidden)resetMovement();
  },{signal:inst.inputAbort.signal});
@@ -467,7 +486,7 @@ function makeScene(P,inst){
     const board=this.add.rectangle(0,0,178,72,0xffe8bc,artwork?.sign?0:1).setStrokeStyle(artwork?.sign?0:5,0x7a543c);
     const inner=this.add.rectangle(0,0,162,56,0xffe8bc,artwork?.sign?0:1).setStrokeStyle(artwork?.sign?0:2,0xe4b97f);
     const illustrated=artwork?.sign?.(cp.x,groundY-67);
-    realAssets?.decorateSign?.(this,cp.x,groundY-67);
+    realAssets?.decorateSign?.(this,worldName,cp.x,groundY-67);
     const label=this.add.text(0,-16,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
       {fontFamily:'Pixelify Sans, monospace',fontSize:'16px',fontStyle:'bold',color:'#4c382b',align:'center',wordWrap:{width:156}}).setOrigin(.5,0);
     const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
@@ -557,7 +576,9 @@ async function startGame(inst){
   const P=await loadPhaser();
   if(inst.destroyed||!root.isConnected)return;
   const stage=root.querySelector('.uri-adventure-stage');
-  const viewportWidth=stage.clientWidth<700?720:960;
+  // Match the 690px CSS @container breakpoint. The stage is narrower than
+  // the container, which previously produced a mismatched 2:1/3:2 viewport.
+  const viewportWidth=root.clientWidth<=690?720:960;
   inst.viewportWidth=viewportWidth;
   inst.game=new P.Game({
    type:P.AUTO,parent:stage,width:viewportWidth,height:480,backgroundColor:'#9bd6ed',
@@ -572,7 +593,7 @@ async function startGame(inst){
    inst.viewportObserver?.disconnect?.();
    inst.viewportObserver=new ResizeObserver(()=>{
     if(inst.destroyed||!inst.game||!stage.isConnected)return;
-    const nextWidth=stage.clientWidth<700?720:960;
+    const nextWidth=root.clientWidth<=690?720:960;
     if(inst.viewportWidth===nextWidth)return;
     inst.viewportWidth=nextWidth;
     inst.game.scale.resize(nextWidth,480);
@@ -581,7 +602,7 @@ async function startGame(inst){
      inst.scene.cameras.main.followOffset.x=nextWidth===720?-90:-175;
     }
    });
-   inst.viewportObserver.observe(stage);
+   inst.viewportObserver.observe(root);
   }
  }catch(err){
   console.error('URI Adventure failed to load:',err);
