@@ -39,10 +39,23 @@ assert.doesNotMatch(html,/uri-character-select|data-adventure-role|confirm-chara
  'Guests never see character-selection UI; the owner defines the main character');
 assert.doesNotMatch(html,/data-adventure-guest-choice/,
  'Legacy guest character selection must not be published');
-assert.equal((A.manager(event).match(/uri-adventure-owner-card/g)||[]).length,6,
- 'Six avatars are selectable only in the owner editor');
+assert.equal((A.manager(event).match(/uri-adventure-owner-card/g)||[]).length,8,
+ 'Eight avatars are selectable only in the owner editor');
 assert.match(A.manager(event),/Every guest will play as this character/);
 assert.ok(window.URIAdventurePixels.ROLES.floral,'Floral playable role exists');
+assert.equal(window.URIAdventurePixels.ROLES.gown.name,'Female in Gown');
+assert.equal(window.URIAdventurePixels.ROLES.barong.name,'Male in Barong');
+for(const role of ['gown','barong']){
+ assert.equal(A.normalize({character:role}).character,role,'New wedding attire selection is saved');
+ assert.match(A.manager({...event,adventure:{character:role}}),new RegExp('data-uri-character="'+role+'"'));
+ for(const state of ['idle','run','jump','fall']){
+  const asset='adventure-assets/wedding-characters/'+role+'-'+state+'.png';
+  const png=fs.readFileSync(asset);
+  assert.equal(png.toString('hex',0,8),'89504e470d0a1a0a','Valid transparent PNG: '+asset);
+  assert.equal(png.readUInt32BE(20),32,'32px sprite frame height: '+asset);
+  assert.equal(png[25],6,'RGBA PNG with alpha channel: '+asset);
+ }
+}
 assert.match(html,/class="uri-adventure-interior" hidden/,'Invitation details open inside the actual game viewport');
 assert.match(html,/data-adventure-action="room-exit"/,'Guests can return from an explored area');
 assert.doesNotMatch(html,/data-adventure-action="room-next"|data-adventure-action="room-prev"/,'Guests must walk between checkpoints');
