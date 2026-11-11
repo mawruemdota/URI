@@ -9,7 +9,9 @@ const ROLES={
  dreamer:{name:'Dreamer',tag:'A keeper of stories',detail:'Sage beret, storybook and star charm',icon:'✦',skin:'#f2c6a7',hair:'#b18450',outfit:'#789b76',secondary:'#d2c392',trim:'#384b7c'},
  formal:{name:'Formal Adventurer',tag:'A gentleman of the journey',detail:'Tailored vest, emerald cape and polished boots',icon:'♜',skin:'#dba982',hair:'#37343a',outfit:'#f1e5c8',secondary:'#4b8468',trim:'#423c3b'},
  floral:{name:'Floral Traveler',tag:'A lover of petals and memories',detail:'Flower crown, bouquet and flowing dress',icon:'✿',skin:'#e6ad8d',hair:'#684334',outfit:'#f4dfba',secondary:'#85a974',trim:'#b97b55'},
- royal:{name:'Royal Guest',tag:'A royal invitation awaits',detail:'Golden crown, velvet robe and jewel',icon:'♕',skin:'#deb08a',hair:'#3d353c',outfit:'#f4ebc8',secondary:'#4b825d',trim:'#b88743'}
+ royal:{name:'Royal Guest',tag:'A royal invitation awaits',detail:'Golden crown, velvet robe and jewel',icon:'♕',skin:'#deb08a',hair:'#3d353c',outfit:'#f4ebc8',secondary:'#4b825d',trim:'#b88743'},
+ gown:{name:'Female in Gown',tag:'A graceful celebration',detail:'Elegant full-length ivory gown with rose accents',icon:'♡',skin:'#e6af8c',hair:'#62403a',outfit:'#f8e9dd',secondary:'#e7b4bd',trim:'#b97e74'},
+ barong:{name:'Male in Barong',tag:'Formal Filipino attire',detail:'Traditional embroidered ivory barong with dark trousers',icon:'✦',skin:'#dba47d',hair:'#332e34',outfit:'#f6e8cd',secondary:'#c7b18b',trim:'#65564d'}
 };
 const VARIANTS=[
  {name:'Original',label:'Classic tones'},
@@ -86,6 +88,26 @@ function shapes(id,variant=0,motion='idle',step=0){
   }
   r(3,28,10,9,'#9f7646');r(4,27,8,4,'#67925a');
   for(const [x,y] of [[2,23],[7,20],[12,24]]){r(x,y,5,5,'#f5ddbb');r(x+2,y+2,2,2,'#eb9b8a')}
+ }
+ if(id==='gown'){
+  // Distinct full-length A-line wedding gown; stepping keeps the hem readable.
+  r(10,23,25,19,o);r(8,35,29,10,o);
+  r(11,23,23,13,p.outfit);r(9,34,27,10,p.outfit);
+  r(12,36,18,5,p.secondary);r(17,25,9,3,'#fff9ed');
+  r(11,30,24,3,'#f4f1df');r(13,42,4,3,p.trim);r(30,42,4,3,p.trim);
+  r(10,8,5,20,p.hair);r(30,10,4,20,p.hair);
+  r(13,5,18,3,'#e8bf86');r(20,3,4,4,'#f8e1c4');
+ }
+ if(id==='barong'){
+  // Embroidered Philippine barong with a formal collar and black trousers.
+  r(9,27,25,13,'#f5ebd6');
+  r(12,41,9,6,'#343238');r(23,41,9,6,'#343238');
+  r(11,24,23,16,p.outfit);
+  r(12,27,2,11,p.secondary);r(17,26,2,12,p.secondary);
+  r(24,27,2,11,p.secondary);r(28,29,2,9,p.secondary);
+  r(19,25,6,4,'#fff7e4');r(23,29,2,3,p.trim);
+  r(10,8,25,7,p.hair);r(12,6,21,5,p.hair);
+  r(9,30,4,7,p.outfit);r(31,30,4,7,p.outfit);
  }
  if(id==='royal'){
   r(12,4,20,6,'#dca84b');r(12,1,5,5,'#f0c95f');r(20,0,5,6,'#f0c95f');r(28,1,5,5,'#f0c95f');
