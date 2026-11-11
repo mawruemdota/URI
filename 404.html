@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Opening URI invitation</title></head>
+<body><main id="fallback-status" role="status">Opening your invitation…</main>
+<script>
+/* GitHub Pages returns this file for /username deep links. Keep the URL and
+ * replace the fallback document with the real site; all data remains loaded
+ * through Supabase RLS, never embedded here. GitHub Pages still sends HTTP 404
+ * for unknown static paths; use a rewrite-capable host for HTTP 200/SEO. */
+(async function(){
+ const base=location.hostname==='mawruemdota.github.io'?'/URI/':'/';
+ if(location.pathname.endsWith('/')&&location.pathname!==base){
+  history.replaceState(null,'',location.pathname.slice(0,-1)+location.search+location.hash);
+ }
+ try{
+  const response=await fetch(base+'index.html',{cache:'no-store'});
+  if(!response.ok)throw new Error('Unable to load the URI app');
+  const html=await response.text();
+  if(!/<head>/i.test(html))throw new Error('Unexpected URI app format');
+  document.open();
+  document.write(html.replace(/<head>/i,'<head><base href="'+base+'">'));
+  document.close();
+ }catch(_){
+  const el=document.getElementById('fallback-status');
+  if(el)el.innerHTML='Invitation unavailable. <a href="'+base+'">Return to URI</a>.';
+ }
+})();
+</script></body></html>
