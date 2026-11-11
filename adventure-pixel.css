@@ -666,3 +666,88 @@
  user-select:none;
  -webkit-touch-callout:none;
 }
+
+
+/* Adventure polish: the loading scene follows the chosen world rather than
+   flashing Meadow for Sunset and Starlight invitations. */
+.uri-adventure-site[data-adventure-world="sunset"] .uri-adventure-stage{
+ background:linear-gradient(180deg,#e7a796 0%,#f0c7a4 69%,#b28c82 69%,#926a66 100%);
+}
+.uri-adventure-site[data-adventure-world="sunset"] .uri-adventure-load{
+ background:
+  radial-gradient(ellipse 43% 48% at 78% 93%,#9b7182 0 77%,transparent 78%),
+  radial-gradient(ellipse 33% 46% at 15% 96%,#bd8c8a 0 77%,transparent 78%),
+  linear-gradient(180deg,#f0b395 0%,#f9dbad 68%,#bc927c 68%);
+}
+.uri-adventure-site[data-adventure-world="starlight"] .uri-adventure-stage{
+ background:linear-gradient(180deg,#30476e 0%,#536987 69%,#506b78 69%,#364b62 100%);
+}
+.uri-adventure-site[data-adventure-world="starlight"] .uri-adventure-load{
+ color:#fff4d9;
+ background:
+  radial-gradient(ellipse 40% 50% at 84% 95%,#3c566e 0 78%,transparent 79%),
+  radial-gradient(ellipse 37% 46% at 13% 92%,#51657e 0 78%,transparent 79%),
+  linear-gradient(180deg,#283e62 0%,#647994 70%,#4a5f74 70%);
+}
+.uri-adventure-site[data-adventure-world="starlight"] .uri-adventure-load button{
+ background:#e4c994;color:#3f3547;border-color:#fff1d0;outline-color:#292d46;
+}
+.uri-adventure-site[data-adventure-world="starlight"] .uri-adventure-loading-icon{color:#f9da9a}
+
+/* Keep the playable controls comfortably tappable at 320px and on devices
+   with a home-indicator safe area. Held state also stays visible on WebViews
+   where :active does not persist for the full touch gesture. */
+.uri-adventure-site .uri-adventure-controls{
+ min-width:0;
+ padding-left:max(12px,env(safe-area-inset-left,0px));
+ padding-right:max(12px,env(safe-area-inset-right,0px));
+ padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
+}
+.uri-adventure-site .uri-adventure-dpad,
+.uri-adventure-site .uri-adventure-actions{
+ display:flex;align-items:stretch;min-width:0;gap:10px;
+}
+.uri-adventure-site .uri-adventure-controls button{
+ min-height:54px;line-height:1.15;white-space:nowrap;
+ -webkit-tap-highlight-color:transparent;
+}
+.uri-adventure-site .uri-adventure-controls [data-adventure-control].uri-adventure-held{
+ background:#3f6554;color:#fff6d9;border-color:#f9d99e;
+ box-shadow:inset 3px 3px 0 #273c34;transform:translate(2px,2px)
+}
+.uri-adventure-site .uri-adventure-joystick.uri-adventure-held{
+ background:#527f69;border-color:#f1d19d
+}
+.uri-adventure-site .uri-adventure-controls button:focus-visible,
+.uri-adventure-site .uri-adventure-tools button:focus-visible,
+.uri-adventure-site .uri-adventure-room-head button:focus-visible{
+ outline:3px solid #ffcc6a;outline-offset:3px
+}
+@container (max-width:690px){
+ .uri-adventure-site .uri-adventure-controls{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:10px;align-items:stretch;
+ }
+ .uri-adventure-site .uri-adventure-actions{justify-content:flex-end}
+ .uri-adventure-site .uri-adventure-dpad{justify-content:flex-start}
+ .uri-adventure-site .uri-adventure-joystick{width:min(136px,100%);height:auto;min-height:60px}
+ .uri-adventure-site .uri-adventure-controls button{min-width:0;flex:1 1 0}
+}
+@container (max-width:420px){
+ .uri-adventure-site .uri-adventure-controls{padding:10px 9px 12px;gap:8px}
+ .uri-adventure-site .uri-adventure-dpad,
+ .uri-adventure-site .uri-adventure-actions{gap:7px}
+ .uri-adventure-site .uri-adventure-controls button{
+  min-height:54px;min-width:0;padding:6px 7px;font-size:13px
+ }
+ .uri-adventure-site .uri-adventure-actions button:last-child{font-size:12px}
+ .uri-adventure-site .uri-adventure-hud{font-size:11px}
+}
+@media (max-height:540px) and (orientation:landscape){
+ .uri-adventure-site .uri-adventure-stage.uri-adventure-inside{
+  height:calc(100dvh - 26px);min-height:300px;max-height:450px
+ }
+ .uri-adventure-site .uri-adventure-room-head{padding:8px 12px}
+ .uri-adventure-site .uri-adventure-room-body{padding:8px}
+ .uri-adventure-site .uri-adventure-room-nav{padding:6px}
+}
