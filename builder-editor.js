@@ -226,6 +226,8 @@ window.uriBuilderEditor=function(e){
   let active=({content,features,design,photos,music:e=>window.URIMusic?window.URIMusic.manager(e):'<p>Music is unavailable.</p>',review:e=>window.URIReadiness?window.URIReadiness.panel(e):readinessMarkup(e),publish:publishing}[panel]||content)(e);
   const steps=visibleSteps();
   let index=steps.indexOf(panel),next=steps[index+1],previous=steps[index-1];
+  const liveState=window.URICloud?.publicationState?.(e)||(e.cloudPublished?'legacy':'draft');
+  const liveLabel=liveState==='draft'?'Draft — not published':liveState==='changed'?'Changes not published':liveState==='legacy'?'Live — check updates':'Published and live';
   const guidance={
    content:'Start with the names, date and venue. Everything else can be added later.',
    design:'Choose how the invitation looks. Your content stays intact when you switch designs.',
@@ -236,7 +238,7 @@ window.uriBuilderEditor=function(e){
    music:'Advanced: add music only if you have the rights to share it.'
   };
   let nextButton=next?'<button type="button" class="btn primary" onclick="uriBNext(1)">Next: '+LABELS[next]+' </button>':'<button type="button" class="btn primary" onclick="uriFlowOpenPreview(\'event\')">Preview full website </button>';
-  return '<div class="wb-editor"><div class="wb-builder-heading"><div><h2>Edit invitation</h2></div><div class="wb-builder-status"><span class="chip">'+(e.cloudPublished?'Published snapshot':'Draft')+'</span><span class="wb-save-label" id="wbSaveState" role="status">'+(U.lastSaveFailed?'Changes not saved':'Saved on this device')+'</span><button type="button" class="btn small wb-preview-shortcut" onclick="uriFlowOpenPreview(\'event\')">Preview website </button></div></div>'
+  return '<div class="wb-editor"><div class="wb-builder-heading"><div><h2>Edit invitation</h2></div><div class="wb-builder-status"><span class="chip">'+T(liveLabel)+'</span><span class="wb-save-label" id="wbSaveState" role="status">'+(U.lastSaveFailed?'Changes not saved':'Saved on this device')+'</span><button type="button" class="btn small wb-preview-shortcut" onclick="uriFlowOpenPreview(\'event\')">Preview website </button></div></div>'
     +'<section class="uri-creator-guide" aria-label="Invitation creation guide"><div class="uri-creator-guide-head"><div><strong>Your invitation, one step at a time</strong><p>'+T(guidance[panel]||guidance.content)+'</p></div><button type="button" class="btn small" aria-expanded="'+advancedMode+'" aria-controls="wbAdvancedNote" onclick="uriBAdvanced()">'+(advancedMode?'Show essential steps':'Show advanced tools')+'</button></div><div class="uri-creator-route" aria-label="Essential creation steps"><span>Details</span><span>Design</span><span>Photos (optional)</span><span>Review</span><span>Publish & share</span></div><p id="wbAdvancedNote" class="uri-advanced-note"'+(advancedMode?'':' hidden')+'>Advanced tools include Features and Music. You can switch back to the essential steps anytime.</p></section>'
     +'<div id="wbReadiness" class="wb-readiness-wrap">'+(panel==='review'?'':readinessMarkup(e))+'</div>'
     +''
