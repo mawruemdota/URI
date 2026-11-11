@@ -4,7 +4,10 @@
 const config=window.URI_CLOUD_CONFIG||{};
 const U=window.URIBuilder;
 const T=v=>esc(v==null?'':String(v));
-const SITE_BASE=new URL('.',document.currentScript?.src||location.href).href;
+// Node smoke tests stub URL as an object; browsers provide the URL constructor.
+const SITE_BASE=typeof URL==='function'&&document.currentScript?.src
+ ?new URL('.',document.currentScript.src).href
+ :(location.origin||'')+(location.pathname||'/').replace(/[^/]*$/,'');
 const RESERVED_NAMES=new Set(['home','dashboard','create','cloud','event','events','invite','invites','public','rsvp','admin','login','logout','signup','settings','account','api','assets','static','preview','pricing','features','templates','about','terms','privacy','help','contact','support','www','uri','index','404']);
 const normalizeUsername=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,'-');
 const isValidUsername=s=>/^[a-z0-9](?:[a-z0-9-]{1,30})[a-z0-9]$/.test(s)&&!s.includes('--')&&!RESERVED_NAMES.has(s);
