@@ -1,0 +1,62 @@
+/* URI Usability 1.0 — task-based creator flow, simplified guest actions. */
+/* Public event links and RSVP links should not show organizer navigation. */
+body.uri-guest-view > header.top,
+body.uri-guest-view > footer,
+body.uri-guest-view .uri-public-back,
+body.uri-guest-view .uri-adventure-site .uri-pixel-home {display:none!important}
+body.uri-guest-view #app{min-height:100dvh}
+.uri-creator-guide{
+ margin:0 0 14px;padding:15px 17px;border:1px solid #d5e4da;
+ background:#f6faf6;border-radius:12px;color:#274d3c
+}
+.uri-creator-guide-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.uri-creator-guide-head strong{font-size:15px}
+.uri-creator-guide-head p{font-size:13px;line-height:1.5;margin:4px 0 0;color:#536b5c}
+.uri-creator-guide-head button{white-space:nowrap}
+.uri-creator-route{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:12px}
+.uri-creator-route span{
+ text-align:center;font-size:11px;padding:9px 5px;border:1px solid #dce6df;
+ background:#fff;border-radius:7px;color:#476452;font-weight:700
+}
+.uri-advanced-note{font-size:12px;margin:12px 0 0;color:#586b5e}
+.uri-publish-state{padding:14px 16px;background:#f5f7f3;border:1px solid #cbd9d1;border-radius:10px;margin-bottom:14px}
+.uri-publish-state strong{display:block;font-size:17px;color:#1d4935}
+.uri-publish-state p{margin:5px 0 0;font-size:13px;line-height:1.5;color:#435a4b}
+.uri-publish-state[data-publish-state="changed"],
+.uri-publish-state[data-publish-state="legacy"]{background:#fff8e9;border-color:#dbc59e}
+.uri-publish-state[data-publish-state="draft"]{background:#f7f7f5;border-color:#dadeda}
+.uri-publish-account{font-size:12px;color:#61746b}
+.uri-publish-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.uri-publish-actions .btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center}
+.uri-share-panel{padding:16px;border:1px solid #d5e0d5;background:#f9faf7;border-radius:12px;margin-top:20px}
+.uri-share-panel p{margin:6px 0;font-size:13px}
+.uri-publish-steps>p{font-size:13px;line-height:1.55}
+.uri-publish-account-tools{margin-top:20px;border-top:1px solid #dfe8e1;padding:12px 0}
+.uri-publish-account-tools summary{cursor:pointer;font-size:12px;color:#536b5e}
+.uri-guest-onboarding{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0 14px}
+.uri-guest-onboarding span{display:flex;align-items:center;gap:6px;padding:8px 11px;background:#f3f8f4;border:1px solid #dae5dc;border-radius:9px;font-size:12px}
+.uri-guest-onboarding strong{display:inline-grid;place-items:center;width:21px;height:21px;background:#245f46;color:#fff;border-radius:50%;font-size:11px}
+.uri-guest-publish-tip{margin:10px 0;padding:12px;background:#fff8e9;border:1px solid #e6d7b7;border-radius:10px;font-size:13px;line-height:1.5}
+.uri-guest-publish-tip button{margin-left:6px}
+.uri-guest-extras{grid-column:1/-1}
+.uri-guest-extras summary,
+.uri-guest-advanced summary,
+.uri-guest-test-tools summary{cursor:pointer;font-size:13px;font-weight:700;color:#315b49}
+.uri-guest-extras{border-top:1px solid #e1e8e0;padding-top:10px}
+.uri-guest-extras>label{display:block;margin:10px 0}
+.uri-guest-advanced{margin:12px 0;border:1px solid #dce6dc;padding:12px;border-radius:10px;background:#fafbf9}
+.uri-guest-advanced>.uri-guest-panel{margin-top:12px}
+.uri-guest-test-tools{display:inline-block;position:relative}
+.uri-guest-test-tools summary{padding:6px 10px;border:1px solid #cdd7ce;border-radius:7px;font-weight:500}
+.uri-guest-test-tools[open]{padding-bottom:5px}
+.uri-guest-test-tools button{margin:6px 3px}
+.uri-guests .uri-guest-row-actions .uri-online-link{background:#176b55;color:#fff!important;border-color:#176b55;font-weight:700}
+@media(max-width:700px){
+ .uri-creator-guide-head{align-items:flex-start;flex-direction:column}
+ .uri-creator-route{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px}
+ .uri-creator-route span{flex:0 0 105px}
+ .uri-publish-actions .btn{flex:1 1 155px}
+ .uri-guest-onboarding{flex-direction:column}
+ .uri-guest-onboarding span{width:100%}
+ .uri-guest-row-actions{align-items:flex-start}
+}
