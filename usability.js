@@ -3,7 +3,7 @@
  'use strict';
  function updateGuestShell(){
   const path=location.hash.slice(1);
-  const guest=/^(?:public\/|rsvp\/|invite\/)/.test(path);
+  const guest=/^(?:public\/|rsvp\/|invite\/)/.test(path)||Boolean(window.URI_PUBLIC_ROUTE);
   document.body.classList.toggle('uri-guest-view',guest);
   const header=document.querySelector('body > header.top');
   if(header){
