@@ -68,6 +68,8 @@ const server=http.createServer((req,res)=>{
   assert.equal(settings.touch,'joystick');
   assert.equal(await page.locator('#wbLivePreview .uri-character-select').count(),0,
     'Viewers and previews must not receive the client-only character picker');
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-guide-text').innerText(),/Step 1 of 3/);
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-chapters').innerText(),/0 of/);
   await page.locator('#wbLivePreview [data-adventure-action="play"]').click();
   await page.locator('#wbLivePreview .uri-adventure-stage canvas').waitFor({timeout:25000});
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site').getAttribute('data-adventure-character'),'floral');
@@ -108,6 +110,8 @@ const server=http.createServer((req,res)=>{
       keyboard:s.input.keyboard?.enabled,keys:Object.fromEntries(Object.entries(s.keys||{}).map(([k,v])=>[k,!!v?.isDown]))};
   }));
   assert.ok(posAfter>posBefore+40,'Keyboard input moves the Phaser player: '+posBefore+' => '+posAfter);
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-guide-text').innerText(),/Step 2 of 3/,
+    'Tutorial advances after walking');
   // Walking is required: map items are status-only, and details have no skip button.
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-site dialog').count(),0);
   assert.equal(await page.locator('#wbLivePreview [data-adventure-action="details"]').count(),0);
@@ -142,6 +146,8 @@ const server=http.createServer((req,res)=>{
   await page.keyboard.press('e');
   await page.locator('#wbLivePreview .uri-adventure-stage[data-interior-type="details"] .uri-adventure-room-body').waitFor({state:'visible'});
   assert.match(await page.locator('#wbLivePreview .uri-adventure-room-body').innerText(),/Garden Pavilion/);
+  assert.match(await page.locator('#wbLivePreview .uri-adventure-chapters').innerText(),/1 of/,
+    'Chapter discovery increases after interacting at the sign');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-hud').isVisible(),false,
     'Overworld movement HUD should not clutter an open invitation room');
   assert.equal(await page.locator('#wbLivePreview .uri-adventure-room-content > h2').count(),0,
