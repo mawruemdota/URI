@@ -60,3 +60,27 @@ body.uri-guest-view #app{min-height:100dvh}
  .uri-guest-onboarding span{width:100%}
  .uri-guest-row-actions{align-items:flex-start}
 }
+
+/* Adventure tutorial stays in the playable page and reveals only game
+   instructions—not invitation sections or shortcuts. */
+.uri-adventure-site .uri-adventure-guide{
+ margin:0;padding:11px 14px;background:#f8edce;border-bottom:3px solid #5c4538;
+ color:#4d3c2f;font-family:var(--px-type,'Pixelify Sans',sans-serif)
+}
+.uri-adventure-site .uri-adventure-guide>div{
+ display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap
+}
+.uri-adventure-site .uri-adventure-guide strong{font-size:14px;letter-spacing:.02em}
+.uri-adventure-site .uri-adventure-guide .uri-adventure-chapters{
+ color:#305f4d;font-size:13px;font-weight:800
+}
+.uri-adventure-site .uri-adventure-guide p{
+ margin:7px 0 0;color:#4d3c2f!important;font-size:13px;line-height:1.4
+}
+.uri-adventure-site .uri-adventure-world.uri-adventure-room-open>.uri-adventure-guide{display:none}
+@container (max-width:690px){
+ .uri-adventure-site .uri-adventure-guide{padding:10px}
+ .uri-adventure-site .uri-adventure-guide p{font-size:12px;line-height:1.4}
+ .uri-adventure-site .uri-adventure-guide strong,
+ .uri-adventure-site .uri-adventure-guide .uri-adventure-chapters{font-size:12px}
+}
