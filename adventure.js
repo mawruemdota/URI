@@ -487,8 +487,10 @@ function makeScene(P,inst){
     const inner=this.add.rectangle(0,0,162,56,0xffe8bc,artwork?.sign?0:1).setStrokeStyle(artwork?.sign?0:2,0xe4b97f);
     const illustrated=artwork?.sign?.(cp.x,groundY-67);
     realAssets?.decorateSign?.(this,worldName,cp.x,groundY-67);
-    const label=this.add.text(0,-16,String(i+1).padStart(2,'0')+'  ✦ '+cp.title.toUpperCase(),
-      {fontFamily:'Pixelify Sans, monospace',fontSize:'16px',fontStyle:'bold',color:'#4c382b',align:'center',wordWrap:{width:156}}).setOrigin(.5,0);
+    // Short, readable sign labels; the proximity HUD retains the full title.
+    const signTitle=cp.title.length>18?cp.title.slice(0,17)+'…':cp.title;
+    const label=this.add.text(0,-17,String(i+1).padStart(2,'0')+'  ✦ '+signTitle.toUpperCase(),
+      {fontFamily:'Pixelify Sans, monospace',fontSize:'20px',fontStyle:'bold',color:'#4c382b',align:'center',wordWrap:{width:162}}).setOrigin(.5,0);
     const dot=this.add.rectangle(0,-44,14,14,theme.decor).setStrokeStyle(3,0xfff0cc);
     if(!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)
      this.tweens.add({targets:dot,alpha:.4,duration:800,yoyo:true,repeat:-1});
