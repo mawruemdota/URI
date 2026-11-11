@@ -78,7 +78,7 @@ const server=http.createServer((req,res)=>{
    return {role:scene.uriRealCharacter?.name||null,selected:scene.uriRealCharacter?.texture||null,
      animated:!!scene.player.anims?.currentAnim,
      terrain:scene.textures.exists('uri-pf-terrain'),
-     checkpoint:scene.textures.exists('uri-pf-checkpoint'),
+     checkpoint:scene.textures.exists('uri-wedding-sign-heart-sunset'),
      idle:scene.textures.exists('uri-pf-pink-idle'),
      run:scene.textures.exists('uri-pf-pink-run'),
      jump:scene.textures.exists('uri-pf-pink-jump'),
@@ -86,7 +86,7 @@ const server=http.createServer((req,res)=>{
   });
   assert.equal(art.role,'pink','The selected owner avatar uses real authored PNG sprite sheets: '+JSON.stringify(art));
   assert.ok(art.animated&&art.idle&&art.run&&art.jump,'Phaser animates actual PNG sprite frames: '+JSON.stringify(art));
-  assert.ok(art.terrain&&art.checkpoint,'The real terrain and checkpoint PNG atlases load: '+JSON.stringify(art));
+  assert.ok(art.terrain&&art.checkpoint,'The terrain PNG and pixel-heart sign assets load: '+JSON.stringify(art));
   assert.ok(art.sky,'Parallax background remains available');
 
   try{
@@ -239,6 +239,29 @@ const server=http.createServer((req,res)=>{
   },{timeout:10000});
   assert.equal(await page.locator('.wf-full-content .uri-adventure-mobile-hint').count(),1,
     'Mobile players see touch instructions instead of desktop keyboard instructions');
+  // Verify Phaser and the CSS container query agree at narrow/boundary widths.
+  for(const width of [320,375,390,430,680,705,735]){
+   await page.evaluate(w=>{document.getElementById('wfFullContent').style.width=w+'px'},width);
+   await page.waitForFunction(()=>{
+    const root=document.querySelector('.wf-full-content .uri-adventure-site'),stage=root?.querySelector('.uri-adventure-stage');
+    if(!stage||!root?._uriAdventure?.game)return false;
+    const expected=root.clientWidth<=690?720:960;
+    const ratio=stage.getBoundingClientRect().width/stage.getBoundingClientRect().height;
+    return root._uriAdventure.viewportWidth===expected&&Math.abs(ratio-expected/480)<.05;
+   },undefined,{timeout:10000});
+   const dimensions=await page.evaluate(()=>{
+    const root=document.querySelector('.wf-full-content .uri-adventure-site');
+    const buttons=[...root.querySelectorAll('.uri-adventure-controls button')];
+    return {width:root.clientWidth,overflow:root.scrollWidth-root.clientWidth,
+     controls:buttons.map(b=>({width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height}))};
+   });
+   assert.ok(dimensions.overflow<=5,'Horizontal overflow at '+width+'px: '+JSON.stringify(dimensions));
+   assert.ok(dimensions.controls.every(b=>b.width>=42&&b.height>=48),
+    'Controls too small at '+width+'px: '+JSON.stringify(dimensions));
+  }
+  await page.evaluate(()=>{document.getElementById('wfFullContent').style.width='390px'});
+  await page.waitForFunction(()=>document.querySelector('.wf-full-content .uri-adventure-site')?._uriAdventure?.viewportWidth===720);
+
   // Releasing a finger OUTSIDE the joystick must immediately clear direction
   // even in iOS/Facebook in-app browsers where pointer capture is unreliable.
   await page.locator('.wf-full-content .uri-adventure-joystick').evaluate(el=>{
@@ -260,6 +283,46 @@ const server=http.createServer((req,res)=>{
   await page.waitForTimeout(180);
   const stoppedAfter=await page.evaluate(()=>document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.scene.player.x);
   assert.ok(Math.abs(stoppedAfter-stoppedAt)<3,'Player must stop after pointer release anywhere on the screen');
+  // Two-finger movement + Jump: lifting Jump must not stop the held joystick.
+  await page.locator('.wf-full-content .uri-adventure-joystick').evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,
+    pointerId:981,pointerType:'touch',clientX:r.right-6,clientY:r.top+r.height/2,button:0,buttons:1}));
+  });
+  await page.locator('.wf-full-content [data-adventure-control="jump"]').evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,
+    pointerId:982,pointerType:'touch',clientX:r.left+r.width/2,clientY:r.top+r.height/2,button:0,buttons:1}));
+  });
+  assert.equal(await page.evaluate(()=>{
+   const c=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.controls;
+   return c.right&&c.jump;
+  }),true,'Two-finger movement and jump register together');
+  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{
+   bubbles:true,cancelable:true,pointerId:982,pointerType:'touch',buttons:0
+  })));
+  assert.equal(await page.evaluate(()=>{
+   const c=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.controls;
+   return c.right&&!c.jump;
+  }),true,'Releasing Jump preserves the held joystick');
+  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{
+   bubbles:true,cancelable:true,pointerId:981,pointerType:'touch',buttons:0
+  })));
+  await page.waitForFunction(()=>{
+   const i=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure;
+   return !i.controls.left&&!i.controls.right&&i.scene.player.body.velocity.x===0;
+  },undefined,{timeout:5000});
+  await page.locator('.wf-full-content .uri-adventure-joystick').evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,
+    pointerId:983,pointerType:'touch',clientX:r.left+6,clientY:r.top+r.height/2,button:0,buttons:1}));
+  });
+  await page.evaluate(()=>window.dispatchEvent(new Event('orientationchange')));
+  assert.equal(await page.evaluate(()=>{
+   const c=document.querySelector('.wf-full-content .uri-adventure-site')._uriAdventure.controls;
+   return !c.left&&!c.right&&!c.jump;
+  }),true,'Orientation change releases touch movement');
+
   // A second gesture that is cancelled by the browser must also stop walking.
   await page.locator('.wf-full-content .uri-adventure-joystick').evaluate(el=>{
    const r=el.getBoundingClientRect();
