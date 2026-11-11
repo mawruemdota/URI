@@ -36,7 +36,7 @@ function preload(scene,character){
  for(const state of Object.keys(frameCounts(key)))
   scene.load.spritesheet('uri-pf-'+key+'-'+state,path(key,state),{frameWidth:32,frameHeight:32});
  scene.load.spritesheet('uri-pf-terrain',BASE+'terrain.png',{frameWidth:TERRAIN_TILE,frameHeight:TERRAIN_TILE});
- scene.load.spritesheet('uri-pf-checkpoint',BASE+'checkpoint.png',{frameWidth:64,frameHeight:64});
+ // Old racing checkpoint flags are intentionally excluded from wedding art.
  scene.load.image('uri-pf-background',BASE+'bg-green.png');
  scene.load.on('loaderror',file=>console.warn('URI: illustration asset unavailable',file?.key));
 }
@@ -75,9 +75,42 @@ function drawWorld(scene,world,width,groundY,platforms){
  }
  return true;
 }
-function decorateSign(scene,x,y){
- if(!scene.textures.exists('uri-pf-checkpoint'))return;
- return scene.add.image(x-99,y+10,'uri-pf-checkpoint',0).setScale(.9).setDepth(.15);
+// An original pixel-heart sign topper replaces Pixel Frog's racing flag.
+// Keep a shared two-pixel grid across the three world palettes.
+function decorateSign(scene,world,x,y){
+ const key='uri-wedding-sign-heart-'+(world||'meadow');
+ if(!scene.textures.exists(key)){
+  const g=scene.make.graphics({x:0,y:0,add:false});
+  const colors={
+   meadow:[0x573b39,0xd87589,0xffd9d5],
+   sunset:[0x67444a,0xe7a28f,0xffe8c4],
+   starlight:[0x413c62,0xaf92d7,0xf5d8ed]
+  }[world]||[0x573b39,0xd87589,0xffd9d5];
+  const rows=[
+   '...###...###...',
+   '..#####.#####..',
+   '.#############.',
+   '.#############.',
+   '..###########..',
+   '...#########...',
+   '....#######....',
+   '.....#####.....',
+   '......###......',
+   '.......#.......'
+  ];
+  g.fillStyle(colors[0]);
+  rows.forEach((row,iy)=>[...row].forEach((v,ix)=>{
+   if(v==='#')g.fillRect(ix*2+1,iy*2+6,2,2);
+  }));
+  g.fillStyle(colors[1]);
+  rows.forEach((row,iy)=>[...row].forEach((v,ix)=>{
+   if(v==='#')g.fillRect(ix*2+1,iy*2+4,2,2);
+  }));
+  g.fillStyle(colors[2]);
+  g.fillRect(7,8,7,3);g.fillRect(20,8,5,3);
+  g.generateTexture(key,32,32);g.destroy();
+ }
+ return scene.add.image(x,y-70,key).setDepth(.3).setScale(.9);
 }
 window.URIAdventureRealAssets={version:'2.0',preload,character,drawWorld,decorateSign,portrait,coverSprite,roles:ROLE};
 })();
