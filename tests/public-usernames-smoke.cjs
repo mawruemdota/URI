@@ -9,7 +9,7 @@ const win={
  uriCloudOpenPublished(v){this.opened=v}
 };
 const sandbox={
- window:win,document:{currentScript:{src:origin+'/URI/cloud.js'}},
+ window:win,document:{currentScript:{src:origin+'/URI/cloud.js'},getElementById:()=>null},
  location:{origin,pathname:'/URI/',href:origin+'/URI/',hash:'',search:''},
  URL,esc:v=>String(v),current:()=>event,app:{innerHTML:''},
  render(){},setTimeout(){},console
@@ -21,7 +21,7 @@ assert.equal(win.URICloud.draftUsername(event),'maya-and-emir');
 assert.equal(win.URICloud.isValidUsername('maya-and-emir'),true);
 for(const name of ['home','rsvp','admin','my--event','A-bad','a','-starts','ends-'])
  assert.equal(win.URICloud.isValidUsername(name),false,name+' must be rejected');
-vm.runInContext('uriCloudUsernameChanged("maya-and-emir-2027")',sandbox);
+vm.runInContext('window.uriCloudUsernameChanged("maya-and-emir-2027")',sandbox);
 assert.equal(event.publicUsername,'maya-and-emir-2027');
 assert.equal(win.URICloud.publicationState(event),'draft');
 event.cloudSlug='maya-and-emir';event.cloudPublished=true;
