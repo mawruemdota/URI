@@ -1,0 +1,28 @@
+/* Editable, unique public event usernames. */
+.uri-publish-username{
+ display:grid;gap:7px;padding:15px;margin:12px 0 18px;
+ border:1px solid #ceded2;border-radius:12px;background:#f7faf6;
+}
+.uri-publish-username label{font-size:13px;font-weight:700;color:#264c3b}
+.uri-publish-username-row{
+ display:flex;align-items:center;gap:8px;border:1px solid #c1d5c9;
+ border-radius:9px;background:white;padding:7px 9px;min-width:0;flex-wrap:wrap
+}
+.uri-publish-username-row span{
+ max-width:100%;overflow-wrap:anywhere;font-size:13px;line-height:1.45;
+ color:#557262;font-weight:600
+}
+.uri-publish-username-row input{
+ flex:1 1 155px;min-width:115px;width:100%;background:#fff;
+ border:0!important;outline-offset:2px;padding:8px 4px!important;
+ font-weight:700;color:#224b37;font-size:15px;
+}
+.uri-publish-username-row input[aria-invalid="true"]{
+ outline:2px solid #af4949;border-radius:5px
+}
+.uri-publish-username small{line-height:1.4;color:#536957;font-size:12px}
+@media(max-width:520px){
+ .uri-publish-username{padding:12px}
+ .uri-publish-username-row{gap:5px;flex-direction:column;align-items:stretch}
+ .uri-publish-username-row input{flex-basis:auto;min-width:0}
+}
