@@ -113,7 +113,7 @@ async function mobileJourney(engine,name,device){
   try{
    await page.waitForFunction(x=>{
     const i=document.querySelector('#wbLivePreview .uri-adventure-site')?._uriAdventure;
-    return i?.scene?.player?.x>x+8;
+    return i?.hasWalked===true&&i?.scene?.player?.x>x+8;
    },before,{timeout:12000,polling:150});
    moved=true;
   }catch(_){}
