@@ -103,6 +103,8 @@ jobs:
           npx playwright install --with-deps webkit chromium
       - name: Exercise URI at iPhone and Android emulated viewports
         run: node tests/mobile-release-qa.cjs
+      - name: Test editable event URLs and deep links in Chromium and WebKit
+        run: node tests/public-usernames-browser.cjs
       - name: Preserve iPhone/Android emulation screenshots
         if: always()
         uses: actions/upload-artifact@v4
