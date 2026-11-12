@@ -361,3 +361,13 @@
  .uri-mini-botanical .utm-bot-paper{gap:4px}
  .uri-mini-botanical .utm-bot-corner{opacity:.17}
 }
+
+/* The landing gallery also sets generic .template span rules. Name letters
+   inside thumbnail typography must inherit the dedicated display size rather
+   than accidentally becoming 10px spans. */
+.template-preview.uri-ref-thumb .uri-template-mini .utm-names>span,
+.template-preview.uri-ref-thumb .uri-template-mini .utm-night-names>span{
+ font:inherit!important;
+ letter-spacing:inherit!important;
+ text-transform:inherit!important;
+}
