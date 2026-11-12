@@ -17,7 +17,6 @@
   if(!suffix||suffix.includes('/'))return null;
   try{const name=decodeURIComponent(suffix);return valid(name)?name:null}catch(_){return null}
  }
- window.__uriRouteDebug={basePath,rootURL,currentPath:location.pathname,suffix:location.pathname.startsWith(basePath)?location.pathname.slice(basePath.length):null,baseTag:document.querySelector?.('base[href]')?.href||null};
  window.URI_PUBLIC_ROUTE=pathUsername();
  if(!window.URI_PUBLIC_ROUTE)return;
  let rendered=false;
