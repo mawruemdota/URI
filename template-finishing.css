@@ -1,0 +1,341 @@
+/* URI Invitation Templates — refined visual system (2026-11).
+   Keeps every event feature, user palette, image crop and layout variant intact.
+   Scoped to guest invitations, mini previews and template selection only. */
+
+/* Consistent rhythm, readable detail copy and intentional section transitions. */
+.uri-builder-site{
+  --wb-fine-line:color-mix(in srgb,var(--wb-ink) 17%,transparent);
+  --wb-soft-accent:color-mix(in srgb,var(--wb-accent) 8%,var(--wb-bg));
+  letter-spacing:-.004em;
+}
+.uri-builder-site .wb-flow{overflow:hidden}
+.uri-builder-site .wb-unit{position:relative;min-width:0}
+.uri-builder-site .wb-unit h2{text-wrap:balance;overflow-wrap:anywhere}
+.uri-builder-site .wb-unit p{overflow-wrap:anywhere;line-height:1.72}
+.uri-builder-site .wb-photo img{transition:transform .35s ease}
+.uri-builder-site .wb-gallery h2,
+.uri-builder-site .wb-countdown h2,
+.uri-builder-site .wb-rsvp h2{margin-bottom:15px}
+.uri-builder-site .wb-slide figcaption:empty{display:none}
+.uri-builder-site .wb-gallery-controls{
+  display:flex;align-items:center;justify-content:center;gap:18px;
+  padding-top:15px;
+}
+.uri-builder-site .wb-gallery-controls button{
+  border:1px solid var(--wb-fine-line);border-radius:50%;
+  background:transparent;color:var(--wb-ink);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:23px;line-height:1;
+}
+.uri-builder-site .wb-gallery-status{
+  font-size:11px;font-weight:600;letter-spacing:.14em;
+  font-variant-numeric:tabular-nums;
+}
+.uri-builder-site .wb-rsvp small{
+  display:block;line-height:1.65;opacity:.76;font-size:12px;
+  max-width:550px;margin:18px auto 0;
+}
+.uri-builder-site .wb-counts>div{min-width:0}
+.uri-builder-site .wb-counts strong{font-variant-numeric:lining-nums tabular-nums}
+.uri-builder-site .wb-footer{
+  padding:25px 16px;letter-spacing:.22em;
+  background:var(--wb-bg);color:var(--wb-ink);opacity:.72;
+}
+
+/* 01 / Romantic Botanical — elegant stationery rather than a generic split card. */
+.wb-theme-botanical .wb-botanical-cover{isolation:isolate}
+.wb-theme-botanical .wb-botanical-cover .wb-hero-copy{
+  border-top:10px solid color-mix(in srgb,var(--wb-accent) 11%,var(--wb-bg));
+  border-bottom:10px solid color-mix(in srgb,var(--wb-accent) 11%,var(--wb-bg));
+  padding-top:clamp(55px,6cqw,88px);
+  padding-bottom:clamp(46px,5cqw,76px);
+}
+.wb-theme-botanical .wb-botanical-intro{
+  display:block;max-width:260px;
+  color:var(--wb-accent);
+  font:600 clamp(9px,1.15cqw,12px)/1.65 Montserrat,sans-serif;
+  letter-spacing:.23em;text-transform:uppercase;
+  margin:0 auto clamp(34px,4.5cqw,62px);
+}
+.wb-theme-botanical .wb-botanical-cover .wb-names{
+  max-width:620px;position:relative;z-index:2;
+  font-weight:400;line-height:.91;text-wrap:balance;
+}
+.wb-theme-botanical .wb-botanical-cover .wb-names i{
+  color:var(--wb-accent);font-style:italic;
+  margin:17px 0;
+}
+.wb-theme-botanical .wb-botanical-symbol{
+  display:block;color:var(--wb-accent);
+  font-size:22px;line-height:1;margin:31px auto 7px;
+  opacity:.9;
+}
+.wb-theme-botanical .wb-botanical-date{
+  display:block;max-width:350px;margin:12px auto 0;
+  font-size:clamp(19px,2.3cqw,28px);
+}
+.wb-theme-botanical .wb-botanical-venue{
+  margin-top:13px;line-height:1.5;
+  font-size:clamp(15px,1.8cqw,20px);
+}
+.wb-theme-botanical .wb-botanical-art{
+  filter:grayscale(.15);opacity:.55;
+}
+.wb-theme-botanical .wb-botanical-art-top{top:10px;right:-5px}
+.wb-theme-botanical .wb-botanical-art-side{left:-55px}
+.wb-theme-botanical .wb-botanical-story{
+  border-top:1px solid var(--wb-fine-line);
+  border-bottom:1px solid var(--wb-fine-line);
+  background:var(--wb-soft-accent);
+}
+.wb-theme-botanical .wb-botanical-story h2{
+  font-size:clamp(37px,5.5cqw,65px);font-weight:400;
+}
+.wb-theme-botanical .wb-botanical-story p{
+  max-width:650px;margin:0 auto;line-height:1.7;
+}
+.wb-theme-botanical .wb-gallery{
+  background:color-mix(in srgb,var(--wb-bg) 88%,white);
+}
+.wb-theme-botanical .wb-gallery .wb-gallery-image{
+  border:10px solid var(--wb-bg);
+  box-shadow:0 18px 46px color-mix(in srgb,var(--wb-ink) 12%,transparent);
+}
+.wb-theme-botanical .wb-rsvp{
+  background:var(--wb-soft-accent);
+  padding-block:clamp(64px,7cqw,115px)!important;
+}
+.wb-theme-botanical .wb-rsvp::before{
+  content:"✦";display:block;font-size:21px;color:var(--wb-accent);
+  margin-bottom:19px;
+}
+
+/* 02 / Minimalist Editorial — polished magazine-style wedding announcement. */
+.wb-theme-editorial .wb-editorial-cover{
+  border-top:5px solid var(--wb-ink)!important;
+}
+.wb-theme-editorial .wb-editorial-invite-label{
+  align-self:stretch;text-align:center;
+  color:var(--wb-ink);
+  font:600 clamp(8px,1.08cqw,11px)/1.5 Montserrat,sans-serif;
+  letter-spacing:.19em;word-spacing:.25em;
+  border-bottom:1px solid var(--wb-fine-line);
+  padding:0 0 14px;
+}
+.wb-theme-editorial .wb-editorial-invite-label span{
+  padding:0 .65em;color:var(--wb-accent);
+}
+.wb-theme-editorial .wb-editorial-landscape{
+  height:clamp(235px,28cqw,350px);
+  border:1px solid var(--wb-fine-line);
+}
+.wb-theme-editorial .wb-editorial-invite-caption{
+  font:600 clamp(8px,1.1cqw,11px)/1.4 Montserrat,sans-serif;
+  letter-spacing:.25em;opacity:.75;
+}
+.wb-theme-editorial .wb-editorial-main{gap:14px}
+.wb-theme-editorial .wb-editorial-main .wb-names{
+  font-size:clamp(46px,6.2cqw,89px);
+  line-height:.96;letter-spacing:-.015em;
+}
+.wb-theme-editorial .wb-editorial-fine-rule{width:min(115px,31%)}
+.wb-theme-editorial .wb-editorial-date{
+  font-size:clamp(12px,1.7cqw,19px);
+  font-weight:600;line-height:1.5;
+}
+.wb-theme-editorial .wb-editorial-side{
+  background:color-mix(in srgb,var(--wb-bg) 95%,var(--wb-accent));
+}
+.wb-theme-editorial .wb-editorial-story-center{
+  padding-block:clamp(47px,5cqw,90px);
+}
+.wb-theme-editorial .wb-editorial-story-monogram{
+  border:1px solid var(--wb-accent);
+}
+.wb-theme-editorial .wb-editorial-story-center p{
+  line-height:1.85;
+}
+.wb-theme-editorial .wb-details-grid>div,
+.wb-theme-editorial .wb-timeline li{
+  border-color:var(--wb-fine-line);
+}
+.wb-theme-editorial .wb-rsvp{
+  min-height:315px;
+  border-top:5px solid var(--wb-ink)!important;
+  border-bottom:5px solid var(--wb-ink)!important;
+  background:color-mix(in srgb,var(--wb-bg) 96%,var(--wb-accent));
+}
+.wb-theme-editorial .wb-rsvp h2{line-height:1.05}
+
+/* 03 / Nightfall — cinematic, readable, and deliberate on phones. */
+.wb-theme-nightfall .wb-nightfall-hero{isolation:isolate}
+.wb-theme-nightfall .wb-nightfall-hero::after{
+  content:"";position:absolute;inset:19px;
+  border:1px solid rgba(255,255,255,.2);
+  pointer-events:none;z-index:2;
+}
+.wb-theme-nightfall .wb-nightfall-main{position:relative;z-index:2}
+.wb-theme-nightfall .wb-nightfall-tag{
+  display:inline-block;max-width:100%;color:var(--wb-ink);
+  font-size:clamp(10px,1.1cqw,13px);
+  letter-spacing:.25em;line-height:1.65;
+}
+.wb-theme-nightfall .wb-nightfall-names{
+  font-weight:700;text-wrap:balance;
+  max-width:100%;overflow-wrap:anywhere;
+}
+.wb-theme-nightfall .wb-nightfall-line{
+  background:var(--wb-accent);height:2px;
+  max-width:120px;
+}
+.wb-theme-nightfall .wb-nightfall-meta{
+  line-height:1.55;letter-spacing:.05em;
+}
+.wb-theme-nightfall .wb-nightfall-story{
+  border-top:1px solid color-mix(in srgb,var(--wb-ink) 19%,transparent);
+  background:color-mix(in srgb,var(--wb-bg) 88%,#222);
+}
+.wb-theme-nightfall .wb-nightfall-story p{line-height:1.8}
+.wb-theme-nightfall .wb-gallery{
+  background:color-mix(in srgb,var(--wb-bg) 93%,var(--wb-accent))!important;
+}
+.wb-theme-nightfall .wb-gallery-image{
+  border:1px solid color-mix(in srgb,var(--wb-ink) 22%,transparent);
+}
+.wb-theme-nightfall .wb-rsvp{
+  border-top:1px solid var(--wb-accent);
+  border-bottom:1px solid var(--wb-accent);
+}
+.wb-theme-nightfall .wb-rsvp small{
+  color:var(--wb-ink);opacity:.75;
+}
+
+/* Photo-free covers should still look composed in the wizard / thumbnails. */
+.wb-theme-botanical .wb-botanical-cover .wb-photo-empty,
+.wb-mini-romance .wb-cover-photo:not(:has(img)){
+  background:
+    radial-gradient(ellipse at 20% 18%,color-mix(in srgb,var(--wb-accent,#967c72) 16%,transparent),transparent 51%),
+    radial-gradient(ellipse at 80% 80%,#e5dcd0,transparent 54%),
+    linear-gradient(150deg,#d8c7b6,#f0e7dc 50%,#bbaa96);
+}
+.wb-theme-editorial .wb-editorial-landscape .wb-photo-empty,
+.wb-mini-stationery .wb-mini-landscape:not(:has(img)){
+  background:linear-gradient(138deg,#e1d9cf 0%,#faf7f2 50%,#c5bcb1 100%);
+}
+.wb-theme-nightfall .wb-nightfall-media .wb-photo-empty,
+.wb-mini-nightfall-photo:not(:has(img)){
+  background:
+    radial-gradient(circle at 69% 30%,rgba(220,150,111,.26),transparent 27%),
+    linear-gradient(140deg,#292324,#111214 72%);
+}
+.uri-builder-site .wb-photo-empty{
+  border:0!important;
+  text-align:center;
+  padding:25px 15px;
+  font-size:11px;letter-spacing:.07em;
+  line-height:1.6;
+}
+
+/* Template cards: a preview should read like a finished invitation, not a thumbnail utility. */
+.wf-designs .wf-design,
+.wb-template-choices .wb-template-pick,
+#templates .template{
+  overflow:hidden;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.wf-designs .wf-design:hover,
+.wb-template-choices .wb-template-pick:hover,
+#templates .template:hover{
+  transform:translateY(-2px);
+}
+.wf-designs .wf-design.active,
+.wb-template-choices .wb-template-pick.selected{
+  border-color:#246f53;
+  box-shadow:0 0 0 2px rgba(36,111,83,.15),0 12px 28px rgba(21,44,31,.07);
+}
+.wf-designs .template-preview,
+.wb-template-choices .template-preview,
+#templates .template-preview{
+  background:#e9e4db;
+  border:1px solid rgba(30,35,30,.07);
+  border-radius:7px;
+}
+.wf-designs .wb-cover-mini,
+.wb-template-choices .wb-cover-mini,
+#templates .wb-cover-mini{
+  width:100%;height:100%;max-height:none;min-height:0;
+}
+.wb-mini-romance .wb-cover-copy,
+.wb-mini-stationery .wb-mini-main{
+  justify-content:center;
+}
+.wb-mini-romance .wb-cover-copy::after{
+  content:"";position:absolute;inset:8px;
+  border:1px solid color-mix(in srgb,var(--wb-accent,#967c72) 35%,transparent);
+  pointer-events:none;z-index:0;
+}
+.wb-mini-romance .wb-cover-copy>strong,
+.wb-mini-romance .wb-mini-date{position:relative;z-index:1}
+.wb-mini-stationery{border-top:4px solid var(--wb-ink,#272727)}
+.wb-mini-stationery .wb-mini-main>strong{line-height:1}
+.wb-mini-nightfall-content{z-index:2}
+.wb-mini-nightfall::after{
+  content:"";position:absolute;inset:9px;
+  border:1px solid rgba(255,255,255,.18);
+  pointer-events:none;
+}
+
+/* Container queries track the actual embedded invitation width.
+   The editor's 390px mobile preview receives the same polish as guest devices. */
+@container (max-width:780px){
+  .wb-theme-botanical .wb-botanical-intro{margin-bottom:27px;font-size:9px}
+  .wb-theme-botanical .wb-botanical-cover .wb-names{font-size:clamp(44px,7cqw,72px)}
+  .wb-theme-botanical .wb-botanical-symbol{margin:21px auto 3px}
+  .wb-theme-editorial .wb-editorial-invite-label{letter-spacing:.11em;font-size:8px}
+  .wb-theme-editorial .wb-editorial-main{gap:9px}
+  .wb-theme-editorial .wb-editorial-main .wb-names{font-size:clamp(37px,6cqw,65px)}
+}
+@container (max-width:575px){
+  .wb-theme-botanical .wb-botanical-cover .wb-hero-copy{
+    min-height:500px;padding:38px 26px 46px;
+    border-top-width:7px;border-bottom-width:7px;
+  }
+  .wb-theme-botanical .wb-botanical-intro{
+    font-size:9px;line-height:1.65;margin:0 auto 28px;letter-spacing:.17em;
+  }
+  .wb-theme-botanical .wb-botanical-cover .wb-names{
+    font-size:clamp(46px,13cqw,77px);line-height:.93;
+  }
+  .wb-theme-botanical .wb-botanical-date{font-size:22px}
+  .wb-theme-botanical .wb-botanical-venue{font-size:17px}
+  .wb-theme-botanical .wb-botanical-art{opacity:.32;width:115px}
+  .wb-theme-botanical .wb-botanical-story p{font-size:17px}
+  .wb-theme-editorial .wb-editorial-cover{border-top-width:4px!important}
+  .wb-theme-editorial .wb-editorial-middle{padding:20px 17px 28px}
+  .wb-theme-editorial .wb-editorial-invite-label{
+    font-size:9px;letter-spacing:.11em;line-height:1.6;
+    white-space:normal;padding-bottom:12px;
+  }
+  .wb-theme-editorial .wb-editorial-landscape{height:220px;min-height:220px}
+  .wb-theme-editorial .wb-editorial-main .wb-names{
+    font-size:clamp(43px,12cqw,66px);line-height:1;
+  }
+  .wb-theme-editorial .wb-editorial-invite-caption{font-size:9px}
+  .wb-theme-editorial .wb-editorial-date{font-size:13px;letter-spacing:.1em}
+  .wb-theme-nightfall .wb-nightfall-hero::after{inset:10px}
+  .wb-theme-nightfall .wb-nightfall-tag{font-size:9px;letter-spacing:.14em}
+  .wb-theme-nightfall .wb-nightfall-names{max-width:100%}
+  .uri-builder-site .wb-gallery-controls{gap:10px}
+  .uri-builder-site .wb-counts small{font-size:9px;letter-spacing:.04em}
+  .uri-builder-site .wb-rsvp small{font-size:11px}
+}
+@container (max-width:370px){
+  .wb-theme-botanical .wb-botanical-cover .wb-names{font-size:clamp(42px,12cqw,56px)}
+  .wb-theme-editorial .wb-editorial-main .wb-names{font-size:clamp(38px,11cqw,54px)}
+  .wb-theme-editorial .wb-editorial-invite-label{font-size:8px;letter-spacing:.06em}
+}
+@media(prefers-reduced-motion:reduce){
+  .uri-builder-site .wb-photo img,
+  .wf-designs .wf-design,
+  .wb-template-choices .wb-template-pick,
+  #templates .template{transition:none!important;transform:none!important}
+}
