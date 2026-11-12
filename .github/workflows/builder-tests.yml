@@ -25,6 +25,8 @@ jobs:
         run: node tests/wedding-flow-smoke.cjs
       - name: Check wedding template visual structure and modular behavior
         run: node tests/wedding-template-smoke.cjs
+      - name: Check refreshed wedding template hierarchy, honest copy, and CSS integrity
+        run: node tests/template-finishing-smoke.cjs
       - name: Check scaled preview fidelity and creator UI polish
         run: node tests/ui-polish-smoke.cjs
       - name: Test every feature and layout variation
