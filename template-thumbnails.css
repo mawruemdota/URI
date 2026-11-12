@@ -34,7 +34,7 @@
 .utm-bot-sprig svg{display:block;width:100%;height:auto;filter:sepia(.13)}
 .utm-bot-image img{position:relative;z-index:1}
 .utm-bot-paper{
- position:relative;min-width:0;
+ position:relative;min-width:0;overflow:hidden;
  display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:clamp(3px,1.1cqw,8px);text-align:center;
  padding:clamp(13px,4.7cqw,31px) clamp(8px,3.4cqw,23px);
