@@ -27,6 +27,8 @@ jobs:
         run: node tests/wedding-template-smoke.cjs
       - name: Check refreshed wedding template hierarchy, honest copy, and CSS integrity
         run: node tests/template-finishing-smoke.cjs
+      - name: Check all four standalone template thumbnail artboards
+        run: node tests/template-thumbnails-smoke.cjs
       - name: Check scaled preview fidelity and creator UI polish
         run: node tests/ui-polish-smoke.cjs
       - name: Test every feature and layout variation
@@ -80,6 +82,8 @@ jobs:
         run: node tests/browser-adventure.cjs
       - name: Verify Botanical, Editorial, Nightfall desktop/mobile layouts
         run: node tests/template-finishing-browser.cjs
+      - name: Capture template thumbnails across landing, wizard, and editor
+        run: node tests/template-thumbnails-browser.cjs
       - name: Preserve screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,6 +93,7 @@ jobs:
             artifacts/wedding-browser/
             artifacts/adventure-browser/
             artifacts/template-refresh/
+            artifacts/thumbnail-refresh/
           if-no-files-found: ignore
           retention-days: 14
 
