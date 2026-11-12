@@ -8,7 +8,8 @@
  * through Supabase RLS, never embedded here. GitHub Pages still sends HTTP 404
  * for unknown static paths; use a rewrite-capable host for HTTP 200/SEO. */
 (async function(){
- const base=location.hostname==='mawruemdota.github.io'?'/URI/':'/';
+ const projectHost=location.hostname==='mawruemdota.github.io'||(/^(?:localhost|127\\.0\\.0\\.1)$/.test(location.hostname)&&location.pathname.startsWith('/URI/'));
+ const base=projectHost?'/URI/':'/';
  if(location.pathname.endsWith('/')&&location.pathname!==base){
   history.replaceState(null,'',location.pathname.slice(0,-1)+location.search+location.hash);
  }
