@@ -134,6 +134,48 @@ if(U.baseTemplate(e)==='garden'){
  +'</div>';
 }
 return '<div class="wb-cover-mini wb-cover-botanical wb-mini-romance" style="'+coverStyle+'"><div class="wb-cover-photo">'+photo+'</div><div class="wb-cover-copy"><span class="wb-mini-flowers" aria-hidden="true">'+botanicalSprig+'</span><strong>'+title+'<em>and</em>'+other+'</strong><span class="wb-mini-date">'+date+'</span></div></div>'};
+/* Purpose-built template thumbnails. A full cover is too dense at 135–250px.
+   These are truthful miniature art directions; U.cover still powers the
+   actual full-size invitation/wizard side preview. */
+U.thumbnail=e=>{
+ const base=U.baseTemplate(e);
+ if(base==='adventure')return '<div class="uri-template-mini uri-mini-adventure" aria-hidden="true">'+U.cover(e)+'</div>';
+ const d=U.design(e),name1=T(e.name1||'Maya'),name2=T(e.name2||'Emir');
+ const date=e.date?T(fmt(e.date)):'SAVE THE DATE';
+ const style='--utm-bg:'+d.bg+';--utm-ink:'+d.ink+';--utm-accent:'+d.accent+';--utm-heading:'+U.fonts[d.heading]+';--utm-body:'+U.fonts[d.body]+';';
+ const src=imgurl(e.heroPhoto||'');
+ const x=clamped(e.heroSettings?.x??50),y=clamped(e.heroSettings?.y??50);
+ const zoom=Math.min(3,Math.max(1,Number(e.heroSettings?.zoom)||1));
+ const photo=src?'<img loading="lazy" decoding="async" src="'+T(src)+'" alt="" style="object-position:'+x+'% '+y+'%;transform-origin:'+x+'% '+y+'%;transform:scale('+zoom+')">':'';
+ const names='<strong class="utm-names"><span>'+name1+'</span><em>and</em><span>'+name2+'</span></strong>';
+ if(base==='garden'){
+  return '<div class="uri-template-mini uri-mini-editorial" aria-hidden="true" style="'+style+'">'
+   +'<div class="utm-ed-masthead"><span>THE WEDDING EDITION</span><span>NO. 01</span></div>'
+   +'<div class="utm-ed-page"><div class="utm-ed-side"><span>LOVE</span><i></i><small>EST. FOREVER</small></div>'
+   +'<div class="utm-ed-photo'+(src?' has-image':'')+'">'+photo+'<span class="utm-ed-photo-mark" aria-hidden="true">M <i>&amp;</i> E</span></div>'
+   +'<div class="utm-ed-copy"><span class="utm-ed-pretitle">THE WEDDING OF</span>'+names+'<span class="utm-ed-date">'+date+'</span></div></div>'
+   +'<div class="utm-ed-foot"><span>YOU ARE INVITED</span><span>✳</span><span>CELEBRATE LOVE</span></div></div>';
+ }
+ if(base==='nightfall'){
+  return '<div class="uri-template-mini uri-mini-nightfall" aria-hidden="true" style="'+style+'">'
+   +'<div class="utm-night-media'+(src?' has-image':'')+'">'+photo+'</div>'
+   +'<div class="utm-night-shade"></div><div class="utm-night-edge"></div>'
+   +'<div class="utm-night-copy"><span class="utm-night-top">THE WEDDING OF</span>'
+   +'<strong class="utm-night-names"><span>'+name1+'</span><em>&amp;</em><span>'+name2+'</span></strong>'
+   +'<span class="utm-night-bar"></span><span class="utm-night-date">'+date+'</span></div>'
+   +'<div class="utm-night-index">A CELEBRATION OF LOVE</div></div>';
+ }
+ return '<div class="uri-template-mini uri-mini-botanical" aria-hidden="true" style="'+style+'">'
+  +'<div class="utm-bot-image'+(src?' has-image':'')+'">'+photo
+  +(!src?'<div class="utm-bot-sprig">'+botanicalSprig+'</div>':'')
+  +'</div><div class="utm-bot-paper"><div class="utm-bot-border"></div>'
+  +'<span class="utm-bot-eyebrow">TOGETHER WITH OUR FAMILIES</span>'
+  +names+'<span class="utm-bot-flourish" aria-hidden="true">✦</span>'
+  +'<span class="utm-bot-date">'+date+'</span>'
+  +'<div class="utm-bot-corner" aria-hidden="true">'+botanicalSprig+'</div>'
+  +'</div></div>';
+};
+
 window.uriBuilderInv=U.render;
 window.uriBSlide=(btn,delta)=>{let g=btn.closest('.wb-gallery'),slides=[...g.querySelectorAll('.wb-slide')];if(!slides.length)return;let area=g.querySelector('.wb-gallery-items'),next=((Number(area.dataset.index)||0)+delta+slides.length)%slides.length;slides.forEach((s,i)=>s.hidden=i!==next);area.dataset.index=next;g.querySelector('.wb-gallery-status').textContent=(next+1)+' / '+slides.length};
 U.persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(state));U.lastSaveFailed=false;return true}catch(err){U.lastSaveFailed=true;alert('Unable to save changes in this browser. Remove some photos or free up storage.');return false}};
