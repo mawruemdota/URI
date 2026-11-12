@@ -35,6 +35,8 @@ const assertTiles=async (page,selector)=>{
    const textClass=['.utm-bot-paper>.utm-names','.utm-ed-copy>.utm-names','.utm-night-copy>.utm-night-names'][i];
    const nameStyle=await thumb.locator(textClass).evaluate(el=>({fontSize:parseFloat(getComputedStyle(el).fontSize),display:getComputedStyle(el).display,overflow:el.scrollWidth-el.clientWidth}));
    assert.ok(nameStyle.fontSize>=20,selector+' '+themes[i]+' should use readable name lettering '+JSON.stringify(nameStyle));
+   const glyphSize=await thumb.locator(textClass+'>span').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+   assert.ok(glyphSize>=nameStyle.fontSize-1,selector+' '+themes[i]+' name glyphs must inherit the full-size type, not generic card span styling: '+glyphSize+' vs '+nameStyle.fontSize);
    if(i===2)assert.equal(nameStyle.display,'flex','Nightfall names must stack vertically');
    if(i===1)assert.ok(nameStyle.overflow<=3,'Editorial names should fit their narrow column '+JSON.stringify(nameStyle));
   }
