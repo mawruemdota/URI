@@ -25,6 +25,8 @@ jobs:
         run: node tests/wedding-flow-smoke.cjs
       - name: Check wedding template visual structure and modular behavior
         run: node tests/wedding-template-smoke.cjs
+      - name: Check refreshed wedding template hierarchy, honest copy, and CSS integrity
+        run: node tests/template-finishing-smoke.cjs
       - name: Check scaled preview fidelity and creator UI polish
         run: node tests/ui-polish-smoke.cjs
       - name: Test every feature and layout variation
@@ -76,6 +78,8 @@ jobs:
         run: node tests/browser-wedding.cjs
       - name: Exercise Adventure Invitation with Phaser Arcade Physics
         run: node tests/browser-adventure.cjs
+      - name: Verify Botanical, Editorial, Nightfall desktop/mobile layouts
+        run: node tests/template-finishing-browser.cjs
       - name: Preserve screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
@@ -84,6 +88,7 @@ jobs:
           path: |
             artifacts/wedding-browser/
             artifacts/adventure-browser/
+            artifacts/template-refresh/
           if-no-files-found: ignore
           retention-days: 14
 

@@ -45,7 +45,22 @@ async function journey(engine,name){
   const base='http://127.0.0.1:'+server.address().port+'/URI/';
   let response=await page.goto(base+'maya-and-emir',{waitUntil:'domcontentloaded'});
   assert.equal(response.status(),404,'GitHub Pages fallback deliberately returns HTTP 404; host migration is recommended for SEO');
-  await page.waitForFunction(()=>document.querySelector('.uri-builder-site')?.textContent?.includes('Maya'),null,{timeout:15000});
+  try {
+   await page.waitForFunction(()=>document.querySelector('.uri-builder-site')?.textContent?.includes('Maya'),null,{timeout:15000});
+  } catch (err) {
+   console.error('Published route diagnostic',await page.evaluate(()=>({
+    href:location.href,ready:document.readyState,
+    route:window.URI_PUBLIC_ROUTE,
+    routeDetails:window.__uriRouteDebug,
+    documentBase:document.baseURI,
+    scriptsLast:[...document.scripts].slice(-5).map(x=>x.src),
+    config:window.URICloud?.configured?.(),
+    scripts:document.scripts.length,
+    app:document.querySelector('#app')?.textContent?.slice(0,500),
+    status:document.body?.textContent?.slice(0,600)
+   })), 'JavaScript errors:',errors.slice(0,10));
+   throw err;
+  }
   assert.equal(new URL(page.url()).pathname,'/URI/maya-and-emir','Direct URL should remain pretty (no hash redirect)');
   assert.equal(await page.locator('body > header.top').isVisible(),false,'Public event must hide creator navigation');
   assert.equal(await page.evaluate(()=>window.URI_PUBLIC_ROUTE),'maya-and-emir');

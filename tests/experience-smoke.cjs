@@ -71,7 +71,7 @@ const scenario=function(){
  const analytics=G.analytics(e).includes('Seat allocation')&&G.analytics(e).includes('Meal choice');
  const publicPayload=U.payload(e);
  const guestPrivacy=!('guests' in publicPayload)&&!('households' in publicPayload)&&!('rsvpSettings' in publicPayload);
- const rsvpPublic=U.render(e).includes('Online RSVP collection is not active yet');
+ const rsvpPublic=U.render(e).includes('Guests can reply using the personal RSVP link shared by the hosts.');
  route('dashboard');
  window.uriDashAction('duplicate','e-smoke');
  const duplicate=state.events.find(x=>x.id!=='e-smoke');
