@@ -4,7 +4,7 @@
 .template-preview.uri-ref-thumb{padding:0!important;position:relative;isolation:isolate;overflow:hidden!important}
 .template-preview.uri-ref-thumb .uri-template-mini,
 .uri-template-mini{
- position:relative;display:block;width:100%;height:100%;min-width:0;min-height:0;
+ position:relative;width:100%;height:100%;min-width:0;min-height:0;
  overflow:hidden;isolation:isolate;box-sizing:border-box;
  background:var(--utm-bg,#f6f0e8);color:var(--utm-ink,#333);
 }
@@ -14,6 +14,11 @@
 .uri-template-mini .utm-names span{display:block}
 .uri-template-mini .utm-names em{display:block;font-weight:400}
 
+/* Do not flatten a theme's grid/flex composition: card styles have high specificity. */
+.template-preview.uri-ref-thumb .uri-mini-botanical{display:grid;grid-template-columns:36% minmax(0,64%)}
+.template-preview.uri-ref-thumb .uri-mini-editorial{display:flex;flex-direction:column}
+.template-preview.uri-ref-thumb .uri-mini-nightfall,
+.template-preview.uri-ref-thumb .uri-mini-adventure{display:block}
 /* ROMANTIC BOTANICAL — narrow botanical illustration and a real stationery face. */
 .uri-mini-botanical{
  display:grid;grid-template-columns:36% minmax(0,64%);
