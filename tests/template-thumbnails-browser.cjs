@@ -27,6 +27,13 @@ const assertTiles=async (page,selector)=>{
   const dims=await thumb.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,scroll:el.scrollWidth}));
   assert.ok(dims.width>=90&&dims.height>=110,selector+' card '+i+' must have a readable size '+JSON.stringify(dims));
   assert.ok(dims.scroll<=dims.width+2,selector+' card '+i+' must not overflow '+JSON.stringify(dims));
+  if(i<3){
+   const textClass=['.utm-bot-paper>.utm-names','.utm-ed-copy>.utm-names','.utm-night-copy>.utm-night-names'][i];
+   const nameStyle=await thumb.locator(textClass).evaluate(el=>({fontSize:parseFloat(getComputedStyle(el).fontSize),display:getComputedStyle(el).display,overflow:el.scrollWidth-el.clientWidth}));
+   assert.ok(nameStyle.fontSize>=20,selector+' '+themes[i]+' should use readable name lettering '+JSON.stringify(nameStyle));
+   if(i===2)assert.equal(nameStyle.display,'flex','Nightfall names must stack vertically');
+   if(i===1)assert.ok(nameStyle.overflow<=3,'Editorial names should fit their narrow column '+JSON.stringify(nameStyle));
+  }
  }
 };
 (async()=>{
