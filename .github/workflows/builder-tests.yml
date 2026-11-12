@@ -76,6 +76,8 @@ jobs:
         run: node tests/browser-wedding.cjs
       - name: Exercise Adventure Invitation with Phaser Arcade Physics
         run: node tests/browser-adventure.cjs
+      - name: Verify Botanical, Editorial, Nightfall desktop/mobile layouts
+        run: node tests/template-finishing-browser.cjs
       - name: Preserve screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
@@ -84,6 +86,7 @@ jobs:
           path: |
             artifacts/wedding-browser/
             artifacts/adventure-browser/
+            artifacts/template-refresh/
           if-no-files-found: ignore
           retention-days: 14
 
