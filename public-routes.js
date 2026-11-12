@@ -2,7 +2,11 @@
  * /URI/maya-and-emir on the existing GitHub Pages project URL. */
 (function(){
  'use strict';
- const base=new URL('.',document.currentScript?.src||location.href);
+ // The GitHub Pages 404 fallback injects <base href="/URI/"> while the
+ // browser URL stays /URI/username. Prefer that declared app root rather than
+ // deriving an asset directory from the current redirected document.
+ const rootURL=document.querySelector?.('base[href]')?.href||document.baseURI||document.currentScript?.src||location.href;
+ const base=new URL('.',rootURL);
  const basePath=base.pathname;
  const reserved=new Set(['home','dashboard','create','cloud','event','events','invite','invites','public','rsvp','admin','login','logout','signup','settings','account','api','assets','static','preview','pricing','features','templates','about','terms','privacy','help','contact','support','www','uri','index','404']);
  const valid=s=>/^[a-z0-9](?:[a-z0-9-]{1,30})[a-z0-9]$/.test(s)&&!s.includes('--')&&!reserved.has(s) || /^uri-[a-z0-9-]{12,80}$/.test(s);
