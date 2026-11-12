@@ -1,0 +1,373 @@
+/* URI template thumbnails, intentionally composed at card scale.
+   Keep full-size invitation renderer, user palette, and Adventure art pack intact. */
+.uri-ref-thumb{container-type:inline-size}
+.template-preview.uri-ref-thumb{padding:0!important;position:relative;isolation:isolate;overflow:hidden!important}
+.template-preview.uri-ref-thumb .uri-template-mini,
+.uri-template-mini{
+ position:relative;width:100%;height:100%;min-width:0;min-height:0;
+ overflow:hidden;isolation:isolate;box-sizing:border-box;
+ background:var(--utm-bg,#f6f0e8);color:var(--utm-ink,#333);
+}
+.uri-template-mini *{box-sizing:border-box}
+.uri-template-mini img{display:block;width:100%;height:100%;object-fit:cover;max-width:none}
+.uri-template-mini .utm-names{overflow-wrap:anywhere;text-wrap:balance}
+.uri-template-mini .utm-names span{display:block}
+.uri-template-mini .utm-names em{display:block;font-weight:400}
+
+/* Do not flatten a theme's grid/flex composition: card styles have high specificity. */
+.template-preview.uri-ref-thumb .uri-mini-botanical{display:grid;grid-template-columns:36% minmax(0,64%)}
+.template-preview.uri-ref-thumb .uri-mini-editorial{display:flex;flex-direction:column}
+.template-preview.uri-ref-thumb .uri-mini-nightfall,
+.template-preview.uri-ref-thumb .uri-mini-adventure{display:block}
+/* ROMANTIC BOTANICAL — narrow botanical illustration and a real stationery face. */
+.uri-mini-botanical{
+ display:grid;grid-template-columns:36% minmax(0,64%);
+ background:var(--utm-bg);font-family:var(--utm-body);
+}
+.utm-bot-image{
+ position:relative;overflow:hidden;
+ background:linear-gradient(157deg,#d2c0ae 0%,#e4d9c9 45%,#b0aa99 100%);
+}
+.utm-bot-image:not(.has-image)::before{
+ content:"";position:absolute;inset:6%;
+ border:1px solid rgba(255,255,255,.5);
+}
+.utm-bot-sprig{
+ width:170%;position:absolute;left:-45%;top:-10%;
+ transform:rotate(-18deg);opacity:.74;
+}
+.utm-bot-sprig svg{display:block;width:100%;height:auto;filter:sepia(.13)}
+.utm-bot-image img{position:relative;z-index:1}
+.utm-bot-paper{
+ position:relative;min-width:0;overflow:hidden;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:clamp(3px,1.1cqw,8px);text-align:center;
+ padding:clamp(13px,4.7cqw,31px) clamp(8px,3.4cqw,23px);
+ background:var(--utm-bg);
+}
+.utm-bot-border{
+ position:absolute;inset:clamp(5px,2.4cqw,13px);
+ border:1px solid color-mix(in srgb,var(--utm-accent) 38%,transparent);
+ pointer-events:none;
+}
+.utm-bot-eyebrow{
+ position:relative;z-index:1;
+ font:600 clamp(6px,1.35cqw,9px)/1.55 Montserrat,sans-serif;
+ letter-spacing:.10em;max-width:190px;color:var(--utm-accent);
+}
+.utm-bot-paper .utm-names{
+ position:relative;z-index:1;
+ font:italic 400 clamp(23px,8.6cqw,54px)/.91 var(--utm-heading);
+ letter-spacing:-.065em;max-width:100%;
+}
+.utm-bot-paper .utm-names em{
+ margin:clamp(3px,.85cqw,7px) 0;
+ font:italic 400 .40em/1 var(--utm-heading);
+ letter-spacing:0;color:var(--utm-accent);
+}
+.utm-bot-flourish{
+ z-index:1;color:var(--utm-accent);
+ font-size:clamp(11px,3cqw,19px);line-height:1;
+ margin-top:clamp(1px,1cqw,7px);
+}
+.utm-bot-date{
+ z-index:1;max-width:100%;
+ font:500 clamp(8px,2cqw,12px)/1.35 var(--utm-heading);
+ letter-spacing:.025em;overflow-wrap:anywhere;
+}
+.utm-bot-corner{
+ pointer-events:none;position:absolute;right:-9%;top:-18%;
+ width:clamp(44px,20cqw,115px);opacity:.32;
+ transform:rotate(15deg);
+}
+.utm-bot-corner svg{width:100%;height:auto;display:block}
+
+/* MINIMALIST EDITORIAL — thin print rules, photo panel, bold typographic cover. */
+.uri-mini-editorial{
+ display:flex;flex-direction:column;
+ background:var(--utm-bg);
+ font-family:Montserrat,sans-serif;
+ border:clamp(3px,1.2cqw,7px) solid var(--utm-ink);
+}
+.utm-ed-masthead,.utm-ed-foot{
+ flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:5px;
+ min-width:0;margin:0 clamp(8px,3cqw,18px);
+ font:700 clamp(6px,1.5cqw,10px)/1.2 Montserrat,sans-serif;
+ letter-spacing:.12em;white-space:nowrap;
+}
+.utm-ed-masthead{
+ min-height:clamp(20px,5cqw,31px);
+ border-bottom:1px solid color-mix(in srgb,var(--utm-ink) 55%,transparent);
+}
+.utm-ed-foot{
+ min-height:clamp(20px,4.5cqw,30px);
+ border-top:1px solid color-mix(in srgb,var(--utm-ink) 55%,transparent);
+ font-size:clamp(5px,1.28cqw,9px);
+}
+.utm-ed-foot span:nth-child(2){font-size:clamp(12px,3cqw,20px);color:var(--utm-accent)}
+.utm-ed-page{
+ flex:1;display:grid;grid-template-columns:13% 33% minmax(0,54%);
+ min-height:0;overflow:hidden;margin:0 clamp(8px,3cqw,18px);
+}
+.utm-ed-side{
+ display:flex;flex-direction:column;justify-content:space-between;
+ align-items:center;gap:4px;padding:clamp(4px,1.4cqw,8px) 2px;
+ border-right:1px solid color-mix(in srgb,var(--utm-ink) 28%,transparent);
+}
+.utm-ed-side span{
+ writing-mode:vertical-rl;transform:rotate(180deg);
+ font:700 clamp(6px,1.6cqw,10px)/1 Montserrat,sans-serif;
+ letter-spacing:.17em;
+}
+.utm-ed-side i{height:19%;width:1px;background:var(--utm-accent)}
+.utm-ed-side small{
+ writing-mode:vertical-rl;transform:rotate(180deg);
+ font:500 clamp(5px,1cqw,8px)/1.1 Montserrat,sans-serif;
+ letter-spacing:.08em;
+}
+.utm-ed-photo{
+ position:relative;min-width:0;overflow:hidden;
+ background:linear-gradient(155deg,#cbc3b6,#e7e0d4 55%,#b2afa6);
+ border-right:1px solid var(--utm-ink);
+}
+.utm-ed-photo img{position:relative;z-index:2}
+.utm-ed-photo:not(.has-image)::after{
+ content:"";position:absolute;inset:12%;
+ border:1px solid rgba(255,255,255,.78);
+}
+.utm-ed-photo-mark{
+ position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+ text-align:center;color:#fbf8f1;
+ text-shadow:0 1px 10px rgba(45,40,35,.13);
+ font:italic 400 clamp(13px,5.8cqw,36px)/.95 'Cormorant Garamond',serif;
+ white-space:nowrap;
+}
+.utm-ed-photo-mark i{display:block;font-size:.65em}
+.utm-ed-photo.has-image .utm-ed-photo-mark{display:none}
+.utm-ed-copy{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:clamp(4px,1.3cqw,10px);
+ min-width:0;padding:clamp(7px,2.1cqw,14px) clamp(4px,1.7cqw,12px);
+ text-align:center;
+}
+.utm-ed-pretitle{
+ font:700 clamp(6px,1.3cqw,9px)/1.4 Montserrat,sans-serif;
+ letter-spacing:.1em;
+}
+.utm-ed-copy .utm-names{
+ font:400 clamp(22px,7.5cqw,46px)/.95 var(--utm-heading);
+ letter-spacing:-.025em;
+}
+.utm-ed-copy .utm-names em{
+ font-size:.55em;line-height:1.3;margin:1px 0;
+}
+.utm-ed-date{
+ border-top:1px solid var(--utm-accent);
+ padding-top:clamp(4px,1.2cqw,8px);
+ font:600 clamp(7px,1.7cqw,12px)/1.3 Montserrat,sans-serif;
+ letter-spacing:.02em;max-width:100%;overflow-wrap:anywhere;
+}
+
+/* NIGHTFALL — cinematic dark poster with useful readable type. */
+.uri-mini-nightfall{
+ background:#0d0f11;color:#fff;
+}
+.utm-night-media,.utm-night-shade,.utm-night-edge{position:absolute;inset:0;pointer-events:none}
+.utm-night-media{
+ background:
+ radial-gradient(ellipse at 83% 38%,rgba(205,126,92,.37),transparent 28%),
+ radial-gradient(ellipse at 78% 60%,rgba(70,55,46,.5),transparent 45%),
+ linear-gradient(120deg,#0d0e11 15%,#332925 72%,#131215);
+}
+.utm-night-media img{opacity:.82}
+.utm-night-shade{
+ background:linear-gradient(90deg,rgba(6,8,10,.96),rgba(6,8,10,.75) 51%,rgba(7,8,10,.06) 100%);
+}
+.utm-night-edge{
+ inset:clamp(5px,2.2cqw,13px);
+ border:1px solid rgba(255,255,255,.24);
+}
+.utm-night-copy{
+ position:absolute;z-index:2;inset:0;
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ gap:clamp(3px,1.3cqw,9px);
+ padding:clamp(15px,6cqw,38px) clamp(13px,5.2cqw,32px);
+ max-width:86%;
+}
+.utm-night-top{
+ font:700 clamp(7px,1.6cqw,11px)/1.4 Montserrat,sans-serif;
+ letter-spacing:.2em;color:#f1ece7;
+}
+.utm-night-names{
+ display:flex;flex-direction:column;align-items:flex-start;
+ font:800 clamp(31px,11.7cqw,72px)/.77 'Barlow Condensed','Arial Narrow',sans-serif;
+ letter-spacing:.014em;text-transform:uppercase;text-wrap:balance;
+ max-width:100%;
+}
+.utm-night-names span{max-width:100%;overflow-wrap:anywhere}
+.utm-night-names em{
+ font-size:.48em;line-height:1;
+ margin:clamp(2px,.6cqw,6px) 0;
+ font-style:normal;color:var(--utm-accent);
+}
+.utm-night-bar{
+ height:clamp(2px,.6cqw,4px);width:clamp(20px,9cqw,54px);
+ background:var(--utm-accent);
+}
+.utm-night-date{
+ font:600 clamp(8px,2.1cqw,13px)/1.35 Montserrat,sans-serif;
+ letter-spacing:.035em;max-width:100%;overflow-wrap:anywhere;color:#f2f2f0;
+}
+.utm-night-index{
+ position:absolute;right:clamp(10px,4cqw,25px);bottom:clamp(9px,2.9cqw,20px);
+ font:700 clamp(6px,1.3cqw,10px)/1 Montserrat,sans-serif;
+ letter-spacing:.15em;color:#e8b5a2;
+}
+
+/* ADVENTURE — keep the original pixel art as the visual hero rather than a
+   giant opaque notice that hides the background and playable character. */
+.uri-mini-adventure .uri-adventure-cover-v2{width:100%!important;height:100%!important}
+.uri-mini-adventure .uri-adventure-cover-v2 .uri-adventure-cover-label{
+ inset:auto clamp(5px,2cqw,12px) clamp(5px,2cqw,12px)!important;
+ min-width:0;max-width:none;width:auto;
+ display:flex;align-items:center;flex-wrap:wrap;justify-content:center;
+ gap:clamp(2px,.7cqw,6px) clamp(8px,2.4cqw,15px);
+ padding:clamp(6px,1.7cqw,11px) clamp(8px,2.3cqw,14px);
+ border-width:clamp(2px,.6cqw,3px);
+ box-shadow:2px 2px 0 #594331;
+ background:rgba(250,233,192,.95);
+}
+.uri-mini-adventure .uri-adventure-cover-v2 .uri-adventure-cover-label small{
+ display:none;
+}
+.uri-mini-adventure .uri-adventure-cover-v2 .uri-adventure-cover-label strong{
+ font:800 clamp(13px,4.4cqw,26px)/1.08 var(--px-type,'Pixelify Sans',monospace);
+ flex:1 1 100%;text-align:center;white-space:normal;
+}
+.uri-mini-adventure .uri-adventure-cover-v2 .uri-adventure-cover-label span{
+ font:800 clamp(7px,1.8cqw,11px)/1 var(--px-type,'Pixelify Sans',monospace);
+ letter-spacing:.08em;
+}
+
+/* The same preview language in landing, wizard and editor, with size-specific
+   type scaling driven by the actual card's container width. */
+#templates .template-preview.uri-ref-thumb{height:clamp(215px,21vw,265px)}
+.wf-design .template-preview.uri-ref-thumb{height:clamp(185px,19vw,230px)}
+.wb-template-pick .template-preview.uri-ref-thumb{height:clamp(132px,13vw,164px)}
+#templates .template,
+.wf-designs .wf-design,
+.wb-template-choices .wb-template-pick{
+ background:#fff;border:1px solid #e1e7df;position:relative;
+ box-shadow:0 2px 12px rgba(30,49,35,.035);
+}
+#templates .template:hover,
+.wf-designs .wf-design:hover,
+.wb-template-choices .wb-template-pick:hover{
+ box-shadow:0 10px 30px rgba(30,49,35,.11);
+}
+.wf-designs .wf-design.active,
+.wb-template-choices .wb-template-pick.selected{
+ outline:2px solid #246f53;outline-offset:1px;
+ background:#fdfefd;
+}
+.wf-designs .wf-design.active .template-preview::after,
+.wb-template-choices .wb-template-pick.selected .template-preview::after{
+ content:"✓";position:absolute;right:9px;top:9px;z-index:5;
+ background:#176b55;color:#fff;
+ width:25px;height:25px;border:2px solid #fff;
+ border-radius:50%;display:grid;place-items:center;
+ font:700 13px/1 'DM Sans',sans-serif;
+ box-shadow:0 2px 8px rgba(12,48,32,.22);
+}
+#templates .template>strong,.wf-design>strong,.wb-template-pick>strong{
+ line-height:1.3;letter-spacing:-.015em;
+}
+.wb-template-choices .wb-template-pick .wb-template-caption{
+ min-height:28px;line-height:1.45;
+}
+@media(max-width:700px){
+ #templates .template-preview.uri-ref-thumb{height:225px}
+ .wf-design .template-preview.uri-ref-thumb{height:200px}
+ .wb-template-pick .template-preview.uri-ref-thumb{height:150px}
+}
+@media(max-width:440px){
+ .wf-design .template-preview.uri-ref-thumb{height:200px}
+ .wb-template-pick .template-preview.uri-ref-thumb{height:145px}
+ .utm-night-copy{max-width:94%}
+ .utm-night-names{font-size:clamp(25px,10cqw,52px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .template-preview.uri-ref-thumb *,
+ .wf-designs .wf-design,.wb-template-choices .wb-template-pick,
+ #templates .template{transition:none!important}
+}
+
+/* Card-level strong typography must not override the miniature compositions.
+   Legacy .template strong / .wf-design strong selectors style card titles,
+   so nested invitation names need dedicated, higher-specificity rules. */
+.template-preview.uri-ref-thumb .uri-mini-botanical .utm-bot-paper>.utm-names{
+ display:block!important;margin:0!important;
+ font-family:var(--utm-heading,'Cormorant Garamond',serif)!important;
+ font-size:clamp(26px,8.7cqw,52px)!important;
+ font-weight:400!important;font-style:italic!important;
+ line-height:.94!important;letter-spacing:-.055em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-botanical .utm-bot-paper>.utm-names em{
+ display:block!important;margin:3px 0!important;
+ font-size:.44em!important;font-weight:400!important;
+ letter-spacing:0!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-editorial .utm-ed-copy>.utm-names{
+ display:block!important;margin:0!important;
+ font-family:var(--utm-heading,Allura,cursive)!important;
+ font-size:clamp(23px,7.5cqw,45px)!important;
+ font-style:normal!important;font-weight:400!important;
+ line-height:1!important;letter-spacing:-.025em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-editorial .utm-ed-copy>.utm-names em{
+ display:block!important;margin:1px 0!important;
+ font-size:.55em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-nightfall .utm-night-copy>.utm-night-names{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ margin:0!important;padding:0!important;
+ font-family:'Barlow Condensed','Arial Narrow',sans-serif!important;
+ font-size:clamp(29px,11cqw,68px)!important;
+ font-weight:800!important;line-height:.83!important;letter-spacing:.014em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-nightfall .utm-night-names em{
+ display:block!important;margin:clamp(2px,.65cqw,6px) 0!important;
+ font-size:.48em!important;font-style:normal!important;
+ color:var(--utm-accent);
+}
+.utm-bot-sprig{
+ width:122%;left:-9%;top:5%;transform:rotate(-5deg);opacity:.9;
+}
+@container (max-width:210px){
+ .uri-template-mini .utm-ed-page{grid-template-columns:37% minmax(0,63%)}
+ .uri-template-mini .utm-ed-side{display:none}
+ .template-preview.uri-ref-thumb .uri-mini-editorial .utm-ed-copy>.utm-names{
+  font-size:clamp(21px,13cqw,28px)!important;
+ }
+ .uri-mini-editorial .utm-ed-copy{gap:5px;padding:7px 4px}
+ .uri-mini-editorial .utm-ed-copy .utm-names span{
+  white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+ }
+ .uri-mini-editorial .utm-ed-masthead,.uri-mini-editorial .utm-ed-foot{letter-spacing:.03em}
+ .template-preview.uri-ref-thumb .uri-mini-nightfall .utm-night-copy>.utm-night-names{
+  font-size:clamp(26px,17cqw,35px)!important;
+ }
+ .uri-mini-botanical .utm-bot-eyebrow{font-size:6px;letter-spacing:.04em}
+ .uri-mini-botanical .utm-bot-paper{gap:4px}
+ .uri-mini-botanical .utm-bot-corner{opacity:.17}
+}
+
+/* The landing gallery also sets generic .template span rules. Name letters
+   inside thumbnail typography must inherit the dedicated display size rather
+   than accidentally becoming 10px spans. */
+.template-preview.uri-ref-thumb .uri-template-mini .utm-names>span,
+.template-preview.uri-ref-thumb .uri-template-mini .utm-night-names>span{
+ font:inherit!important;
+ letter-spacing:inherit!important;
+ text-transform:inherit!important;
+}

@@ -234,7 +234,7 @@ const image=async (page,name)=>{
     await page.locator('.wb-template-pick').nth(1).click();
     await page.locator('#wbLivePreview .wb-editorial-sides-none').waitFor();
     assert.equal(await page.locator('#wbLivePreview .wb-editorial-side').count(),0);
-    assert.equal(await page.locator('.wb-template-pick.selected .wb-mini-sides-none').count(),1);
+    assert.equal(await page.locator('.wb-template-pick.selected .uri-mini-editorial').count(),1,'A dedicated miniature artboard represents the selected Editorial template');
     await image(page,'07a-editorial-no-side-sections.png');
     await page.locator('.wb-tabs button').filter({hasText:'Features'}).click();
     await page.locator('.wb-available-item[data-feature-id="details"] button[data-feature-add]').click();
