@@ -51,6 +51,9 @@ async function journey(engine,name){
    console.error('Published route diagnostic',await page.evaluate(()=>({
     href:location.href,ready:document.readyState,
     route:window.URI_PUBLIC_ROUTE,
+    routeDetails:window.__uriRouteDebug,
+    documentBase:document.baseURI,
+    scriptsLast:[...document.scripts].slice(-5).map(x=>x.src),
     config:window.URICloud?.configured?.(),
     scripts:document.scripts.length,
     app:document.querySelector('#app')?.textContent?.slice(0,500),
