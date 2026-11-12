@@ -296,3 +296,63 @@
  .wf-designs .wf-design,.wb-template-choices .wb-template-pick,
  #templates .template{transition:none!important}
 }
+
+/* Card-level strong typography must not override the miniature compositions.
+   Legacy .template strong / .wf-design strong selectors style card titles,
+   so nested invitation names need dedicated, higher-specificity rules. */
+.template-preview.uri-ref-thumb .uri-mini-botanical .utm-bot-paper>.utm-names{
+ display:block!important;margin:0!important;
+ font-family:var(--utm-heading,'Cormorant Garamond',serif)!important;
+ font-size:clamp(26px,8.7cqw,52px)!important;
+ font-weight:400!important;font-style:italic!important;
+ line-height:.94!important;letter-spacing:-.055em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-botanical .utm-bot-paper>.utm-names em{
+ display:block!important;margin:3px 0!important;
+ font-size:.44em!important;font-weight:400!important;
+ letter-spacing:0!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-editorial .utm-ed-copy>.utm-names{
+ display:block!important;margin:0!important;
+ font-family:var(--utm-heading,Allura,cursive)!important;
+ font-size:clamp(23px,7.5cqw,45px)!important;
+ font-style:normal!important;font-weight:400!important;
+ line-height:1!important;letter-spacing:-.025em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-editorial .utm-ed-copy>.utm-names em{
+ display:block!important;margin:1px 0!important;
+ font-size:.55em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-nightfall .utm-night-copy>.utm-night-names{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ margin:0!important;padding:0!important;
+ font-family:'Barlow Condensed','Arial Narrow',sans-serif!important;
+ font-size:clamp(29px,11cqw,68px)!important;
+ font-weight:800!important;line-height:.83!important;letter-spacing:.014em!important;
+}
+.template-preview.uri-ref-thumb .uri-mini-nightfall .utm-night-names em{
+ display:block!important;margin:clamp(2px,.65cqw,6px) 0!important;
+ font-size:.48em!important;font-style:normal!important;
+ color:var(--utm-accent);
+}
+.utm-bot-sprig{
+ width:122%;left:-9%;top:5%;transform:rotate(-5deg);opacity:.9;
+}
+@container (max-width:210px){
+ .uri-template-mini .utm-ed-page{grid-template-columns:37% minmax(0,63%)}
+ .uri-template-mini .utm-ed-side{display:none}
+ .template-preview.uri-ref-thumb .uri-mini-editorial .utm-ed-copy>.utm-names{
+  font-size:clamp(21px,13cqw,28px)!important;
+ }
+ .uri-mini-editorial .utm-ed-copy{gap:5px;padding:7px 4px}
+ .uri-mini-editorial .utm-ed-copy .utm-names span{
+  white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+ }
+ .uri-mini-editorial .utm-ed-masthead,.uri-mini-editorial .utm-ed-foot{letter-spacing:.03em}
+ .template-preview.uri-ref-thumb .uri-mini-nightfall .utm-night-copy>.utm-night-names{
+  font-size:clamp(26px,17cqw,35px)!important;
+ }
+ .uri-mini-botanical .utm-bot-eyebrow{font-size:6px;letter-spacing:.04em}
+ .uri-mini-botanical .utm-bot-paper{gap:4px}
+ .uri-mini-botanical .utm-bot-corner{opacity:.17}
+}
