@@ -30,11 +30,12 @@ function ensureGuestTokens(e){
   if(!/^[a-f0-9]{64}$/.test(String(guest.onlineToken||''))){
    guest.onlineToken=randomToken();changed=true;
   }
+  if(!/^[a-f0-9]{64}$/.test(String(guest.checkinToken||''))){guest.checkinToken=randomToken();changed=true;}
  }
  if(changed)store();
 }
 async function syncGuests(c,e){
- const rows=[];
+ const rows=[],codes=[];
  for(const g of e.guests||[]){
   if(!g?.id||!g.name)continue;
   rows.push({
@@ -44,26 +45,36 @@ async function syncGuests(c,e){
    household_id:String(g.householdId||'').slice(0,100),
    plus_ones_allowed:Math.max(0,Math.min(5,Number(g.plusOnesAllowed)||0))
   });
+  codes.push({guest_id:String(g.id),code_hash:await sha256(g.checkinToken)});
  }
- const {error:syncError}=await c.rpc('uri_sync_guest_tokens',{p_event_id:e.id,p_guests:rows});
+ const owner=e._uriCloudOwnerId||user.id;
+ const {error:syncError}=owner===user.id
+  ?await c.rpc('uri_sync_guest_tokens',{p_event_id:e.id,p_guests:rows})
+  :await c.rpc('uri_cohost_sync_guests',{p_owner_id:owner,p_event_id:e.id,p_guests:rows});
  if(syncError)throw syncError;
+ const {error:codeError}=await c.rpc('uri_sync_checkin_codes',{p_owner_id:owner,p_event_id:e.id,p_codes:codes});
+ if(codeError)throw codeError;
  await cloudGuestRefresh(e);
 }
 
 async function saveEvent(e,c){
  if(!user||!e||e.type!=='Wedding')return;
- if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id)throw Error('This draft belongs to a different cloud account.');
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor')throw Error('Editor permission required for this shared draft.');
  ensureGuestTokens(e);
  const epoch=editEpoch.get(e.id)||0;
  const revision=Number(e._uriCloudRevision)||0;
  const payload=JSON.parse(JSON.stringify(e));
  delete payload._uriCloudRevision;delete payload._uriCloudSyncedAt;delete payload._uriCloudOwnerId;
+ delete payload._uriCloudRole;delete payload._uriCloudPending;
  // Guard against oversized local data URL uploads; the server has the same limit.
  if(JSON.stringify(payload).length>7900000)throw Error('This invitation exceeds cloud draft size. Reduce the number or size of photos.');
- const {data,error}=await c.rpc('uri_save_draft',{p_event_id:e.id,p_payload:payload,p_revision:revision});
+ const owner=e._uriCloudOwnerId||user.id;
+ const {data,error}=owner===user.id
+  ?await c.rpc('uri_save_draft',{p_event_id:e.id,p_payload:payload,p_revision:revision})
+  :await c.rpc('uri_cohost_save_draft',{p_owner_id:owner,p_event_id:e.id,p_payload:payload,p_revision:revision});
  if(error){if(/conflict/i.test(error.message))conflicts.add(e.id);throw error}
  e._uriCloudRevision=Number(data);
- e._uriCloudOwnerId=user.id;
+ e._uriCloudOwnerId=owner;
  e._uriCloudSyncedAt=new Date().toISOString();
  await syncGuests(c,e);
  if((editEpoch.get(e.id)||0)===epoch){dirty.delete(e.id);e._uriCloudPending=false}
@@ -82,7 +93,7 @@ async function flush(){
   for(const id of [...dirty]){
    const e=local().find(x=>x.id===id);
    if(!e){dirty.delete(id);continue}
-   if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id){dirty.delete(id);stamp('A local draft belongs to another account and was not uploaded.');continue}
+   if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor'){dirty.delete(id);stamp('Editor permission required to sync shared drafts.');continue}
    if(conflicts.has(id))continue;
    try{await saveEvent(e,c)}catch(err){stamp('Cloud sync failed: '+(err.message||'Please retry.'));continue}
   }
@@ -92,7 +103,7 @@ async function flush(){
 function queueSave(){
  const e=current();if(!e?.id||e.type!=='Wedding')return;
  if(!user){if(e._uriCloudOwnerId){e._uriCloudPending=true;store()}return}
- if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id){stamp('Draft belongs to another account; sync blocked.');return}
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor'){stamp('Editor permission required to sync this invitation.');return}
  if(!e._uriCloudOwnerId){
   if(!Number(e.created)||Number(e.created)<accountActivatedAt){
    stamp('Saved locally. Use Cloud to explicitly import this existing invitation.');return;
@@ -109,7 +120,7 @@ async function cloudGuestRefresh(e){
  const c=client();if(!user||!e)return;
  const {data,error}=await c.from('uri_guest_tokens')
   .select('guest_id,status,plus_ones_confirmed,answers,responded_at')
-  .eq('owner_id',user.id).eq('local_event_id',e.id);
+  .eq('owner_id',e._uriCloudOwnerId||user.id).eq('local_event_id',e.id);
  if(error)throw error;
  for(const row of data||[]){
   const g=e.guests?.find(x=>String(x.id)===row.guest_id);if(!g)continue;
@@ -123,25 +134,29 @@ async function pull(force=false){
  const c=client();if(!c)return 0;loading=true;
  try{
   const {data,error}=await c.from('uri_drafts')
-    .select('local_event_id,payload,revision,updated_at').eq('owner_id',user.id)
+    .select('owner_id,local_event_id,payload,revision,updated_at')
     .order('updated_at',{ascending:false});
   if(error)throw error;
   let count=0,skipped=0;
   for(const row of data||[]){
-   const incoming=row.payload;
+   const incoming=row.payload,owner=row.owner_id||user.id;
    if(!incoming||incoming.id!==row.local_event_id||incoming.type!=='Wedding')continue;
    const i=local().findIndex(e=>e.id===row.local_event_id);
    const old=i>=0?local()[i]:null;
-   if(old&&old._uriCloudOwnerId&&old._uriCloudOwnerId!==user.id){skipped++;continue}
+   if(old&&old._uriCloudOwnerId&&old._uriCloudOwnerId!==owner){skipped++;continue}
    if(old&&!force&&(old._uriCloudPending||dirty.has(old.id)||
       ((!old._uriCloudRevision||Number(old._uriCloudRevision)===0)&&i>=0&&
        !old._uriCloudSyncedAt)||Number(old._uriCloudRevision)>Number(row.revision))){skipped++;continue}
    if(old&&Number(old._uriCloudRevision)===Number(row.revision)&&!force)continue;
-   const next={...incoming,_uriCloudRevision:Number(row.revision),_uriCloudOwnerId:user.id,_uriCloudSyncedAt:row.updated_at};
+   const next={...incoming,_uriCloudRevision:Number(row.revision),_uriCloudOwnerId:owner,
+    _uriCloudRole:owner===user.id?'owner':'editor',_uriCloudSyncedAt:row.updated_at};
    if(i>=0)state.events[i]=next;else state.events.push(next);
    await cloudGuestRefresh(next);
    dirty.delete(next.id);conflicts.delete(next.id);count++;
   }
+  // Remove previously cached shared drafts once server access is withdrawn.
+  const visible=new Set((data||[]).map(row=>(row.owner_id||user.id)+'/'+row.local_event_id));
+  state.events=state.events.filter(e=>!(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole==='editor'&&!visible.has(e._uriCloudOwnerId+'/'+e.id)));
   store();
   if(count&&['#dashboard','#cloud','#event'].includes(location.hash))render();
   stamp(count?'Restored '+count+' cloud invitation'+(count===1?'':'s')+'.':
@@ -212,7 +227,7 @@ window.uriCloudRestore=async()=>{
 window.uriCloudSyncNow=async()=>{
  if(!user)await signedIn();
  if(!user)return stamp('Sign in to sync.');
- for(const e of local())if(e.type==='Wedding'&&(!e._uriCloudOwnerId||e._uriCloudOwnerId===user.id))dirty.add(e.id);
+ for(const e of local())if(e.type==='Wedding'&&(!e._uriCloudOwnerId||e._uriCloudOwnerId===user.id||e._uriCloudRole==='editor'))dirty.add(e.id);
  await flush();
 };
 window.uriCloudActivate=activate;
@@ -225,7 +240,7 @@ window.URICloudDrafts={queueSave,pull,deleteDraft,flushCurrent:async()=>{
  if(!user)await signedIn();
  if(!user)throw Error('Sign in to publish your invitation.');
  const e=current();if(!e)return;
- if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id)throw Error('This event belongs to a different cloud account.');
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor')throw Error('Editor permission required for this event.');
  dirty.add(e.id);await flush();
  if(dirty.has(e.id))throw Error('Cloud sync did not complete. Resolve the draft conflict before publishing.');
 },getUser:()=>user,isSynced:e=>!!user&&!!e?!!e._uriCloudRevision:false,cloudGuestRefresh,refreshAccount:activate,hashToken:sha256,randomToken};
