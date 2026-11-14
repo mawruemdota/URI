@@ -31,7 +31,7 @@ const window={URIBuilder:U,URITemplateStudio:{studio:()=>'<div>Original design p
  addEventListener(){},isSecureContext:false};
 const app={querySelector(){return null},innerHTML:''};
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
-const ctx={window,app,current:()=>event,eventPage(){renders++},dashboard(){},render(){},state:{events:[event]},
+const ctx={window,app,tab:'guests',current:()=>event,eventPage(){renders++},dashboard(){},render(){},state:{events:[event]},
  esc,location:{hash:'#home'},alert(){},prompt(){},document:{getElementById(){return null}},
  confirm(){return true},Date,console,navigator:{}};
 vm.createContext(ctx);
