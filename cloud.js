@@ -87,6 +87,7 @@ window.uriCloudSignOut=async()=>{let c=db();if(c)await c.auth.signOut();session=
 function slug(){if(typeof crypto!=='undefined'&&crypto.randomUUID)return 'uri-'+crypto.randomUUID();let a=new Uint8Array(20);crypto.getRandomValues(a);return 'uri-'+Array.from(a,x=>x.toString(16).padStart(2,'0')).join('')}
 async function imageToCloud(source,uid,id){if(!source||!source.startsWith('data:image/'))return source||'';let c=db(),blob=await (await fetch(source)).blob(),filename=uid+'/'+id+'/'+slug()+'.jpg';let {error}=await c.storage.from('uri-wedding-public').upload(filename,blob,{contentType:'image/jpeg',upsert:false});if(error)throw error;return c.storage.from('uri-wedding-public').getPublicUrl(filename).data.publicUrl}
 window.uriCloudPublish=async()=>{let e=current(),c=db();if(!e||!c||working)return;
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==window.URICloudDrafts?.getUser?.()?.id){stateMessage('Only the event owner can publish this invitation.');return;}
  const username=normalizeUsername(draftUsername(e));
  if(!isValidUsername(username)){stateMessage('Choose a valid event username: 3–32 lowercase letters, numbers, or single hyphens.');return}
  if(e.cloudPublished&&e.cloudSlug&&e.cloudSlug!==username&&!confirm('Change this event URL from /'+e.cloudSlug+' to /'+username+'? The old public link will stop working, including links already sent to guests.'))return;

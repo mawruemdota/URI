@@ -1,0 +1,72 @@
+/* URI Operations, Sharing and Style Studio.
+   Mobile-first, accessible controls; keep this separate from public invitation CSS. */
+.uri-ops-main{display:grid;gap:20px;min-width:0}
+.uri-ops-panel{background:#fff;border:1px solid #dfe7df;border-radius:16px;padding:clamp(16px,2.5vw,28px);margin:18px 0;min-width:0;box-shadow:0 4px 16px rgba(30,48,36,.035)}
+.uri-ops-panel h3{font-size:clamp(22px,3vw,29px);margin:0 0 6px}
+.uri-ops-panel h4{margin:20px 0 8px;font:700 15px 'DM Sans',sans-serif}
+.uri-ops-panel p{margin:5px 0 14px}
+.uri-ops-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:14px 0}
+.uri-ops-actions>.btn{flex:0 1 auto}
+.uri-ops-actions label,.uri-ops-code label{display:grid;gap:6px;font-size:13px;font-weight:700;flex:1 1 180px;min-width:0}
+.uri-ops-actions select,.uri-ops-code input,.uri-ops-code select{width:100%;max-width:100%;min-height:44px;border:1px solid #cbd9d0;background:#fff;border-radius:10px;color:#22362d;padding:10px 11px;font:inherit}
+.uri-ops-code{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:14px}
+.uri-ops-code .btn{min-height:44px}
+.uri-ops-note{font-size:12px!important;color:#64766a;line-height:1.65!important}
+.uri-ops-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.uri-ops-progress>div{background:#fff;border:1px solid #dce6df;border-radius:13px;padding:16px 13px;display:grid;gap:3px;min-width:0}
+.uri-ops-progress strong{font-size:clamp(22px,3vw,31px);line-height:1.2;font-variant-numeric:tabular-nums;color:#165e48}
+.uri-ops-progress span{font-size:12px;color:#65796e}
+.uri-ops-bar{background:#e6eeea;border-radius:10px;width:100%;height:10px;overflow:hidden;margin:10px 0 0}
+.uri-ops-bar>span{display:block;background:#217b5b;height:100%;border-radius:10px;transition:width .2s ease}
+.uri-ops-summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 12px;margin:10px 0}
+.uri-ops-summary strong{font-size:24px;color:#125a46;font-variant-numeric:tabular-nums}
+.uri-ops-summary span{font-size:12px;color:#66776b;margin-right:15px}
+.uri-ops-list{display:grid;gap:8px;max-height:560px;overflow:auto;padding-right:3px}
+.uri-ops-list>div{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #e7ece7;border-radius:12px;padding:11px 12px;background:#fcfdfb;min-width:0}
+.uri-ops-list>div>div:first-child{min-width:0;overflow-wrap:anywhere}
+.uri-ops-list strong{font-size:13px;display:block;overflow-wrap:anywhere}
+.uri-ops-list small{color:#647568;font-size:11px;display:block;margin-top:4px;line-height:1.4}
+.uri-ops-row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.uri-ops-row-actions button,.uri-ops-list button{font-size:11px;padding:8px 10px;white-space:normal}
+.uri-ops-camera{display:block;width:100%;max-width:520px;max-height:370px;border-radius:12px;object-fit:cover;background:#171c1a;margin:14px auto}
+.uri-ops-camera[hidden]{display:none}
+.uri-ops-page{max-width:900px}
+.uri-ops-cloud .uri-ops-panel{margin-top:0}
+.uri-ops-dashboard-metrics{display:flex;gap:16px;flex-wrap:wrap;margin:8px 0 18px}
+.uri-ops-dashboard-metrics span{border:1px solid #dce8df;border-radius:10px;background:#f2f8f3;color:#426554;padding:9px 12px;font-size:12px}
+.uri-ops-dashboard-metrics strong{font-size:17px;color:#155e45}
+.uri-style-packs{border:1px solid #dfe7df;border-radius:14px;padding:16px;margin:20px 0;background:#fcfdfb}
+.uri-style-head h4{margin:0 0 3px;font-size:16px}
+.uri-style-head p{font-size:12px;margin:0 0 12px}
+.uri-style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.uri-style-choice{border:1px solid #d9e2d9;background:#fff;border-radius:10px;padding:7px;min-width:0;text-align:left;transition:box-shadow .15s,border-color .15s}
+.uri-style-choice.active,.uri-style-choice[aria-pressed=true]{border-color:#196d4e;box-shadow:0 0 0 2px #176b5522}
+.uri-style-choice:hover{border-color:#8dbca1}
+.uri-style-choice>strong{display:block;font-size:11px;margin:7px 1px 0}
+.uri-style-choice>small{display:block;font-size:10px;color:#6f7d72;margin:2px 1px 5px}
+.uri-style-sample{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:10px;border-radius:7px;height:74px;overflow:hidden;background:var(--sample-bg);color:var(--sample-ink)}
+.uri-style-sample i{height:45px;width:28%;background:var(--sample-accent);opacity:.7}
+.uri-style-sample strong{font:400 25px Georgia,serif}
+.uri-style-sample span{color:var(--sample-accent);font-size:21px}
+.uri-ops-panel [role=status]{font-size:13px;overflow-wrap:anywhere;line-height:1.6}
+@media(max-width:800px){
+ .uri-ops-progress{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .uri-style-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .uri-ops-list>div{align-items:flex-start;flex-direction:column}
+ .uri-ops-row-actions{justify-content:flex-start}
+}
+@media(max-width:460px){
+ .uri-ops-panel{padding:15px 12px}
+ .uri-ops-progress{gap:6px}
+ .uri-ops-progress>div{padding:12px 10px}
+ .uri-ops-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .uri-ops-actions label{grid-column:1/-1}
+ .uri-ops-actions .btn{padding:11px 8px;font-size:11px}
+ .uri-style-grid{gap:6px}
+ .uri-style-choice{padding:5px}
+ .uri-style-sample{height:65px}
+ .uri-ops-code{flex-direction:column;align-items:stretch}
+}
+@media(prefers-reduced-motion:reduce){
+ .uri-style-choice,.uri-ops-bar>span{transition:none}
+}

@@ -5,7 +5,7 @@ let activeFilter='all',activeSort='edited',query='';
 const T=value=>esc(value==null?'':String(value));
 const events=()=>{
  const account=window.URICloudDrafts?.getUser?.();
- return Array.isArray(state.events)?state.events.filter(e=>!e._uriCloudOwnerId||(account&&e._uriCloudOwnerId===account.id)):[];
+ return Array.isArray(state.events)?state.events.filter(e=>!e._uriCloudOwnerId||(account&&(e._uriCloudOwnerId===account.id||(e._uriCloudRole==='editor'&&e._uriCohostUserId===account.id)))):[];
 };
 const published=e=>e.type==='Wedding'&&e.cloudPublished===true&&!!e.cloudSlug;
 const status=e=>published(e)?'Published':e.status==='published'?'Local test':'Draft';
