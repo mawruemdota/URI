@@ -37,6 +37,7 @@ const server=http.createServer((req,res)=>{
    assert.match(await page.locator('.uri-ops-main').innerText(),/Collaborators/);
    assert.match(await page.locator('.uri-ops-main').innerText(),/Invitation Sharing 2.0/);
    await page.locator('.uri-ops-main').screenshot({path:path.join(out,'operations-'+view.name+'.png'),animations:'disabled'});
+   await page.evaluate(()=>{current().cloudPublished=true;current().cloudSlug='maya-and-emir'});
    const canvas=await page.evaluate(async()=>{
     const e=current(),a=await window.URIShare.card(e,'portrait'),b=await window.URIShare.card(e,'square'),c=await window.URIShare.card(e,'story');
     return [a.width,a.height,b.width,b.height,c.width,c.height,a.toDataURL('image/png').startsWith('data:image/png;base64,')];
