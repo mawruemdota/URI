@@ -203,7 +203,8 @@ async function memberInvites(){
 async function cloudMembers(){
  const el=document.getElementById('uriOpsCloudMembers');if(!el)return;
  try{
-  const c=api(),{data}=await c.auth.getUser();
+  const c=api();if(!c){el.innerHTML='<p>Online collaboration requires the cloud connection. Sign in to manage cohosts.</p>';return}
+  const {data}=await c.auth.getUser();
   if(!data?.user){el.innerHTML='<p>Sign in to view invitations from other event organizers.</p>';return}
   const invites=(await memberInvites()).filter(m=>m.owner_id!==data.user.id);
   el.innerHTML=invites.length?'<div class="uri-ops-list">'+invites.map(m=>'<div class="uri-ops-member"><div><strong>'+T(m.role==='editor'?'Event editor':'Check-in staff')+'</strong><small>Event '+T(m.local_event_id)+' · '+(m.accepted_at?'Accepted':'Invitation pending')+'</small></div><div class="uri-ops-row-actions">'
@@ -266,7 +267,7 @@ dashboard=function(){
  oldDashboard();
  const el=app.querySelector('.uri-dash-heading');
  if(el){
-  const events=(state.events||[]).filter(e=>e.type==='Wedding'&&(!e._uriCloudOwnerId||e._uriCloudOwnerId===who()?.id||e._uriCloudRole==='editor'));
+  const events=(state.events||[]).filter(e=>e.type==='Wedding'&&(!e._uriCloudOwnerId||e._uriCloudOwnerId===who()?.id||(e._uriCloudRole==='editor'&&e._uriCohostUserId===who()?.id)));
   const invited=events.reduce((n,e)=>n+activeGuestList(e).length,0);
   const pending=events.reduce((n,e)=>n+activeGuestList(e).filter(g=>g.status==='pending').length,0);
   el.insertAdjacentHTML('afterend','<div class="uri-ops-dashboard-metrics"><span><strong>'+invited+'</strong> guests across invitations</span><span><strong>'+pending+'</strong> awaiting RSVP</span></div>');
