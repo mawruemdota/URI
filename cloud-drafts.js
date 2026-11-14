@@ -59,13 +59,13 @@ async function syncGuests(c,e){
 
 async function saveEvent(e,c){
  if(!user||!e||e.type!=='Wedding')return;
- if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor')throw Error('Editor permission required for this shared draft.');
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&(e._uriCloudRole!=='editor'||e._uriCohostUserId!==user.id))throw Error('Editor permission required for this shared draft.');
  ensureGuestTokens(e);
  const epoch=editEpoch.get(e.id)||0;
  const revision=Number(e._uriCloudRevision)||0;
  const payload=JSON.parse(JSON.stringify(e));
  delete payload._uriCloudRevision;delete payload._uriCloudSyncedAt;delete payload._uriCloudOwnerId;
- delete payload._uriCloudRole;delete payload._uriCloudPending;
+ delete payload._uriCloudRole;delete payload._uriCohostUserId;delete payload._uriCloudPending;
  // Guard against oversized local data URL uploads; the server has the same limit.
  if(JSON.stringify(payload).length>7900000)throw Error('This invitation exceeds cloud draft size. Reduce the number or size of photos.');
  const owner=e._uriCloudOwnerId||user.id;
@@ -93,7 +93,7 @@ async function flush(){
   for(const id of [...dirty]){
    const e=local().find(x=>x.id===id);
    if(!e){dirty.delete(id);continue}
-   if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor'){dirty.delete(id);stamp('Editor permission required to sync shared drafts.');continue}
+   if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&(e._uriCloudRole!=='editor'||e._uriCohostUserId!==user.id)){dirty.delete(id);stamp('Editor permission required to sync shared drafts.');continue}
    if(conflicts.has(id))continue;
    try{await saveEvent(e,c)}catch(err){stamp('Cloud sync failed: '+(err.message||'Please retry.'));continue}
   }
@@ -103,7 +103,7 @@ async function flush(){
 function queueSave(){
  const e=current();if(!e?.id||e.type!=='Wedding')return;
  if(!user){if(e._uriCloudOwnerId){e._uriCloudPending=true;store()}return}
- if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor'){stamp('Editor permission required to sync this invitation.');return}
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&(e._uriCloudRole!=='editor'||e._uriCohostUserId!==user.id)){stamp('Editor permission required to sync this invitation.');return}
  if(!e._uriCloudOwnerId){
   if(!Number(e.created)||Number(e.created)<accountActivatedAt){
    stamp('Saved locally. Use Cloud to explicitly import this existing invitation.');return;
@@ -149,7 +149,7 @@ async function pull(force=false){
        !old._uriCloudSyncedAt)||Number(old._uriCloudRevision)>Number(row.revision))){skipped++;continue}
    if(old&&Number(old._uriCloudRevision)===Number(row.revision)&&!force)continue;
    const next={...incoming,_uriCloudRevision:Number(row.revision),_uriCloudOwnerId:owner,
-    _uriCloudRole:owner===user.id?'owner':'editor',_uriCloudSyncedAt:row.updated_at};
+    _uriCloudRole:owner===user.id?'owner':'editor',_uriCohostUserId:owner===user.id?'':user.id,_uriCloudSyncedAt:row.updated_at};
    if(i>=0)state.events[i]=next;else state.events.push(next);
    await cloudGuestRefresh(next);
    dirty.delete(next.id);conflicts.delete(next.id);count++;
@@ -227,7 +227,7 @@ window.uriCloudRestore=async()=>{
 window.uriCloudSyncNow=async()=>{
  if(!user)await signedIn();
  if(!user)return stamp('Sign in to sync.');
- for(const e of local())if(e.type==='Wedding'&&(!e._uriCloudOwnerId||e._uriCloudOwnerId===user.id||e._uriCloudRole==='editor'))dirty.add(e.id);
+ for(const e of local())if(e.type==='Wedding'&&(!e._uriCloudOwnerId||e._uriCloudOwnerId===user.id||(e._uriCloudRole==='editor'&&e._uriCohostUserId===user.id)))dirty.add(e.id);
  await flush();
 };
 window.uriCloudActivate=activate;
@@ -240,7 +240,7 @@ window.URICloudDrafts={queueSave,pull,deleteDraft,flushCurrent:async()=>{
  if(!user)await signedIn();
  if(!user)throw Error('Sign in to publish your invitation.');
  const e=current();if(!e)return;
- if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&e._uriCloudRole!=='editor')throw Error('Editor permission required for this event.');
+ if(e._uriCloudOwnerId&&e._uriCloudOwnerId!==user.id&&(e._uriCloudRole!=='editor'||e._uriCohostUserId!==user.id))throw Error('Editor permission required for this event.');
  dirty.add(e.id);await flush();
  if(dirty.has(e.id))throw Error('Cloud sync did not complete. Resolve the draft conflict before publishing.');
 },getUser:()=>user,isSynced:e=>!!user&&!!e?!!e._uriCloudRevision:false,cloudGuestRefresh,refreshAccount:activate,hashToken:sha256,randomToken};
