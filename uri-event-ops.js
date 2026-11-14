@@ -35,10 +35,10 @@ function guestTools(e){
  const people=activeGuestList(e),n=calc(e);
  return '<section class="uri-ops-panel" id="uriGuestProgress"><h3>Invitation delivery & follow-ups</h3><p>Track who received their invitation and who needs a manual reminder. Use the secure personal link for guest responses.</p>'
  +'<div class="uri-ops-summary"><strong>'+n.sent+' / '+n.total+'</strong><span>invitations marked sent</span><strong>'+n.pending+'</strong><span>pending responses</span></div>'
- +(people.length?'<div class="uri-ops-list">'+people.map(g=>'<div class="uri-ops-guest"><div><strong>'+T(g.name)+'</strong><small>'+T(g.status)+' · '+(g.inviteSentAt?'Sent '+T(timeString(g.inviteSentAt)):'Not marked sent')+(g.reminderAt?' · Reminded '+T(timeString(g.reminderAt)):'')+'</small></div><div class="uri-ops-row-actions">'
+ +(people.length?'<div class="uri-ops-list">'+people.map(g=>'<div class="uri-ops-guest" data-guest-id="'+T(g.id)+'"><div><strong>'+T(g.name)+'</strong><small>'+T(g.status)+' · '+(g.inviteSentAt?'Sent '+T(timeString(g.inviteSentAt)):'Not marked sent')+(g.reminderAt?' · Reminded '+T(timeString(g.reminderAt)):'')+'</small></div><div class="uri-ops-row-actions">'
  +actionButton(g.id,'Mark sent','uriOpsMarkSent')
  +(g.status==='pending'?actionButton(g.id,'Mark reminded','uriOpsMarkReminder'):'')
- +'<button type="button" class="btn small" onclick="uriShareGuestPass(this.closest(\'.uri-ops-guest\').dataset.guestId)" '+(!e._uriCloudRevision?'disabled title="Save the event to cloud first"':'')+'>Guest QR pass</button></div></div>'.replace('class="uri-ops-guest"','class="uri-ops-guest" data-guest-id="'+T(g.id)+'"')).join('')+'</div>'
+ +'<button type="button" class="btn small" onclick="uriShareGuestPass(this.closest(\'.uri-ops-guest\').dataset.guestId)" '+(!e._uriCloudRevision?'disabled title="Save the event to cloud first"':'')+'>Guest QR pass</button></div></div>).join('')+'</div>'
  :'<p>Add guests above to track delivery and create individual check-in passes.</p>')
  +'</section>';
 }
