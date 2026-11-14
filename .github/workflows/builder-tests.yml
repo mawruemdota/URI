@@ -59,6 +59,8 @@ jobs:
         run: node tests/qa-hardening.cjs
       - name: Test cross-device draft sync and private RSVP link workflows
         run: node tests/cloud-sync-smoke.cjs
+      - name: Verify sharing, cohost safety and event operations smoke tests
+        run: node tests/event-operations-smoke.cjs
 
   browser-qa:
     runs-on: ubuntu-24.04
@@ -84,6 +86,8 @@ jobs:
         run: node tests/template-finishing-browser.cjs
       - name: Capture template thumbnails across landing, wizard, and editor
         run: node tests/template-thumbnails-browser.cjs
+      - name: Test event sharing, guest management, style controls and real PNG export
+        run: node tests/event-operations-browser.cjs
       - name: Preserve screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
@@ -94,6 +98,7 @@ jobs:
             artifacts/adventure-browser/
             artifacts/template-refresh/
             artifacts/thumbnail-refresh/
+            artifacts/event-operations/
           if-no-files-found: ignore
           retention-days: 14
 
