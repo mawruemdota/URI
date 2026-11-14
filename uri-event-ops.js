@@ -165,7 +165,7 @@ async function listMembers(e){
  const c=api(),u=who();if(!c||!u||!e)return;
  const owner=ownerOf(e);
  if(!e._uriCloudRevision){setText('uriOpsCohostMessage','Save your event to the cloud before inviting cohosts.');return}
- const {data,error}=await c.from('uri_event_members').select('member_id,role,accepted_at,invited_at')
+ const {data,error}=await c.from('uri_event_members').select('member_id,member_email,role,accepted_at,invited_at')
   .eq('owner_id',owner).eq('local_event_id',e.id);
  if(error){setText('uriOpsCohostMessage','Unable to load cohosts: '+error.message);return}
  const list=document.getElementById('uriOpsMemberList');
