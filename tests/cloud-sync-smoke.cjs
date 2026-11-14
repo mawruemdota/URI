@@ -14,6 +14,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
     db.drafts.set(args.p_event_id,{local_event_id:args.p_event_id,payload:JSON.parse(JSON.stringify(args.p_payload)),revision,updated_at:new Date().toISOString()});
     return {data:revision,error:null};
    }
+   if(name==='uri_sync_checkin_codes'){
+    for(const row of args.p_codes){const old=db.guestRows.get(row.guest_id);if(old)old.checkin_hash=row.code_hash}
+    return {data:args.p_codes.length,error:null};
+   }
    if(name==='uri_sync_guest_tokens'){
     const keep=new Set();
     for(const g of args.p_guests){keep.add(g.guest_id);db.guestRows.set(g.guest_id,{...db.guestRows.get(g.guest_id),...g,status:db.guestRows.get(g.guest_id)?.status||'pending',
@@ -62,6 +66,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
  assert.equal(e._uriCloudRevision,1,'Cloud created a versioned draft after explicit import');
  assert.equal(e._uriCloudOwnerId,account.id,'Draft is bound to the signed-in owner');
  assert.match(e.guests[0].onlineToken,/^[a-f0-9]{64}$/,'High entropy token generated');
+ assert.match(e.guests[0].checkinToken,/^[a-f0-9]{64}$/,'Independent QR check-in token generated');
  assert.equal(db.guestRows.get('guest-1').token_hash,crypto.createHash('sha256').update(e.guests[0].onlineToken).digest('hex'));
  assert.equal(db.drafts.get(e.id).payload.guests[0].onlineToken,e.guests[0].onlineToken,'Owner-only draft preserves bearer link');
  // A returned server RSVP is authoritative even after owner edits.
