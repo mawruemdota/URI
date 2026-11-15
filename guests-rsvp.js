@@ -221,7 +221,7 @@ window.uriGuestsImport=async ev=>{
    else{seen.add(k);fresh.push(guest)}
   }
   if(!fresh.length)throw Error('All guests are already in this event.');
-  if(e.guests.length+fresh.length>500)throw Error('Local prototype supports up to 500 guests');
+  if(e.guests.length+fresh.length>500)throw Error('An event supports up to 500 guests');
   if(!persist(event=>{
    for(const item of fresh){
     let h=event.households.find(x=>x.name.toLowerCase()===item.household.toLowerCase());
