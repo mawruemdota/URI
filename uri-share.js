@@ -4,16 +4,31 @@
 'use strict';
 const T=v=>esc(v==null?'':String(v));
 const PROJECT='sclthfeqievigrcjoohh';
-const FONT={classic:'Georgia',garden:'Georgia',nightfall:'Arial',adventure:'monospace'};
+const FONT_STACKS={cormorant:'"Cormorant Garamond", Georgia, serif',playfair:'"Playfair Display", Georgia, serif',allura:'"Allura", cursive',barlow:'"Barlow Condensed", Arial, sans-serif',montserrat:'Montserrat, Arial, sans-serif',dm:'"DM Sans", Arial, sans-serif'};
+const fontFor=(id,fallback)=>FONT_STACKS[id]||fallback;
 const shapes={portrait:[1080,1350],square:[1080,1080],story:[1080,1920]};
 const clean=v=>String(v||'').replace(/[\r\n\t]+/g,' ').slice(0,180);
 const name=e=>[e?.name1,e?.name2].filter(Boolean).join(' & ')||'Our Celebration';
+const initials=e=>[e?.name1,e?.name2].filter(Boolean).map(n=>String(n).trim().charAt(0).toUpperCase()).join('  &  ')||'✦';
+function displayDate(e){
+ let day=clean(e?.date||'');
+ if(/^\d{4}-\d{2}-\d{2}$/.test(day)){
+  const parsed=new Date(day+'T00:00:00Z');
+  if(!Number.isNaN(parsed.getTime()))day=new Intl.DateTimeFormat('en-PH',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(parsed);
+ }
+ let time='';
+ if(/^([01]\d|2[0-3]):[0-5]\d$/.test(String(e?.time||''))){
+  const [h,m]=e.time.split(':').map(Number);
+  time=((h%12)||12)+':'+String(m).padStart(2,'0')+(h<12?' AM':' PM');
+ }
+ return (day||'SAVE THE DATE')+(time?' · '+time:'');
+}
 const url=e=>e?.cloudPublished&&e?.cloudSlug?window.URICloud?.publicLink?.(e.cloudSlug)||'':'';
 const social=e=>url(e)?'https://'+PROJECT+'.supabase.co/functions/v1/uri-share?slug='+encodeURIComponent(e.cloudSlug):'';
 const status=message=>{const n=document.getElementById('uriExportStatus');if(n)n.textContent=message};
 const colors=e=>{
  const d=window.URIBuilder?.design?.(e)||{bg:'#f6f0e8',ink:'#333333',accent:'#a78c73'};
- return {bg:d.bg,ink:d.ink,accent:d.accent};
+ return {bg:d.bg,ink:d.ink,accent:d.accent,heading:d.heading,body:d.body};
 };
 const rect=(ctx,x,y,w,h,fill)=>{ctx.fillStyle=fill;ctx.fillRect(x,y,w,h)};
 function rounded(ctx,x,y,w,h,r,fill){
@@ -23,7 +38,8 @@ function text(ctx,value,x,y,limit,initialSize,opts={}){
  ctx.save();
  const words=clean(value).split(/\s+/).filter(Boolean);
  ctx.fillStyle=opts.color||'#222';ctx.textAlign=opts.align||'center';
- ctx.font=(opts.weight||'normal')+' '+initialSize+'px '+(opts.font||'Georgia');
+ const setFont=size=>{ctx.font=(opts.weight||'normal')+' '+size+'px '+(opts.font||'Georgia')};
+ setFont(initialSize);
  const lines=[];let line='';
  for(const word of words){
   const attempt=line?line+' '+word:word;
@@ -34,8 +50,8 @@ function text(ctx,value,x,y,limit,initialSize,opts={}){
  let yy=y;
  for(let i=0;i<visible.length;i++){
   let s=visible[i];if(i===visible.length-1&&lines.length>visible.length)s+='…';
-  let sz=initialSize;
-  while(sz>18&&ctx.measureText(s).width>limit){sz-=2;ctx.font=(opts.weight||'normal')+' '+sz+'px '+(opts.font||'Georgia')}
+  let sz=initialSize;setFont(sz);
+  while(sz>18&&ctx.measureText(s).width>limit){sz-=2;setFont(sz)}
   ctx.fillText(s,x,yy);yy+=(opts.lineHeight||initialSize*1.2);
  }
  ctx.restore();
@@ -81,12 +97,19 @@ async function makeQR(raw){
   hidden.remove();
  }
 }
+// Keep date and venue text clear of the QR badge at all export sizes.
+function footerLayout(w,h,hasQR){
+ const qrSize=hasQR?Math.min(155,Math.round(h*.135)):0;
+ const qrX=hasQR?w-qrSize-65:0;
+ const textLeft=65,textRight=hasQR?qrX-35:w-65;
+ return {qrSize,qrX,qrY:h-qrSize-55,textX:(textLeft+textRight)/2,textWidth:textRight-textLeft,dateY:h-166,venueY:h-111};
+}
 async function card(e,format='portrait',guest=null){
  const [w,h]=shapes[format]||shapes.portrait,c=document.createElement('canvas');
  c.width=w;c.height=h;
  const ctx=c.getContext('2d');if(!ctx)throw Error('Your browser cannot export this image.');
  const d=colors(e),theme=window.URIBuilder?.baseTemplate?.(e)||e.template||'classic';
- const scale=h/1350;
+ const short=h<=1100,headingFont=fontFor(d.heading,theme==='nightfall'?'Arial':'Georgia'),bodyFont=fontFor(d.body,'Arial');
  rect(ctx,0,0,w,h,d.bg);
  const photo=await image(e.heroPhoto||'');
  const qr=await makeQR(guest?.checkinToken?
@@ -101,7 +124,7 @@ async function card(e,format='portrait',guest=null){
   rect(ctx,0,0,w,h,gradient);
   ctx.strokeStyle='#ffffff77';ctx.lineWidth=2;ctx.strokeRect(43,43,w-86,h-86);
   text(ctx,guest?'YOUR PERSONAL EVENT PASS':'YOU ARE INVITED',w/2,h*.22,w-180,30,{color:'#fff',font:'Arial',weight:'bold'});
-  text(ctx,name(e).toUpperCase(),w/2,h*.43,w-150,92,{color:'#ffffff',font:'Arial',weight:'bold',lineHeight:103});
+  text(ctx,name(e).toUpperCase(),w/2,h*.43,w-150,short?74:92,{color:'#ffffff',font:headingFont,weight:'bold',lineHeight:short?84:103,maxLines:2});
  }else if(theme==='garden'){
   rect(ctx,25,25,w-50,h-50,d.bg);
   ctx.strokeStyle=d.ink;ctx.lineWidth=3;ctx.strokeRect(34,34,w-68,h-68);
@@ -109,9 +132,9 @@ async function card(e,format='portrait',guest=null){
   if(photo)crop(ctx,photo,108,h*.15,w-216,h*.33,e.heroSettings);
   else{
    rect(ctx,108,h*.15,w-216,h*.33,'#e4dfd6');
-   text(ctx,'M  &  E',w/2,h*.35,w-280,85,{color:d.accent});
+   text(ctx,initials(e),w/2,h*.35,w-280,85,{color:d.accent,font:headingFont});
   }
-  text(ctx,name(e),w/2,h*.60,w-150,75,{color:d.ink,maxLines:2});
+  text(ctx,name(e),w/2,h*.60,w-150,short?65:75,{color:d.ink,maxLines:2,font:headingFont,lineHeight:short?74:89});
  }else if(theme==='adventure'){
   const grad=ctx.createLinearGradient(0,0,0,h);
   grad.addColorStop(0,'#7bc8d5');grad.addColorStop(.58,'#d2e6c0');grad.addColorStop(1,'#4d9a74');
@@ -131,14 +154,14 @@ async function card(e,format='portrait',guest=null){
    text(ctx,'✦',w/2,h*.36,w-180,92,{color:d.accent});
   }
   text(ctx,'TOGETHER WITH OUR FAMILIES',w/2,h*.57,w-170,27,{color:d.accent,font:'Arial',weight:'bold'});
-  text(ctx,name(e),w/2,h*.68,w-150,80,{color:d.ink});
+  text(ctx,name(e),w/2,h*.67,w-150,short?62:80,{color:d.ink,font:headingFont,maxLines:2,lineHeight:short?70:95});
  }
  const footerColor=theme==='nightfall'?'#ffffff':theme==='adventure'?'#163c32':d.ink;
- const footTop=guest?h*.79:h*.79;
- text(ctx,guest?'GUEST PASS · '+clean(guest.name):clean(e.date||'SAVE THE DATE'),w/2,footTop,w-130,guest?30:34,{color:footerColor,font:'Arial',weight:'bold'});
- text(ctx,clean(e.venue||'VENUE TO BE ANNOUNCED'),w/2,h*.835,w-140,24,{color:footerColor,font:'Arial'});
- if(qr){const size=Math.min(155,Math.round(h*.135)),y=h-size-62;drawQR(ctx,qr,w/2-size/2,y,size)}
- else text(ctx,'Made with URI',w/2,h-70,w-100,22,{color:footerColor,font:'Arial'});
+ const foot=footerLayout(w,h,!!qr);
+ text(ctx,guest?'GUEST PASS · '+clean(guest.name):displayDate(e),foot.textX,foot.dateY,foot.textWidth,guest?27:30,{color:footerColor,font:bodyFont,weight:'bold',maxLines:1});
+ text(ctx,clean(e.venue||'VENUE TO BE ANNOUNCED'),foot.textX,foot.venueY,foot.textWidth,24,{color:footerColor,font:bodyFont,maxLines:2,lineHeight:27});
+ if(qr)drawQR(ctx,qr,foot.qrX,foot.qrY,foot.qrSize);
+ else text(ctx,'Made with URI',w/2,h-49,w-100,20,{color:footerColor,font:bodyFont,maxLines:1});
  return c;
 }
 function download(canvas,filename){
@@ -175,7 +198,7 @@ window.uriShareGuestPass=async id=>{
  }catch(err){alert('Guest pass unavailable: '+(err.message||'Please try again.'))}
 };
 window.URIShare={
- url,social,card,
+ url,social,card,footerLayout,
  panel:e=>'<section class="uri-ops-panel"><h3>Invitation Sharing 2.0</h3><p>Download a matching invitation image, optionally with a QR code. PNG exports stay on your device.</p>'
  +'<div class="uri-ops-actions"><label>Export format<select id="uriExportSize"><option value="portrait">Portrait · 1080 × 1350</option><option value="square">Square · 1080 × 1080</option><option value="story">Story · 1080 × 1920</option></select></label>'
  +'<button class="btn primary" type="button" onclick="uriShareExport()">Download PNG</button>'
