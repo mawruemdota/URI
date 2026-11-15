@@ -19,7 +19,7 @@ function card(e){
  +'<div class="uri-dash-cover">'+cover+'<span class="uri-dash-status uri-dash-status-'+(published(e)?'published':e.status==='published'?'test':'draft')+'">'+T(s)+'</span></div>'
  +'<div class="uri-dash-card-body"><span class="uri-dash-type">'+T(e.type||'Event')+'</span><h3>'+T(name)+'</h3>'
  +'<div class="uri-dash-meta"><span> '+T(e.date?fmt(e.date):'Date not set')+'</span><span>Edited '+T(stampText(e))+'</span></div>'+(e.type==='Wedding'&&window.URIReadiness?'<div class="uri-dash-readiness"><strong>'+window.URIReadiness.status(e).percent+'% complete</strong><button type="button" onclick="uriDashAction(\'review\',this.closest(\'[data-event-id]\').dataset.eventId)">View checklist</button></div>':'')
- +'<div class="uri-dash-card-footer"><span>'+count+' test guest'+(count===1?'':'s')+'</span>'
+ +'<div class="uri-dash-card-footer"><span>'+count+' guest'+(count===1?'':'s')+'</span>'
  +'<div class="uri-dash-card-actions">'
  +'<button type="button" class="btn primary" onclick="uriDashAction(\'edit\',this.closest(\'[data-event-id]\').dataset.eventId)">Edit</button>'
  +'<button type="button" class="btn" onclick="uriDashAction(\'preview\',this.closest(\'[data-event-id]\').dataset.eventId)">Preview</button>'
@@ -49,7 +49,7 @@ function renderDashboard(){
  const es=events(),publishedCount=es.filter(published).length;
  const countDraft=es.length-publishedCount;
  const items=sortedItems();
- app.innerHTML='<div class="wrap uri-dash-wrap"><div class="uri-dash-heading"><div><h1>My Events</h1></div><button type="button" class="btn primary" onclick="startWizard()">New wedding website</button></div>'
+ app.innerHTML='<div class="wrap uri-dash-wrap"><div class="uri-dash-heading"><div><h1>My Events</h1><p>Create and manage invitations, guest lists, and event details.</p></div><button type="button" class="btn primary" onclick="startWizard()">New wedding website</button></div>'
  +'<div class="uri-dash-stats"><div><strong>'+es.length+'</strong><span>Total events</span></div><div><strong>'+countDraft+'</strong><span>Drafts</span></div><div><strong>'+publishedCount+'</strong><span>Published</span></div></div>'
  +(es.length?'<div class="uri-dash-toolbar"><label class="uri-dash-search"><span class="sr-only">Search invitations</span><input type="search" value="'+T(query)+'" placeholder="Search invitations..." oninput="uriDashSearch(this.value)"></label><div class="uri-dash-filters" role="group" aria-label="Filter events">'
  +[['all','All'],['draft','Drafts'],['published','Published']].map(([key,label])=>'<button type="button" aria-pressed="'+(activeFilter===key)+'" class="'+(activeFilter===key?'active':'')+'" onclick="uriDashFilter(\''+key+'\')">'+label+'</button>').join('')+'</div>'
@@ -58,7 +58,7 @@ function renderDashboard(){
  +'<div class="uri-dash-grid">'+items.map(card).join('')+'</div>'
  +'<div id="uriDashNoResults" class="uri-dash-no-results" hidden><h3>No matching invitations</h3><button type="button" class="btn" onclick="uriDashReset()">Clear filters</button></div>'
  :'<div class="uri-dash-empty"><h2>No events yet</h2><button type="button" class="btn primary" onclick="startWizard()">Create a wedding website</button></div>')
- +'<div class="uri-dash-footnote">Invitations save locally. Sign in under Cloud to synchronize them. Publishing status is not checked live.</div></div>';
+ +'<div class="uri-dash-footnote">Edits are saved on this device. Sign in under Cloud to sync wedding drafts across devices. Published labels reflect the last saved state, not a live availability check.</div></div>';
  if(es.length)filterItems();
 }
 dashboard=renderDashboard;
@@ -85,7 +85,7 @@ window.uriDashAction=async function(action,id){
   clone.created=Date.now();clone.updatedAt=clone.created;
   clone.status='draft';clone.cloudPublished=false;delete clone.cloudSlug;
   delete clone._uriCloudRevision;delete clone._uriCloudSyncedAt;
-  delete clone._uriCloudOwnerId;delete clone._uriCloudPending;
+  delete clone._uriCloudOwnerId;delete clone._uriCloudRole;delete clone._uriCohostUserId;delete clone._uriCloudPending;
   clone.title=(title(e)||'Wedding')+' (Copy)';
   clone.guests=[];clone.households=[];delete clone.rsvpAnswers;
   state.events.push(clone);
